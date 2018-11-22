@@ -181,8 +181,8 @@ class MainWindow(object):
 
     def setupOrderUi(self):
         Main.showFullScreen()
-        MainWindow.setObjectName("MainWindow")
-        self.centralwidget = QtWidgets.QWidget(MainWindow)
+        Main.setObjectName("Main")
+        self.centralwidget = QtWidgets.QWidget(Main)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.centralwidget)
         self.verticalLayout_3.setObjectName("verticalLayout_3")
@@ -229,21 +229,21 @@ class MainWindow(object):
         self.cancelbutton.setObjectName("cancelbutton")
         self.verticalLayout.addWidget(self.cancelbutton)
         self.verticalLayout_3.addLayout(self.verticalLayout)
-        MainWindow.setCentralWidget(self.verticalLayout_3)
-        self.menubar = QtWidgets.QMenuBar(MainWindow)
+        Main.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(Main)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 734, 21))
         self.menubar.setObjectName("menubar")
-        MainWindow.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(MainWindow)
+        Main.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(Main)
         self.statusbar.setObjectName("statusbar")
-        MainWindow.setStatusBar(self.statusbar)
+        Main.setStatusBar(self.statusbar)
 
-        self.retranslateUi(MainWindow)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        self.retranslateOrderUi(Main)
+        QtCore.QMetaObject.connectSlotsByName(Main)
 
     def retranslateOrderUi(self, Main):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        Main.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.backbutton.setText(_translate("MainWindow", "Назад"))
         self.savebutton.setText(_translate("MainWindow", "Сохранить"))
         self.cancelbutton.setText(_translate("MainWindow", "Отмена"))
@@ -262,7 +262,7 @@ class MainWindow(object):
 
                 for row in rows:
                     item_button = QtWidgets.QPushButton(str(row)[2:-3])
-                    self.itemslayout.addWidget(item_button)
+                    self.verticalLayout_2.addWidget(item_button)
                     item_button.clicked.connect(lambda state, button=item_button: select_sub(button))
                     menu_items.append(item_button)
 
