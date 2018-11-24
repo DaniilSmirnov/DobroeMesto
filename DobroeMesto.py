@@ -1,7 +1,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 import sqlite3
 import datetime
-from PyQt5.QtCore import QThread, pyqtSignal
+from PyQt5.QtCore import QTimer, QTime
 
 d = datetime.datetime.today()
 
@@ -13,18 +13,6 @@ order_items = []
 order_number = 0
 
 money = ""
-
-
-class External(QThread):
-    """
-    Runs a counter thread.
-    """
-    countChanged = pyqtSignal(str)
-
-    def run(self):
-        while True:
-            time = str(d.hour) + ":" + str(d.minute)
-            self.countChanged.emit(time)
 
 
 class MainWindow(object):
@@ -116,11 +104,10 @@ class MainWindow(object):
         self.retranslateUi(Main)
         QtCore.QMetaObject.connectSlotsByName(Main)
 
-        '''
-        self.timer = External()
-        self.timer.countChanged.connect(self.onCountChanged)
-        self.timer.start()
-        '''
+        timer = QTimer()
+        timer.timeout.connect(self.showTime)
+        timer.start(1)
+        self.showTime()
 
     def retranslateUi(self, Main):
         _translate = QtCore.QCoreApplication.translate
@@ -140,6 +127,11 @@ class MainWindow(object):
         self.orderbutton.clicked.connect(self.setupOrderUi)
         self.closebutton.clicked.connect(self.setupLoginUi)
         self.cashbox.clicked.connect(self.setupCashboxUi)
+
+    def showTime(self):
+        time = QTime.currentTime()
+        text = time.toString('hh:mm:ss')
+        self.infolabel.setText(text)
 
     def onCountChanged(self, value):
         self.infolabel.setText(value)
@@ -587,6 +579,7 @@ class MainWindow(object):
         self.button9.clicked.connect(lambda state, number="9": adder(number))
         self.buttonCA.clicked.connect(clean)
         self.buttonC.clicked.connect(delete)
+        self.cancelbutton.clicked.connect(self.setupUi)
 
 
 if __name__ == "__main__":
