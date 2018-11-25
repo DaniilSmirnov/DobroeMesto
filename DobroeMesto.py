@@ -3,18 +3,18 @@ import sqlite3
 import datetime
 from PyQt5.QtCore import QTimer, QTime
 
-d = datetime.datetime.today() #время получается один раз при запуске программы, требует обновления перед записью
+d = datetime.datetime.today()  # время получается один раз при запуске программы, требует обновления перед записью
 
 con = sqlite3.connect('data.db')
 
 menu_items = []
 order_items = []
 
-order_number = 0 #подгружать из базы
+order_number = 0  # подгружать из базы
 
 money = ""
 
-isopen = False #подгружать из базы
+isopen = False  # подгружать из базы
 
 
 class MainWindow(object):
@@ -158,7 +158,8 @@ class MainWindow(object):
         self.cashbox.clicked.connect(self.setupCashboxUi)
         self.exitbutton.clicked.connect(self.exittowindows)
 
-    def exittowindows(self):
+    @staticmethod
+    def exittowindows():
         if isopen:
             print(1)
         else:
@@ -331,21 +332,21 @@ class MainWindow(object):
                 rows = cur.fetchall()
 
             for row in rows:
-                    print(row)
-                    item_button = QtWidgets.QPushButton(str(row)[2:-3])
-                    self.itemslayout.addWidget(item_button)
-                    item_button.clicked.connect(lambda state, button=item_button: select_item(button))
-                    menu_items.append(item_button)
+                print(row)
+                item_button = QtWidgets.QPushButton(str(row)[2:-3])
+                self.itemslayout.addWidget(item_button)
+                item_button.clicked.connect(lambda state, button=item_button: select_item(button))
+                menu_items.append(item_button)
 
         def select_item(button):
             global order_number
-            #with con:
-             #   cur = con.cursor()
-              #  cur.execute("SELECT * FROM под пункт WHERE имя категории=?", (str(button.text()),))
-               # rows = cur.fetchall()
+            # with con:
+            #   cur = con.cursor()
+            #  cur.execute("SELECT * FROM под пункт WHERE имя категории=?", (str(button.text()),))
+            # rows = cur.fetchall()
             cur = con.cursor()
             cur.execute("insert into orders (order_num, item, cost, act_time) values (?, ?, ?, ?)",
-                        (order_number, str(button.text()), 100, str(d.hour()+":"+d.minute())))
+                        (order_number, str(button.text()), 100, str(d.hour() + ":" + d.minute())))
             draw_order()
 
         def redraw():
@@ -372,10 +373,10 @@ class MainWindow(object):
             order_items.clear()
 
             for row in rows:
-                    print(row)
-                    item_label = QtWidgets.QLabel(str(row)[2:-1])
-                    self.orderlayout.addWidget(item_label)
-                    order_items.append(item_label)
+                print(row)
+                item_label = QtWidgets.QLabel(str(row)[2:-1])
+                self.orderlayout.addWidget(item_label)
+                order_items.append(item_label)
 
         def select_back_item():
             for item in menu_items:
@@ -385,7 +386,6 @@ class MainWindow(object):
 
         def save_order():
             order_number += 1
-
 
         create()
 
@@ -639,12 +639,14 @@ class MainWindow(object):
 
 if __name__ == "__main__":
     import sys
+
     app = QtWidgets.QApplication(sys.argv)
     app.setStyle("Fusion")
     Main = QtWidgets.QMainWindow()
     ui = MainWindow()
     ui.setupUi()
     Main.show()
+
 
     def showTime():
         date = datetime.datetime.today()
@@ -655,18 +657,20 @@ if __name__ == "__main__":
         month = date.month
         if date.minute < 10:
             time = str(
-                "{0} {1} {2} {3}:0{4}".format(str(date.day), months[month - 1], weekdays[day], str(date.hour), str(date.minute)))
+                "{0} {1} {2} {3}:0{4}".format(str(date.day), months[month - 1], weekdays[day], str(date.hour),
+                                              str(date.minute)))
         else:
             time = str(
-                "{0} {1} {2} {3}:{4}".format(str(date.day), months[month - 1], weekdays[day], str(date.hour), str(date.minute)))
+                "{0} {1} {2} {3}:{4}".format(str(date.day), months[month - 1], weekdays[day], str(date.hour),
+                                             str(date.minute)))
         try:
             ui.infolabel.setText(time)
         except RuntimeError:
             return 0
+
 
     timer = QTimer()
     timer.timeout.connect(showTime)
     timer.start(1000)
 
     sys.exit(app.exec_())
-

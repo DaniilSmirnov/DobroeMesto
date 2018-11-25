@@ -8,6 +8,7 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+
 class Ui_Main(object):
     def setupUi(self, Main):
         Main.setObjectName("Main")
@@ -142,4 +143,3 @@ class Ui_Main(object):
         self.pushButton.setText(_translate("Main", "Просмотр"))
         self.cashbox.setText(_translate("Main", "Касса"))
         self.groupBox.setTitle(_translate("Main", "Администрирование"))
-
