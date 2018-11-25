@@ -568,7 +568,7 @@ class MainWindow(object):
         self.cancelbutton = QtWidgets.QPushButton(self.gridLayoutWidget)
         self.cancelbutton.setObjectName("cancelbutton")
         self.gridLayout.addWidget(self.cancelbutton, 3, 0, 1, 1)
-        Main.setCentralWidget(self.centralwidget)
+        Main.setCentralWidget(self.gridLayoutWidget)
         self.menubar = QtWidgets.QMenuBar(Main)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1046, 21))
         self.menubar.setObjectName("menubar")
@@ -647,20 +647,23 @@ if __name__ == "__main__":
     Main.show()
 
     def showTime():
-        d = datetime.datetime.today()
-        months = ["Января", "Февраля", "Марта", "Апреля", "Мая", "Июня", "Июля", "Августа", "Сентября", "Октября", "Ноября", "Декабря"]
+        date = datetime.datetime.today()
+        months = ["Января", "Февраля", "Марта", "Апреля", "Мая", "Июня", "Июля", "Августа", "Сентября", "Октября",
+                  'Ноября', "Декабря"]
         weekdays = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"]
-        day = d.weekday()
-        month = d.month
-        if d.minute < 10:
-            time = str(str(d.day) + " " + months[month - 1] + " " + weekdays[day] + " " + str(d.hour) + ":0" + str(d.minute))
+        day = date.weekday()
+        month = date.month
+        if date.minute < 10:
+            time = str(
+                "{0} {1} {2} {3}:0{4}".format(str(date.day), months[month - 1], weekdays[day], str(date.hour), str(date.minute)))
         else:
-            time = str(str(d.day) + " " + months[month - 1] + " " + weekdays[day] + " " + str(d.hour)+":"+str(d.minute))
+            time = str(
+                "{0} {1} {2} {3}:{4}".format(str(date.day), months[month - 1], weekdays[day], str(date.hour), str(date.minute)))
         try:
             ui.infolabel.setText(time)
-        except BaseException:
-        		return 0
-				
+        except RuntimeError:
+            return 0
+
     timer = QTimer()
     timer.timeout.connect(showTime)
     timer.start(1000)
