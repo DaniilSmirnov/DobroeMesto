@@ -3,7 +3,7 @@ import sqlite3
 import datetime
 from PyQt5.QtCore import QTimer, QTime
 
-d = datetime.datetime.today()
+d = datetime.datetime.today() #время получается один раз при запуске программы, требует обновления перед записью
 
 con = sqlite3.connect('data.db')
 
@@ -104,10 +104,7 @@ class MainWindow(object):
         self.retranslateUi(Main)
         QtCore.QMetaObject.connectSlotsByName(Main)
 
-        timer = QTimer()
-        timer.timeout.connect(self.showTime)
-        timer.start(1)
-        self.showTime()
+        #self.showTime()
 
     def retranslateUi(self, Main):
         _translate = QtCore.QCoreApplication.translate
@@ -127,11 +124,6 @@ class MainWindow(object):
         self.orderbutton.clicked.connect(self.setupOrderUi)
         self.closebutton.clicked.connect(self.setupLoginUi)
         self.cashbox.clicked.connect(self.setupCashboxUi)
-
-    def showTime(self):
-        time = QTime.currentTime()
-        text = time.toString('hh:mm:ss')
-        self.infolabel.setText(text)
 
     def onCountChanged(self, value):
         self.infolabel.setText(value)
@@ -590,5 +582,18 @@ if __name__ == "__main__":
     ui = MainWindow()
     ui.setupUi()
     Main.show()
+
+    def showTime():
+        d = datetime.datetime.today()
+        if d.minute < 10:
+            time = str(str(d.hour) + ":0" + str(d.minute))
+        else:
+            time = str(str(d.hour)+":"+str(d.minute))
+        ui.infolabel.setText(time)
+
+    timer = QTimer()
+    timer.timeout.connect(showTime)
+    timer.start(1000)
+
     sys.exit(app.exec_())
 
