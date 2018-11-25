@@ -585,10 +585,14 @@ if __name__ == "__main__":
 
     def showTime():
         d = datetime.datetime.today()
+        months=["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"]
+        weekdays=["Понедельник","Вторник","Среда","Четверг","Пятница","Суббота","Воскресенье"]
+        day = d.weekday()
+        month = d.month
         if d.minute < 10:
-            time = str(str(d.hour) + ":0" + str(d.minute))
+            time = str(str(d.day) + " " + months[month] + " " + weekdays[day] + " " + str(d.hour) + ":0" + str(d.minute))
         else:
-            time = str(str(d.hour)+":"+str(d.minute))
+            time = str(str(d.day) + " " + months[month] + " " + weekdays[day] + " " + str(d.hour)+":"+str(d.minute))
         ui.infolabel.setText(time)
 
     timer = QTimer()
