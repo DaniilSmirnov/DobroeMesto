@@ -153,6 +153,15 @@ class MainWindow(object):
         self.cashbox.setText(_translate("Main", "Расчет"))
         self.groupBox.setTitle(_translate("Main", "Администрирование"))
 
+        self.exitbutton.setStyleSheet("background-color: red")
+        self.printXbutton.setStyleSheet("background-color: blue")
+        self.closebutton.setStyleSheet("background-color: blue")
+        self.opencashboxbuttton.setStyleSheet("background-color: blue")
+        self.clientsbutton.setStyleSheet("background-color: grey")
+        self.orderbutton.setStyleSheet("background-color: grey")
+        self.reservebutton.setStyleSheet("background-color: grey")
+        self.cashbox.setStyleSheet("background-color: grey")
+
         self.clientsbutton.clicked.connect(self.setupClientsUi)
         self.orderbutton.clicked.connect(self.setupOrderUi)
         self.closebutton.clicked.connect(self.setupLoginUi)
@@ -303,6 +312,7 @@ class MainWindow(object):
                     self.categorieslayout.addWidget(item_button)
                     item_button.setFont(font)
                     item_button.clicked.connect(lambda state, button=item_button: select_sub(button))
+                    item_button.setStyleSheet("background-color: orange")
                     menu_items.append(item_button)
 
         def select_sub(button):
