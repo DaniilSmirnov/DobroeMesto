@@ -148,9 +148,9 @@ class MainWindow(object):
         self.reservebutton.setText(_translate("Main", "Бронирование"))
         self.groupBox_2.setTitle(_translate("Main", "Информация"))
         self.infolabel.setText(_translate("Main", "Время + дата"))
-        self.orderbutton.setText(_translate("Main", "Заказ"))
-        self.pushButton.setText(_translate("Main", "Просмотр"))
-        self.cashbox.setText(_translate("Main", "Касса"))
+        self.orderbutton.setText(_translate("Main", "Новый клиент"))
+        self.pushButton.setText(_translate("Main", "Текущие клиенты"))
+        self.cashbox.setText(_translate("Main", "Расчет"))
         self.groupBox.setTitle(_translate("Main", "Администрирование"))
 
         self.orderbutton.clicked.connect(self.setupOrderUi)
