@@ -337,7 +337,7 @@ class MainWindow(object):
             # rows = cur.fetchall()
             cur = con.cursor()
             cur.execute("insert into orders (order_num, item, cost, act_time) values (?, ?, ?, ?)",
-                        (order_number, str(button.text()), 100, str(d.hour() + ":" + d.minute())))
+                        (order_number, str(button.text()), 100, str(d.hour + ":" + d.minute)))
             draw_order()
 
         def redraw():
