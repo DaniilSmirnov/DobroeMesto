@@ -14,8 +14,8 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout_3">
-    <item>
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout">
@@ -24,7 +24,7 @@
           <property name="widgetResizable">
            <bool>true</bool>
           </property>
-          <widget class="QWidget" name="scrollAreaWidgetContents">
+          <widget class="QWidget" name="categorieslayout">
            <property name="geometry">
             <rect>
              <x>0</x>
@@ -33,33 +33,20 @@
              <height>372</height>
             </rect>
            </property>
-           <widget class="QWidget" name="verticalLayoutWidget_2">
-            <property name="geometry">
-             <rect>
-              <x>-1</x>
-              <y>-1</y>
-              <width>381</width>
-              <height>371</height>
-             </rect>
-            </property>
-            <layout class="QVBoxLayout" name="verticalLayout_2">
-             <property name="sizeConstraint">
-              <enum>QLayout::SetMaximumSize</enum>
-             </property>
-             <item>
-              <widget class="QPushButton" name="backbutton">
-               <property name="font">
-                <font>
-                 <pointsize>20</pointsize>
-                </font>
-               </property>
-               <property name="text">
-                <string>Назад</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </widget>
+           <layout class="QVBoxLayout" name="verticalLayout_2">
+            <item>
+             <widget class="QPushButton" name="backbutton">
+              <property name="font">
+               <font>
+                <pointsize>20</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>Назад</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </widget>
          </widget>
         </item>
@@ -68,7 +55,7 @@
           <property name="widgetResizable">
            <bool>true</bool>
           </property>
-          <widget class="QWidget" name="scrollAreaWidgetContents_2">
+          <widget class="QWidget" name="orderlayout">
            <property name="geometry">
             <rect>
              <x>0</x>
@@ -77,21 +64,7 @@
              <height>372</height>
             </rect>
            </property>
-           <widget class="QWidget" name="gridLayoutWidget">
-            <property name="geometry">
-             <rect>
-              <x>-1</x>
-              <y>-1</y>
-              <width>381</width>
-              <height>371</height>
-             </rect>
-            </property>
-            <layout class="QGridLayout" name="gridLayout">
-             <property name="sizeConstraint">
-              <enum>QLayout::SetMaximumSize</enum>
-             </property>
-            </layout>
-           </widget>
+           <layout class="QGridLayout" name="gridLayout_2"/>
           </widget>
          </widget>
         </item>
