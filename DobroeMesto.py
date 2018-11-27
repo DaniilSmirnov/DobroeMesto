@@ -302,7 +302,7 @@ class MainWindow(object):
             self.backbutton.setEnabled(False)
             with con:
                 cur = con.cursor()
-                cur.execute("SELECT name FROM range")
+                cur.execute("SELECT name FROM range") # получение категорий
                 rows = cur.fetchall()
 
                 font = QtGui.QFont()
@@ -330,7 +330,7 @@ class MainWindow(object):
             self.backbutton.clicked.connect(select_back_item)
             with con:
                 cur = con.cursor()
-                cur.execute("SELECT  FROM  WHERE  " + button)
+                cur.execute("SELECT  FROM  WHERE  " + button) # получение товаров из категории
                 rows = cur.fetchall()
 
             for row in rows:
@@ -347,7 +347,7 @@ class MainWindow(object):
             #  cur.execute("SELECT * FROM под пункт WHERE имя категории=?", (str(button.text()),))
             # rows = cur.fetchall()
             cur = con.cursor()
-            cur.execute("insert into orders (order_num, item, cost, act_time) values (?, ?, ?, ?)",
+            cur.execute("insert into orders (order_num, item, cost, act_time) values (?, ?, ?, ?)",  # запись и создание заказа
                         (order_number, str(button.text()), 100, str(d.hour + ":" + d.minute)))
             draw_order()
 
@@ -364,7 +364,7 @@ class MainWindow(object):
 
             with con:
                 cur = con.cursor()
-                cur.execute("SELECT * FROM orders WHERE order_num=?", (order_number,))
+                cur.execute("SELECT * FROM orders WHERE order_num=?", (order_number,)) # отображение заказа в правой менюшке
                 rows = cur.fetchall()
 
             for item in order_items:
