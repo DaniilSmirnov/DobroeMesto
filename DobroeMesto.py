@@ -1,11 +1,12 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
-import sqlite3
 import datetime
 from PyQt5.QtCore import QTimer, QTime
-
+import mysql.connector
 d = datetime.datetime.today()  # время получается один раз при запуске программы, требует обновления перед записью
 
-con = sqlite3.connect('data.db')
+cnx = mysql.connector.connect(user='root', password='i130813',
+                              host='127.0.0.1',
+                              database='bdshka')
 
 menu_items = []
 order_items = []
