@@ -6,7 +6,8 @@ d = datetime.datetime.today()  # время получается один раз
 
 cnx = mysql.connector.connect(user='root', password='i130813',
                               host='127.0.0.1',
-                              database='bdshka')
+                              database='dobroe_mesto2')
+cursor = cnx.cursor()
 
 menu_items = []
 order_items = []
@@ -300,21 +301,16 @@ class MainWindow(object):
 
         def draw_main():
             self.backbutton.setEnabled(False)
-            with con:
-                cur = con.cursor()
-                cur.execute("SELECT name FROM range") # получение категорий
-                rows = cur.fetchall()
+            query = ("select distinct product_category from products")
+            cursor.execute(query)
 
-                font = QtGui.QFont()
-                font.setPointSize(20)
-
-                for row in rows:
-                    item_button = QtWidgets.QPushButton(str(row)[2:-3])
-                    self.categorieslayout.addWidget(item_button)
-                    item_button.setFont(font)
-                    item_button.clicked.connect(lambda state, button=item_button: select_sub(button))
-                    item_button.setStyleSheet("background-color: orange")
-                    menu_items.append(item_button)
+            for item in cursor:
+                    for value in item:
+                        item_button = QtWidgets.QPushButton(str(value))
+                        self.categorieslayout.addWidget(item_button)
+                        item_button.clicked.connect(lambda state, button=item_button: select_sub(button))
+                        item_button.setStyleSheet("background-color: orange")
+                        menu_items.append(item_button)
 
         def select_sub(button):
 
@@ -325,20 +321,23 @@ class MainWindow(object):
                     print(1)
             menu_items.clear()
 
-            button = str(button.text())
+            button = button.text()
             self.backbutton.setEnabled(True)
             self.backbutton.clicked.connect(select_back_item)
-            with con:
-                cur = con.cursor()
-                cur.execute("SELECT  FROM  WHERE  " + button) # получение товаров из категории
-                rows = cur.fetchall()
 
-            for row in rows:
-                print(row)
-                item_button = QtWidgets.QPushButton(str(row)[2:-3])
-                self.itemslayout.addWidget(item_button)
-                item_button.clicked.connect(lambda state, button=item_button: select_item(button))
-                menu_items.append(item_button)
+            print(button)
+
+            query = "select Products from products where product_category = %s;"
+            data = (button,)
+
+            cursor.execute(query, data)
+
+            for item in cursor:
+                for value in item:
+                    item_button = QtWidgets.QPushButton(str(value))
+                    self.categorieslayout.addWidget(item_button)
+                    #item_button.clicked.connect(lambda state, button=item_button: select_item(button))
+                    menu_items.append(item_button)
 
         def select_item(button):
             global order_number
@@ -347,7 +346,7 @@ class MainWindow(object):
             #  cur.execute("SELECT * FROM под пункт WHERE имя категории=?", (str(button.text()),))
             # rows = cur.fetchall()
             cur = con.cursor()
-            cur.execute("insert into orders (order_num, item, cost, act_time) values (?, ?, ?, ?)",  # запись и создание заказа
+            cur.execute("insert into orders (order_num, item, cost, act_time) values (?, ?, ?, ?)",
                         (order_number, str(button.text()), 100, str(d.hour + ":" + d.minute)))
             draw_order()
 
@@ -364,7 +363,7 @@ class MainWindow(object):
 
             with con:
                 cur = con.cursor()
-                cur.execute("SELECT * FROM orders WHERE order_num=?", (order_number,)) # отображение заказа в правой менюшке
+                cur.execute("SELECT * FROM orders WHERE order_num=?", (order_number,))
                 rows = cur.fetchall()
 
             for item in order_items:
