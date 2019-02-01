@@ -12,7 +12,12 @@ cursor = cnx.cursor()
 menu_items = []
 order_items = []
 
-order_number = 0  # подгружать из базы
+query = "select id_order from order_content order by no desc limit 1"
+cursor.execute(query)
+for item in cursor:
+    for value in item:
+        order_number = int(value)
+
 
 money = ""
 
@@ -325,8 +330,6 @@ class MainWindow(object):
             self.backbutton.setEnabled(True)
             self.backbutton.clicked.connect(select_back_item)
 
-            print(button)
-
             query = "select Products from products where product_category = %s;"
             data = (button,)
 
@@ -341,14 +344,12 @@ class MainWindow(object):
 
         def select_item(button):
             global order_number
-            # with con:
-            #   cur = con.cursor()
-            #  cur.execute("SELECT * FROM под пункт WHERE имя категории=?", (str(button.text()),))
-            # rows = cur.fetchall()
-            cur = con.cursor()
-            cur.execute("insert into orders (order_num, item, cost, act_time) values (?, ?, ?, ?)",
-                        (order_number, str(button.text()), 100, str(d.hour + ":" + d.minute)))
-            draw_order()
+
+            query = "insert into order_content values(%s,%s);"
+            data = (order_number, id)
+            cursor.execute(query, data)
+
+            #draw_order()
 
         def redraw():
             for item in menu_items:
