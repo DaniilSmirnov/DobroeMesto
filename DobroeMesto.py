@@ -369,9 +369,7 @@ class MainWindow(object):
         def draw_order():
             global order_number
 
-            query = "set @n:=0;"
-            cursor.execute(query)
-            query = "select @n:=@n+1 as `num`, content from order_content where id_order=%s;"
+            query = "select no, content from order_content where id_order=%s;"
             data = (order_number, )
             cursor.execute(query, data)
 
@@ -388,10 +386,11 @@ class MainWindow(object):
                 for value in item:
                     if j % 2 != 0:
                         j += 1
+                        no = int(value)
                         continue
                     item_label = QtWidgets.QPushButton(str(value))
                     self.gridLayout_2.addWidget(item_label, i, 0, 1, 1)
-                    item_label.clicked.connect(lambda state, id = i: delete_item(id))
+                    item_label.clicked.connect(lambda state, id = no: delete_item(id))
                     item_label.setStyleSheet("background-color: red")
                     order_items.append(item_label)
                     i += 1
@@ -399,17 +398,13 @@ class MainWindow(object):
 
         def delete_item(id):
 
-            query = "delete from order_content where no= %s;"
+            query = "delete from order_content where no =%s;"
             data = (id,)
-
             cursor.execute(query, data)
-            #cnx.commit()
 
-            query = "alter table order_content drop column no;"
-            cursor.execute(query)
-
-            query = " alter table order_content add no int(200) auto_increment primary key;"
-            cursor.execute(query)
+            query = "UPDATE order_content SET no = no-1 WHERE no > %s;"
+            data = (id,)
+            cursor.execute(query, data)
 
             cnx.commit()
 
