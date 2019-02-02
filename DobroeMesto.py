@@ -340,13 +340,18 @@ class MainWindow(object):
                     item_button = QtWidgets.QPushButton(str(value))
                     self.categorieslayout.addWidget(item_button)
                     item_button.clicked.connect(lambda state, button=item_button: select_item(button))
+                    item_button.setStyleSheet("background-color: orange")
                     menu_items.append(item_button)
 
         def select_item(button):
             global order_number
 
             query = "insert into order_content values(%s,%s, default);"
-            data = (order_number, button.text())
+            try:
+                data = (order_number, button.text())
+            except NameError:
+                order_number = 1
+                data = (order_number, button.text())
             cursor.execute(query, data)
 
             cnx.commit()
@@ -364,7 +369,9 @@ class MainWindow(object):
         def draw_order():
             global order_number
 
-            query = "select Content from order_content where id_order=%s;"
+            query = "set @n:=0;"
+            cursor.execute(query)
+            query = "select @n:=@n+1 as `num`, content from order_content where id_order=%s;"
             data = (order_number, )
             cursor.execute(query, data)
 
@@ -376,13 +383,19 @@ class MainWindow(object):
             order_items.clear()
 
             i = 1
+            j = 1
             for item in cursor:
                 for value in item:
+                    if j % 2 != 0:
+                        j += 1
+                        continue
                     item_label = QtWidgets.QPushButton(str(value))
                     self.gridLayout_2.addWidget(item_label, i, 0, 1, 1)
                     item_label.clicked.connect(lambda state, id = i: delete_item(id))
+                    item_label.setStyleSheet("background-color: red")
                     order_items.append(item_label)
                     i += 1
+                    j += 1
 
         def delete_item(id):
 
@@ -390,7 +403,7 @@ class MainWindow(object):
             data = (id,)
 
             cursor.execute(query, data)
-            cnx.commit()
+            #cnx.commit()
 
             query = "alter table order_content drop column no;"
             cursor.execute(query)
@@ -733,6 +746,9 @@ class MainWindow(object):
         self.groupBox_5.setTitle(_translate("Main", "GroupBox"))
         self.mainbutton.clicked.connect(self.setupUi)
         self.newbutton.clicked.connect(self.setupOrderUi)
+
+        #TODO:подгрузка клиентов и их динамическое обновление
+
 
 
 if __name__ == "__main__":
