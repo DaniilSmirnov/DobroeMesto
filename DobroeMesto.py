@@ -323,7 +323,7 @@ class MainWindow(object):
                 try:
                     item.deleteLater()
                 except BaseException:
-                    print(1)
+                    pass
             menu_items.clear()
 
             button = button.text()
@@ -339,15 +339,17 @@ class MainWindow(object):
                 for value in item:
                     item_button = QtWidgets.QPushButton(str(value))
                     self.categorieslayout.addWidget(item_button)
-                    #item_button.clicked.connect(lambda state, button=item_button: select_item(button))
+                    item_button.clicked.connect(lambda state, button=item_button: select_item(button))
                     menu_items.append(item_button)
 
         def select_item(button):
             global order_number
 
             query = "insert into order_content values(%s,%s);"
-            data = (order_number, id)
+            data = (order_number, button.text())
             cursor.execute(query, data)
+
+            cnx.commit()
 
             #draw_order()
 
@@ -356,7 +358,7 @@ class MainWindow(object):
                 try:
                     item.deleteLater()
                 except BaseException:
-                    print(1)
+                    pass
             menu_items.clear()
 
         def draw_order():
