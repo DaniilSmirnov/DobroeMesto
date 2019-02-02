@@ -345,13 +345,13 @@ class MainWindow(object):
         def select_item(button):
             global order_number
 
-            query = "insert into order_content values(%s,%s);"
+            query = "insert into order_content values(%s,%s, default);"
             data = (order_number, button.text())
             cursor.execute(query, data)
 
             cnx.commit()
 
-            #draw_order()
+            draw_order()
 
         def redraw():
             for item in menu_items:
@@ -364,23 +364,43 @@ class MainWindow(object):
         def draw_order():
             global order_number
 
-            with con:
-                cur = con.cursor()
-                cur.execute("SELECT * FROM orders WHERE order_num=?", (order_number,))
-                rows = cur.fetchall()
+            query = "select Content from order_content where id_order=%s;"
+            data = (order_number, )
+            cursor.execute(query, data)
 
             for item in order_items:
                 try:
                     item.deleteLater()
                 except BaseException:
-                    print(1)
+                    pass
             order_items.clear()
 
-            for row in rows:
-                print(row)
-                item_label = QtWidgets.QLabel(str(row)[2:-1])
-                self.orderlayout.addWidget(item_label)
-                order_items.append(item_label)
+            i = 1
+            for item in cursor:
+                for value in item:
+                    item_label = QtWidgets.QPushButton(str(value))
+                    self.gridLayout_2.addWidget(item_label, i, 0, 1, 1)
+                    item_label.clicked.connect(lambda state, id = i: delete_item(id))
+                    order_items.append(item_label)
+                    i += 1
+
+        def delete_item(id):
+
+            query = "delete from order_content where no= %s;"
+            data = (id,)
+
+            cursor.execute(query, data)
+            cnx.commit()
+
+            query = "alter table order_content drop column no;"
+            cursor.execute(query)
+
+            query = " alter table order_content add no int(200) auto_increment primary key;"
+            cursor.execute(query)
+
+            cnx.commit()
+
+            draw_order()
 
         def select_back_item():
             for item in menu_items:
