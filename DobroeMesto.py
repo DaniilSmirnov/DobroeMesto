@@ -12,13 +12,6 @@ cursor = cnx.cursor()
 menu_items = []
 order_items = []
 
-query = "select id_order from order_content order by no desc limit 1"
-cursor.execute(query)
-for item in cursor:
-    for value in item:
-        order_number = int(value)
-
-
 money = ""
 
 isopen = False  # подгружать из базы
@@ -298,11 +291,24 @@ class MainWindow(object):
         self.backbutton.setText(_translate("MainWindow", "Назад"))
         self.savebutton.setText(_translate("MainWindow", "Сохранить"))
         self.cancelbutton.setText(_translate("MainWindow", "Отмена"))
-        self.cancelbutton.clicked.connect(self.setupUi)
+        self.cancelbutton.clicked.connect(self.close_order)
+        self.savebutton.clicked.connect(self.save_order)
 
         def create():
+            global order_number
 
             draw_main()
+
+            # query = "insert into orders values(%s,now(),null,null,*id сотрудника*,null,*id посетителя*);"
+            query = "insert into orders values (default,now(),null,null,2,null,2);"
+            cursor.execute(query)
+            cnx.commit()
+
+            query = "select no_orders from orders order by no_orders desc limit 1 ;"
+            cursor.execute(query)
+            for item in cursor:
+                for value in item:
+                    order_number = int(value)
 
         def draw_main():
             self.backbutton.setEnabled(False)
@@ -416,10 +422,13 @@ class MainWindow(object):
             menu_items.clear()
             draw_main()
 
-        def save_order():
-            order_number += 1
-
         create()
+
+    def save_order(self):
+        self.setupUi()
+
+    def close_order(self):
+        pass
 
     def setupCashboxUi(self):
         Main.setObjectName("Main")
