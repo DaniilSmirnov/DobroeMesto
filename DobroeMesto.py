@@ -758,7 +758,12 @@ class MainWindow(object):
 
         item_group = QtWidgets.QGroupBox("Заказы")
         self.orderslayout = QtWidgets.QGridLayout(item_group)
-        self.gridLayout.addWidget(item_group, 1, 0, 1, 4)
+        self.scrollArea = QtWidgets.QScrollArea(self.gridLayoutWidget)
+        self.scrollArea.setWidgetResizable(True)
+        self.scrollArea.setObjectName("scrollArea")
+        self.scrollArea.setWidget(item_group)
+        self.gridLayout.addWidget(self.scrollArea, 1, 0, 1, 4)
+
 
         self.retranslateClientsUi(Main)
         # QtCore.QMetaObjects.connectSlotsByName(Main)
@@ -772,7 +777,7 @@ class MainWindow(object):
         self.mainbutton.clicked.connect(self.setupUi)
         self.newbutton.clicked.connect(self.setupOrderUi)
 
-        #TODO:динамическое обновление и ползунок в бокс с заказами
+        #TODO:динамическое обновление
 
         query = "SELECT name_users,open_date,total FROM orders,users WHERE id_visitor=idUsers;"
         cursor.execute(query)
