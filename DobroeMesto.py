@@ -291,7 +291,7 @@ class MainWindow(object):
         self.backbutton.setText(_translate("MainWindow", "Назад"))
         self.savebutton.setText(_translate("MainWindow", "Сохранить"))
         self.cancelbutton.setText(_translate("MainWindow", "Отмена"))
-        self.cancelbutton.clicked.connect(self.close_order)
+        self.cancelbutton.clicked.connect(self.cancel_order)
         self.savebutton.clicked.connect(self.save_order)
 
         def create():
@@ -427,8 +427,16 @@ class MainWindow(object):
     def save_order(self):
         self.setupUi()
 
-    def close_order(self):
-        pass
+    def cancel_order(self):
+        global order_number
+        query = "delete from orders where no_orders= %s;"
+        data = (order_number, )
+        cursor.execute(query, data)
+        query = "delete from order_content where id_order= %s;"
+        data = (order_number,)
+        cursor.execute(query, data)
+        cnx.commit()
+        self.setupUi()
 
     def setupCashboxUi(self):
         Main.setObjectName("Main")
