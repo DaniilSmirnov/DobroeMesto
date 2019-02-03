@@ -1,7 +1,9 @@
-from PyQt5 import QtCore, QtGui, QtWidgets
 import datetime
-from PyQt5.QtCore import QTimer, QTime
+
 import mysql.connector
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtCore import QTimer
+
 d = datetime.datetime.today()  # время получается один раз при запуске программы, требует обновления перед записью
 
 cnx = mysql.connector.connect(user='root', password='i130813',
@@ -330,7 +332,7 @@ class MainWindow(object):
                         order_number = int(value)
             else:
                 self.cancelbutton.hide()
-                pass #добавить работу с номером заказа при переходе из окна заказов
+                pass  # добавить работу с номером заказа при переходе из окна заказов
 
         def draw_main():
             self.backbutton.setEnabled(False)
@@ -338,12 +340,12 @@ class MainWindow(object):
             cursor.execute(query)
 
             for item in cursor:
-                    for value in item:
-                        item_button = QtWidgets.QPushButton(str(value))
-                        self.categorieslayout.addWidget(item_button)
-                        item_button.clicked.connect(lambda state, button=item_button: select_sub(button))
-                        item_button.setStyleSheet("background-color: orange")
-                        menu_items.append(item_button)
+                for value in item:
+                    item_button = QtWidgets.QPushButton(str(value))
+                    self.categorieslayout.addWidget(item_button)
+                    item_button.clicked.connect(lambda state, button=item_button: select_sub(button))
+                    item_button.setStyleSheet("background-color: orange")
+                    menu_items.append(item_button)
 
             if is_ex:
                 draw_order()
@@ -377,9 +379,7 @@ class MainWindow(object):
         def select_item(button):
             global order_number
 
-            query = "insert into order_content values(%s,%s, default,null);"
-            query2 = "select count(products) from order_content,products where content=products && product_category='Время' && products=%s group by products into @a;"
-            query3 = "update order_content set times=if (@a>0,curtime(),null) where id_order=%s;"
+            query = "insert into order_content values(%s,%s, default,curtime());"
 
             try:
                 data = (order_number, button.text())
@@ -387,10 +387,6 @@ class MainWindow(object):
                 order_number = 1
                 data = (order_number, button.text())
             cursor.execute(query, data)
-            data = (button.text(), )
-            cursor.execute(query2, data)
-            data = (order_number,)
-            cursor.execute(query3, data)
 
             cnx.commit()
 
@@ -408,7 +404,7 @@ class MainWindow(object):
             global order_number
 
             query = "select no, content from order_content where id_order=%s;"
-            data = (order_number, )
+            data = (order_number,)
             cursor.execute(query, data)
 
             for item in order_items:
@@ -428,13 +424,13 @@ class MainWindow(object):
                         continue
                     item_label = QtWidgets.QPushButton(str(value))
                     self.gridLayout_2.addWidget(item_label, i, 0, 1, 1)
-                    item_label.clicked.connect(lambda state, id = no: delete_item(id))
+                    item_label.clicked.connect(lambda state, id=no: delete_item(id))
                     item_label.setStyleSheet("background-color: red")
                     order_items.append(item_label)
                     i += 1
                     j += 1
 
-        def delete_item(id): #TODO: если заказ пустой, то удалить его
+        def delete_item(id):  # TODO: если заказ пустой, то удалить его
 
             query = "delete from order_content where no =%s;"
             data = (id,)
@@ -466,7 +462,7 @@ class MainWindow(object):
         if not is_ex:
             global order_number
             query = "delete from orders where no_orders= %s;"
-            data = (order_number, )
+            data = (order_number,)
             cursor.execute(query, data)
             query = "delete from order_content where id_order= %s;"
             data = (order_number,)
@@ -773,9 +769,7 @@ class MainWindow(object):
         self.scrollArea.setWidget(item_group)
         self.gridLayout.addWidget(self.scrollArea, 1, 0, 1, 4)
 
-
         self.retranslateClientsUi(Main)
-        # QtCore.QMetaObjects.connectSlotsByName(Main)
 
     def retranslateClientsUi(self, Main):
         _translate = QtCore.QCoreApplication.translate
@@ -858,11 +852,12 @@ if __name__ == "__main__":
         except RuntimeError:
             return 0
 
+
     def updateTotals():
         try:
             for total, no in zip(order_totals, order_no):
                 query = "select sum(product_cost) from order_content,products where content=products && id_order=%s into @a;"
-                data = (no, )
+                data = (no,)
                 cursor.execute(query, data)
                 query = "update orders set total=@a where no_orders=%s;"
                 cursor.execute(query, data)
@@ -871,9 +866,9 @@ if __name__ == "__main__":
                 cursor.execute(query, data)
                 for item in cursor:
                     total.setText("К Оплате: " + str(item[0]))
-
         except RuntimeError:
             return 0
+
 
     timer = QTimer()
     timer.timeout.connect(showTime)
