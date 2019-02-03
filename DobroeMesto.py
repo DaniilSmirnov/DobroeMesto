@@ -11,6 +11,8 @@ cursor = cnx.cursor()
 
 menu_items = []
 order_items = []
+order_totals = []
+order_no = []
 
 is_ex = False
 
@@ -779,7 +781,7 @@ class MainWindow(object):
 
         #TODO:динамическое обновление
 
-        query = "SELECT name_users,open_date,total FROM orders,users WHERE id_visitor=idUsers;"
+        query = "SELECT name_users,open_date,total,No_orders FROM orders,users WHERE id_visitor=idUsers;"
         cursor.execute(query)
 
         i = 1
@@ -800,9 +802,12 @@ class MainWindow(object):
                 if i == 3:
                     item_label = QtWidgets.QLabel("К оплате: " + str(value))
                     categorieslayout.addWidget(item_label)
-                    item_button = QtWidgets.QPushButton("Открыть")
+                    order_totals.append(item_label)
+                if i == 4:
+                    item_button = QtWidgets.QPushButton("Просмотреть")
                     categorieslayout.addWidget(item_button)
-                    item_button.clicked.connect(lambda state, order=value: open_order(order)) #передавать номер заказа (если функция заказа таки станет универсальной)
+                    item_button.clicked.connect(lambda state, order=value: open_order(order))
+                    order_no.append(value)
                     i = 0
                 i += 1
 
@@ -844,9 +849,29 @@ if __name__ == "__main__":
         except RuntimeError:
             return 0
 
+    def updateTotals():
+        try:
+            for total, no in zip(order_totals, order_no):
+                query = "select sum(product_cost) from order_content,products where content=products && id_order=%s into @a;"
+                data = (no, )
+                cursor.execute(query, data)
+                query = "update orders set total=@a where no_orders=%s;"
+                cursor.execute(query, data)
+                query = "SELECT total FROM orders,users WHERE No_orders = %s;"
+                cursor.execute(query, data)
+
+                for item in cursor:
+                    total.setText("К Оплате: " + str(item[0]))
+
+        except RuntimeError:
+            return 0
 
     timer = QTimer()
     timer.timeout.connect(showTime)
     timer.start(1000)
+
+    totals = QTimer()
+    totals.timeout.connect(updateTotals)
+    totals.start(1000)
 
     sys.exit(app.exec_())
