@@ -774,14 +774,14 @@ class MainWindow(object):
 
         #TODO:динамическое обновление и ползунок в бокс с заказами
 
-        query = "SELECT name_users,open_date,total,Owner,Type,No_orders FROM orders,users WHERE id_visitor=idUsers;"
+        query = "SELECT name_users,open_date,total FROM orders,users WHERE id_visitor=idUsers;"
         cursor.execute(query)
 
-        i = 0
+        i = 1
         j = 1
         k = 0
         for item in cursor:
-            item_group = QtWidgets.QGroupBox(str(item[0]))
+            item_group = QtWidgets.QGroupBox("Клиент: " + str(item[0]))
             categorieslayout = QtWidgets.QVBoxLayout(item_group)
             self.orderslayout.addWidget(item_group, j, k, 1, 1)
             k += 1
@@ -789,15 +789,17 @@ class MainWindow(object):
                 k = 0
                 j += 1
             for value in item:
-                if i == 5:
+                if i == 2:
+                    item_label = QtWidgets.QLabel("Заказ открыт: " + str(value))
+                    categorieslayout.addWidget(item_label)
+                if i == 3:
+                    item_label = QtWidgets.QLabel("К оплате: " + str(value))
+                    categorieslayout.addWidget(item_label)
                     item_button = QtWidgets.QPushButton("Открыть")
                     categorieslayout.addWidget(item_button)
                     item_button.clicked.connect(lambda state, order=value: open_order(order)) #передавать номер заказа (если функция заказа таки станет универсальной)
-                item_label = QtWidgets.QLabel(str(value))
-                categorieslayout.addWidget(item_label)
-                i += 1
-                if i == 6:
                     i = 0
+                i += 1
 
         def open_order(value):
             global order_number, is_ex
