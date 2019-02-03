@@ -377,13 +377,20 @@ class MainWindow(object):
         def select_item(button):
             global order_number
 
-            query = "insert into order_content values(%s,%s, default);"
+            query = "insert into order_content values(%s,%s, default,null);"
+            query2 = "select count(products) from order_content,products where content=products && product_category='Время' && products=%s group by products into @a;"
+            query3 = "update order_content set times=if (@a>0,curtime(),null) where id_order=%s;"
+
             try:
                 data = (order_number, button.text())
             except NameError:
                 order_number = 1
                 data = (order_number, button.text())
             cursor.execute(query, data)
+            data = (button.text(), )
+            cursor.execute(query2, data)
+            data = (order_number,)
+            cursor.execute(query3, data)
 
             cnx.commit()
 
@@ -779,14 +786,16 @@ class MainWindow(object):
         self.mainbutton.clicked.connect(self.setupUi)
         self.newbutton.clicked.connect(self.setupOrderUi)
 
-        #TODO:динамическое обновление
-
         query = "SELECT name_users,open_date,total,No_orders FROM orders,users WHERE id_visitor=idUsers;"
         cursor.execute(query)
 
         i = 1
         j = 1
         k = 0
+
+        order_totals.clear()
+        order_no.clear()
+
         for item in cursor:
             item_group = QtWidgets.QGroupBox("Клиент: " + str(item[0]))
             categorieslayout = QtWidgets.QVBoxLayout(item_group)
@@ -857,9 +866,9 @@ if __name__ == "__main__":
                 cursor.execute(query, data)
                 query = "update orders set total=@a where no_orders=%s;"
                 cursor.execute(query, data)
-                query = "SELECT total FROM orders,users WHERE No_orders = %s;"
+                cnx.commit()
+                query = "SELECT total FROM orders WHERE No_orders = %s;"
                 cursor.execute(query, data)
-
                 for item in cursor:
                     total.setText("К Оплате: " + str(item[0]))
 
