@@ -300,7 +300,7 @@ class MainWindow(object):
             draw_main()
 
             # query = "insert into orders values(%s,now(),null,null,*id сотрудника*,null,*id посетителя*);"
-            query = "insert into orders values (default,now(),null,null,2,null,2);"
+            query = "insert into orders values (default,now(),null,null,228,null,228);"
             cursor.execute(query)
             cnx.commit()
 
@@ -703,14 +703,6 @@ class MainWindow(object):
         self.newbutton.setFont(font)
         self.newbutton.setObjectName("newbutton")
         self.gridLayout.addWidget(self.newbutton, 3, 2, 1, 2)
-        self.orderbox = QtWidgets.QGroupBox(self.gridLayoutWidget)
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.orderbox.setFont(font)
-        self.orderbox.setObjectName("orderbox")
-        self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.orderbox)
-        self.verticalLayout_3.setObjectName("verticalLayout_3")
-        self.gridLayout.addWidget(self.orderbox, 1, 0, 1, 1)
         self.infolabel = QtWidgets.QLabel(self.gridLayoutWidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -728,14 +720,6 @@ class MainWindow(object):
         self.mainbutton.setFont(font)
         self.mainbutton.setObjectName("mainbutton")
         self.gridLayout.addWidget(self.mainbutton, 3, 0, 1, 2)
-        self.groupBox_5 = QtWidgets.QGroupBox(self.gridLayoutWidget)
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.groupBox_5.setFont(font)
-        self.groupBox_5.setObjectName("groupBox_5")
-        self.categorieslayout = QtWidgets.QVBoxLayout(self.groupBox_5)
-        self.categorieslayout.setObjectName("verticalLayout_2")
-        self.gridLayout.addWidget(self.groupBox_5, 2, 0, 1, 1)
         Main.setCentralWidget(self.gridLayoutWidget)
         self.menubar = QtWidgets.QMenuBar(Main)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 779, 21))
@@ -752,15 +736,33 @@ class MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         Main.setWindowTitle(_translate("Main", "Main"))
         self.newbutton.setText(_translate("Main", "Новый клиент"))
-        self.orderbox.setTitle(_translate("Main", "Клиент"))
         self.infolabel.setText(_translate("Main", "Дата + Время"))
         self.mainbutton.setText(_translate("Main", "На главную"))
-        self.groupBox_5.setTitle(_translate("Main", "GroupBox"))
         self.mainbutton.clicked.connect(self.setupUi)
         self.newbutton.clicked.connect(self.setupOrderUi)
 
-        #TODO:подгрузка клиентов и их динамическое обновление
+        #TODO:динамическое обновление
 
+        query = "SELECT name_users,open_date,total,Owner,Type,No_orders FROM orders,users WHERE id_visitor=idUsers;"
+        cursor.execute(query)
+
+        i = 0
+        j = 1
+        k = 0
+        for item in cursor:
+            item_group = QtWidgets.QGroupBox(str(item[0]))
+            self.categorieslayout = QtWidgets.QVBoxLayout(item_group)
+            self.gridLayout.addWidget(item_group, j, k, 1, 1)
+            k += 1
+            if k % 3 == 0:
+                k = 0
+                j += 1
+            for value in item:
+                if i == 6:
+                    i = 0
+                item_label = QtWidgets.QLabel(str(value))
+                self.categorieslayout.addWidget(item_label)
+                i += 1
 
 
 if __name__ == "__main__":
