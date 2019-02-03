@@ -12,6 +12,8 @@ cursor = cnx.cursor()
 menu_items = []
 order_items = []
 
+is_ex = False
+
 money = ""
 
 isopen = False  # подгружать из базы
@@ -272,6 +274,19 @@ class MainWindow(object):
         self.cancelbutton.setFont(font)
         self.cancelbutton.setObjectName("cancelbutton")
         self.verticalLayout.addWidget(self.cancelbutton)
+
+        self.cashbutton = QtWidgets.QPushButton(self.centralwidget)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.cashbutton.sizePolicy().hasHeightForWidth())
+        self.cashbutton.setSizePolicy(sizePolicy)
+        font = QtGui.QFont()
+        font.setPointSize(20)
+        self.cashbutton.setFont(font)
+        self.cashbutton.setObjectName("cashbutton")
+        self.verticalLayout.addWidget(self.cashbutton)
+
         self.gridLayout.addLayout(self.verticalLayout, 0, 0, 1, 1)
         Main.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(Main)
@@ -291,6 +306,7 @@ class MainWindow(object):
         self.backbutton.setText(_translate("MainWindow", "Назад"))
         self.savebutton.setText(_translate("MainWindow", "Сохранить"))
         self.cancelbutton.setText(_translate("MainWindow", "Отмена"))
+        self.cashbutton.setText(_translate("MainWindow", "Чек"))
         self.cancelbutton.clicked.connect(self.cancel_order)
         self.savebutton.clicked.connect(self.save_order)
 
@@ -299,16 +315,20 @@ class MainWindow(object):
 
             draw_main()
 
-            # query = "insert into orders values(%s,now(),null,null,*id сотрудника*,null,*id посетителя*);"
-            query = "insert into orders values (default,now(),null,null,228,null,228);"
-            cursor.execute(query)
-            cnx.commit()
+            if not is_ex:
+                # query = "insert into orders values(%s,now(),null,null,*id сотрудника*,null,*id посетителя*);"
+                query = "insert into orders values (default,now(),null,null,228,null,228);"
+                cursor.execute(query)
+                cnx.commit()
 
-            query = "select no_orders from orders order by no_orders desc limit 1 ;"
-            cursor.execute(query)
-            for item in cursor:
-                for value in item:
-                    order_number = int(value)
+                query = "select no_orders from orders order by no_orders desc limit 1 ;"
+                cursor.execute(query)
+                for item in cursor:
+                    for value in item:
+                        order_number = int(value)
+            else:
+                self.cancelbutton.hide()
+                pass #добавить работу с номером заказа при переходе из окна заказов
 
         def draw_main():
             self.backbutton.setEnabled(False)
@@ -322,6 +342,9 @@ class MainWindow(object):
                         item_button.clicked.connect(lambda state, button=item_button: select_sub(button))
                         item_button.setStyleSheet("background-color: orange")
                         menu_items.append(item_button)
+
+            if is_ex:
+                draw_order()
 
         def select_sub(button):
 
@@ -402,7 +425,7 @@ class MainWindow(object):
                     i += 1
                     j += 1
 
-        def delete_item(id):
+        def delete_item(id): #TODO: если заказ пустой, то удалить его
 
             query = "delete from order_content where no =%s;"
             data = (id,)
@@ -425,17 +448,21 @@ class MainWindow(object):
         create()
 
     def save_order(self):
+        global is_ex
+        if is_ex:
+            is_ex = False
         self.setupUi()
 
     def cancel_order(self):
-        global order_number
-        query = "delete from orders where no_orders= %s;"
-        data = (order_number, )
-        cursor.execute(query, data)
-        query = "delete from order_content where id_order= %s;"
-        data = (order_number,)
-        cursor.execute(query, data)
-        cnx.commit()
+        if not is_ex:
+            global order_number
+            query = "delete from orders where no_orders= %s;"
+            data = (order_number, )
+            cursor.execute(query, data)
+            query = "delete from order_content where id_order= %s;"
+            data = (order_number,)
+            cursor.execute(query, data)
+            cnx.commit()
         self.setupUi()
 
     def setupCashboxUi(self):
@@ -729,6 +756,10 @@ class MainWindow(object):
         self.statusbar.setObjectName("statusbar")
         Main.setStatusBar(self.statusbar)
 
+        item_group = QtWidgets.QGroupBox("Заказы")
+        self.orderslayout = QtWidgets.QGridLayout(item_group)
+        self.gridLayout.addWidget(item_group, 1, 0, 1, 4)
+
         self.retranslateClientsUi(Main)
         # QtCore.QMetaObjects.connectSlotsByName(Main)
 
@@ -741,7 +772,7 @@ class MainWindow(object):
         self.mainbutton.clicked.connect(self.setupUi)
         self.newbutton.clicked.connect(self.setupOrderUi)
 
-        #TODO:динамическое обновление
+        #TODO:динамическое обновление и ползунок в бокс с заказами
 
         query = "SELECT name_users,open_date,total,Owner,Type,No_orders FROM orders,users WHERE id_visitor=idUsers;"
         cursor.execute(query)
@@ -751,18 +782,28 @@ class MainWindow(object):
         k = 0
         for item in cursor:
             item_group = QtWidgets.QGroupBox(str(item[0]))
-            self.categorieslayout = QtWidgets.QVBoxLayout(item_group)
-            self.gridLayout.addWidget(item_group, j, k, 1, 1)
+            categorieslayout = QtWidgets.QVBoxLayout(item_group)
+            self.orderslayout.addWidget(item_group, j, k, 1, 1)
             k += 1
             if k % 3 == 0:
                 k = 0
                 j += 1
             for value in item:
+                if i == 5:
+                    item_button = QtWidgets.QPushButton("Открыть")
+                    categorieslayout.addWidget(item_button)
+                    item_button.clicked.connect(lambda state, order=value: open_order(order)) #передавать номер заказа (если функция заказа таки станет универсальной)
+                item_label = QtWidgets.QLabel(str(value))
+                categorieslayout.addWidget(item_label)
+                i += 1
                 if i == 6:
                     i = 0
-                item_label = QtWidgets.QLabel(str(value))
-                self.categorieslayout.addWidget(item_label)
-                i += 1
+
+        def open_order(value):
+            global order_number, is_ex
+            order_number = int(value)
+            is_ex = True
+            self.setupOrderUi()
 
 
 if __name__ == "__main__":
