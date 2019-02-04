@@ -794,6 +794,7 @@ class MainWindow(object):
             item_group = QtWidgets.QGroupBox("Клиент: " + str(item[0]))
             categorieslayout = QtWidgets.QVBoxLayout(item_group)
             self.orderslayout.addWidget(item_group, j, k, 1, 1)
+
             k += 1
             if k % 3 == 0:
                 k = 0
@@ -850,9 +851,8 @@ if __name__ == "__main__":
         try:
             ui.infolabel.setText(time)
         except RuntimeError:
-            return 0
+            pass
 
-    def updateTotals():
         try:
             for total, no in zip(order_totals, order_no):
                 query = "select sum(product_cost) from order_content,products where content=products && id_order=%s && product_category<>'Время' into @a; "
@@ -876,13 +876,8 @@ if __name__ == "__main__":
         except RuntimeError:
             pass
 
-
     timer = QTimer()
     timer.timeout.connect(showTime)
     timer.start(1000)
-
-    totals = QTimer()
-    totals.timeout.connect(updateTotals)
-    totals.start(1000)
 
     sys.exit(app.exec_())
