@@ -18,6 +18,12 @@ order_no = []
 
 is_ex = False
 
+is_n = False
+
+is_cash = False
+is_card = False
+
+
 money = ""
 
 isopen = False  # подгружать из базы
@@ -311,8 +317,20 @@ class MainWindow(object):
         self.savebutton.setText(_translate("MainWindow", "Сохранить"))
         self.cancelbutton.setText(_translate("MainWindow", "Отмена"))
         self.cashbutton.setText(_translate("MainWindow", "Чек"))
+
+        self.cashbutton.clicked.connect(lambda: opencashbox())
         self.cancelbutton.clicked.connect(self.cancel_order)
         self.savebutton.clicked.connect(self.save_order)
+
+        def opencashbox():
+            global is_n, is_ex
+
+            if not is_ex:
+                is_n = True
+            if is_n:
+                is_n = False
+
+            self.setupCashboxUi()
 
         def create():
             global order_number
@@ -624,6 +642,26 @@ class MainWindow(object):
         self.summlabel.setSizePolicy(sizePolicy)
         self.summlabel.setObjectName("summlabel")
         self.gridLayout_3.addWidget(self.summlabel, 1, 0, 1, 3)
+
+        self.inlabel = QtWidgets.QLabel(self.groupBox_2)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.inlabel.sizePolicy().hasHeightForWidth())
+        self.inlabel.setSizePolicy(sizePolicy)
+        self.inlabel.setObjectName("inlabel")
+        self.gridLayout_3.addWidget(self.inlabel, 2, 0, 1, 3)
+
+        self.finalbutton = QtWidgets.QPushButton(self.groupBox_2)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.finalbutton.sizePolicy().hasHeightForWidth())
+        self.finalbutton.setSizePolicy(sizePolicy)
+        self.finalbutton.setObjectName("finalbutto")
+        self.finalbutton.setText("Рассчет")
+        self.gridLayout_3.addWidget(self.finalbutton, 3, 0, 1, 1)
+
         self.noncashbutton = QtWidgets.QPushButton(self.groupBox_2)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
@@ -714,6 +752,43 @@ class MainWindow(object):
         self.modbutton.setText(_translate("Main", "Особые модификаторы"))
         self.cancelbutton.setText(_translate("Main", "Отмена"))
 
+        self.finalbutton.clicked.connect(lambda: closeorder())
+        self.cashbutton.clicked.connect(lambda: cash())
+        self.noncashbutton.clicked.connect(lambda: card())
+
+        def cash():
+            global is_cash
+            is_cash = True
+            self.noncashbutton.setEnabled(False)
+
+        def card():
+            global is_card
+            is_card = True
+            self.cashbutton.setEnabled(False)
+
+        def closeorder():
+
+            global order_number, is_cash, is_card
+
+            query = "SELECT total FROM orders WHERE No_orders = %s;"
+            data = (order_number,)
+            cursor.execute(query, data)
+
+            for item in cursor:
+                if int(money) == int(item[0]):
+                    if is_cash:
+                        query = "update orders set close_date=now(),Type='Cash' where no_orders=%s;"
+                        data = (order_number,)
+                    if is_card:
+                        query = "update orders set close_date=now(),Type='Card' where no_orders=%s;"
+                        data = (order_number,)
+                    if is_card or is_cash:
+                        cursor.execute(query, data)
+                        cnx.commit()
+                        is_card = False
+                        #добавить печать чека
+                        self.setupUi()
+
         def adder(number):
             global money
             money += number
@@ -730,7 +805,37 @@ class MainWindow(object):
             updateui()
 
         def updateui():
-            self.summlabel.setText("Сумма к оплате " + "\nВнесено " + money)
+            global money
+            self.inlabel.setText("Внесено " + money)
+
+        global is_ex, is_n
+
+        if is_ex or is_n:
+            global order_number
+
+            query = "select content from order_content where id_order=%s;"
+            data = (order_number,)
+            cursor.execute(query, data)
+
+            for item in order_items:
+                try:
+                    item.deleteLater()
+                except BaseException:
+                    pass
+            order_items.clear()
+
+            for item in cursor:
+                for value in item:
+                    item_label = QtWidgets.QPushButton(str(value))
+                    self.verticalLayout.addWidget(item_label)
+                    #item_label.setStyleSheet("background-color: ")
+                    order_items.append(item_label)
+
+            query = "SELECT total FROM orders WHERE No_orders = %s;"
+            data = (order_number,)
+            cursor.execute(query, data)
+            for item in cursor:
+                self.summlabel.setText("К Оплате: " + str(item[0]))
 
         self.button0.clicked.connect(lambda state, number="0": adder(number))
         self.button1.clicked.connect(lambda state, number="1": adder(number))
@@ -809,7 +914,7 @@ class MainWindow(object):
         self.mainbutton.clicked.connect(self.setupUi)
         self.newbutton.clicked.connect(self.setupOrderUi)
 
-        query = "SELECT name_users,open_date,total,No_orders FROM orders,users WHERE id_visitor=idUsers;"
+        query = "select name,open_date,total,No_orders from orders,cliens where id_visitor=id_client && isnull(close_date);"
         cursor.execute(query)
 
         i = 1
@@ -884,16 +989,18 @@ if __name__ == "__main__":
 
         try:
             for total, no in zip(order_totals, order_no):
-                query = "select sum(product_cost) from order_content,products where content=products && id_order=%s && product_category<>'Время' into @a; "
                 data = (no, )
+                query = "select if(client_lvl=3,15,if(client_lvl=2,10,if(client_lvl=1,5,0))) as 'discount' from cliens,orders where id_client=id_visitor && no_orders=%s into @c;"
+                cursor.execute(query, data)
+                query = "select sum(product_cost) from order_content,products where content=products && id_order=%s && product_category<>'Время' into @a;  "
                 cursor.execute(query, data)
                 query = "select if(@a is null,0,@a) into @a;"
                 cursor.execute(query)
-                query = "select sum(round(Product_cost/60) * round(time_to_sec(timediff(curtime(),times))/60)) from order_content,products where id_order=%s && content=products && product_category='Время' into @b ; "
+                query = "select sum(round(Product_cost/60) * round(time_to_sec(timediff(curtime(),times))/60)) from order_content,products where id_order=%s && content=products && product_category='Время' into @b;"
                 cursor.execute(query, data)
                 query = "select if(@b is null,0,@b) into @b;"
                 cursor.execute(query)
-                query = "update orders set total=@a+@b where no_orders=%s;"
+                query = "update orders set total=(@a+@b)/100*(100-@c) where no_orders=%s;"
                 cursor.execute(query, data)
                 cnx.commit()
 
@@ -905,12 +1012,6 @@ if __name__ == "__main__":
         except RuntimeError:
             pass
 
-        try:
-            query = "DELETE FROM orders WHERE not EXISTS (SELECT * FROM order_content WHERE order_content.id_order = orders.NO_Orders);"
-            cursor.execute(query)
-            cnx.commit()
-        except BaseException:
-            pass
 
     timer = QTimer()
     timer.timeout.connect(showTime)
