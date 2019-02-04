@@ -453,6 +453,21 @@ class MainWindow(object):
         create()
 
     def save_order(self):
+        global order_number
+
+        query = "select no from order_content where id_order=%s limit 1 into @a;"
+        data = (order_number,)
+        cursor.execute(query, data)
+        query = "select isnull(@a);"
+        cursor.execute(query)
+
+        for item in cursor:
+            if item[0] == 1:
+                query = "delete from orders where no_orders= %s;"
+                data = (order_number,)
+                cursor.execute(query, data)
+                cnx.commit()
+
         global is_ex
         if is_ex:
             is_ex = False
@@ -468,6 +483,20 @@ class MainWindow(object):
             data = (order_number,)
             cursor.execute(query, data)
             cnx.commit()
+
+        query = "select no from order_content where id_order=%s limit 1 into @a;"
+        data = (order_number,)
+        cursor.execute(query, data)
+        query = "select isnull(@a);"
+        cursor.execute(query)
+
+        for item in cursor:
+            if item[0] == 1:
+                query = "delete from orders where no_orders= %s;"
+                data = (order_number,)
+                cursor.execute(query, data)
+                cnx.commit()
+
         self.setupUi()
 
     def setupCashboxUi(self):
@@ -874,6 +903,13 @@ if __name__ == "__main__":
                 for item in cursor:
                     total.setText("К Оплате: " + str(item[0]))
         except RuntimeError:
+            pass
+
+        try:
+            query = "DELETE FROM orders WHERE not EXISTS (SELECT * FROM order_content WHERE order_content.id_order = orders.NO_Orders);"
+            cursor.execute(query)
+            cnx.commit()
+        except BaseException:
             pass
 
     timer = QTimer()
