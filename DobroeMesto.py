@@ -9,7 +9,7 @@ d = datetime.datetime.today()  # время получается один раз
 cnx = mysql.connector.connect(user='root', password='i130813',
                               host='127.0.0.1',
                               database='dobroe_mesto2')
-cursor = cnx.cursor()
+cursor = cnx.cursor(buffered=True)
 
 menu_items = []
 order_items = []
@@ -852,22 +852,29 @@ if __name__ == "__main__":
         except RuntimeError:
             return 0
 
-
     def updateTotals():
         try:
             for total, no in zip(order_totals, order_no):
-                query = "select sum(product_cost) from order_content,products where content=products && id_order=%s into @a;"
-                data = (no,)
+                query = "select sum(product_cost) from order_content,products where content=products && id_order=%s && product_category<>'Время' into @a; "
+                data = (no, )
                 cursor.execute(query, data)
-                query = "update orders set total=@a where no_orders=%s;"
+                query = "select if(@a is null,0,@a) into @a;"
+                cursor.execute(query)
+                query = "select sum(round(Product_cost/60) * round(time_to_sec(timediff(curtime(),times))/60)) from order_content,products where id_order=%s && content=products && product_category='Время' into @b ; "
+                cursor.execute(query, data)
+                query = "select if(@b is null,0,@b) into @b;"
+                cursor.execute(query)
+                query = "update orders set total=@a+@b where no_orders=%s;"
                 cursor.execute(query, data)
                 cnx.commit()
+
                 query = "SELECT total FROM orders WHERE No_orders = %s;"
+                data = (no, )
                 cursor.execute(query, data)
                 for item in cursor:
                     total.setText("К Оплате: " + str(item[0]))
         except RuntimeError:
-            return 0
+            pass
 
 
     timer = QTimer()
