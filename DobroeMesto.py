@@ -353,6 +353,8 @@ class MainWindow(object):
                 pass  # добавить работу с номером заказа при переходе из окна заказов
 
         def draw_main():
+            font = QtGui.QFont()
+            font.setPointSize(20)
             self.backbutton.setEnabled(False)
             query = "select distinct product_category from products"
             cursor.execute(query)
@@ -363,6 +365,7 @@ class MainWindow(object):
                     self.categorieslayout.addWidget(item_button)
                     item_button.clicked.connect(lambda state, button=item_button: select_sub(button))
                     item_button.setStyleSheet("background-color: orange")
+                    item_button.setFont(font)
                     menu_items.append(item_button)
 
             if is_ex:
@@ -386,12 +389,16 @@ class MainWindow(object):
 
             cursor.execute(query, data)
 
+            font = QtGui.QFont()
+            font.setPointSize(20)
+
             for item in cursor:
                 for value in item:
                     item_button = QtWidgets.QPushButton(str(value))
                     self.categorieslayout.addWidget(item_button)
                     item_button.clicked.connect(lambda state, button=item_button: select_item(button))
                     item_button.setStyleSheet("background-color: orange")
+                    item_button.setFont(font)
                     menu_items.append(item_button)
 
         def select_item(button):
