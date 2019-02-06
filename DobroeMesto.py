@@ -447,7 +447,7 @@ class MainWindow(object):
                     i += 1
                     j += 1
 
-        def delete_item(id):  # TODO: если заказ пустой, то удалить его
+        def delete_item(id):
 
             query = "delete from order_content where no =%s;"
             data = (id,)

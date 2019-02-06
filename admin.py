@@ -1,8 +1,8 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 import mysql.connector
 
-cnx = mysql.connector.connect(user='root', password='i130813',
-                              host='127.0.0.1',
+cnx = mysql.connector.connect(user='kultura', password='ooofreash',
+                              host='25.67.82.185',
                               database='dobroe_mesto2')
 cursor = cnx.cursor()
 
