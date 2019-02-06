@@ -477,6 +477,7 @@ if __name__ == "__main__":
 
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
+    app.setStyle("Fusion")
     ui = Ui_MainWindow()
     ui.setupMainUi()
     MainWindow.show()
