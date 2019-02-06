@@ -756,6 +756,8 @@ class MainWindow(object):
         self.cashbutton.clicked.connect(lambda: cash())
         self.noncashbutton.clicked.connect(lambda: card())
 
+        self.finalbutton.setEnabled(False)
+
         def cash():
             global is_cash
             is_cash = True
@@ -775,7 +777,7 @@ class MainWindow(object):
             cursor.execute(query, data)
 
             for item in cursor:
-                if int(money) == int(item[0]):
+                if int(money) >= int(item[0]):
                     if is_cash:
                         query = "update orders set close_date=now(),Type='Cash' where no_orders=%s;"
                         data = (order_number,)
@@ -807,6 +809,21 @@ class MainWindow(object):
         def updateui():
             global money
             self.inlabel.setText("Внесено " + money)
+
+            try:
+                global order_number
+                query = "SELECT total FROM orders WHERE No_orders = %s;"
+                data = (order_number,)
+                cursor.execute(query, data)
+                for item in cursor:
+                    if int(money) >= int(item[0]):
+                        self.finalbutton.setEnabled(True)
+                        if int(money) > int(item[0]):
+                            self.inlabel.setText("Внесено: " + money + "\nCдача: " + str(int(money) - int(item[0])))
+                    else:
+                        self.finalbutton.setEnabled(False)
+            except BaseException:
+                pass
 
         global is_ex, is_n
 
@@ -946,6 +963,9 @@ class MainWindow(object):
                     categorieslayout.addWidget(item_button)
                     item_button.clicked.connect(lambda state, order=value: open_order(order))
                     order_no.append(value)
+                    item_button = QtWidgets.QPushButton("Рассчитать")
+                    categorieslayout.addWidget(item_button)
+                    item_button.clicked.connect(lambda state, order=value: open_order(order))
                     i = 0
                 i += 1
 
@@ -954,6 +974,15 @@ class MainWindow(object):
             order_number = int(value)
             is_ex = True
             self.setupOrderUi()
+
+        def opencashbox(value):
+            global order_number, is_ex
+
+            is_ex = True
+
+            order_number = int(value)
+
+            self.setupCashboxUi()
 
 
 if __name__ == "__main__":
@@ -967,7 +996,7 @@ if __name__ == "__main__":
     Main.show()
 
 
-    def showTime():
+    def BackgroundThread():
         date = datetime.datetime.today()
         months = ["Января", "Февраля", "Марта", "Апреля", "Мая", "Июня", "Июля", "Августа", "Сентября", "Октября",
                   'Ноября', "Декабря"]
@@ -1009,12 +1038,13 @@ if __name__ == "__main__":
                 cursor.execute(query, data)
                 for item in cursor:
                     total.setText("К Оплате: " + str(item[0]))
+
         except RuntimeError:
             pass
 
 
     timer = QTimer()
-    timer.timeout.connect(showTime)
+    timer.timeout.connect(BackgroundThread)
     timer.start(1000)
 
     sys.exit(app.exec_())
