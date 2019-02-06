@@ -10,6 +10,7 @@ cnx = mysql.connector.connect(user='root', password='i130813',
                               host='127.0.0.1',
                               database='dobroe_mesto2')
 cursor = cnx.cursor(buffered=True)
+bcursor = cnx.cursor(buffered=True)
 
 menu_items = []
 order_items = []
@@ -473,14 +474,14 @@ class MainWindow(object):
     def save_order(self):
         global order_number
 
-        query = "select no from order_content where id_order=%s limit 1 into @a;"
+        query = "select no from order_content where id_order=%s limit 1 into @nuller;"
         data = (order_number,)
         cursor.execute(query, data)
-        query = "select isnull(@a);"
+        query = "select isnull(@nuller);"
         cursor.execute(query)
 
         for item in cursor:
-            if item[0] == 1:
+            if int(item[0]) == 1:
                 query = "delete from orders where no_orders= %s;"
                 data = (order_number,)
                 cursor.execute(query, data)
@@ -502,14 +503,14 @@ class MainWindow(object):
             cursor.execute(query, data)
             cnx.commit()
 
-        query = "select no from order_content where id_order=%s limit 1 into @a;"
+        query = "select no from order_content where id_order=%s limit 1 into @nuller;"
         data = (order_number,)
         cursor.execute(query, data)
-        query = "select isnull(@a);"
+        query = "select isnull(@nuller);"
         cursor.execute(query)
 
         for item in cursor:
-            if item[0] == 1:
+            if int(item[0]) == 1:
                 query = "delete from orders where no_orders= %s;"
                 data = (order_number,)
                 cursor.execute(query, data)
@@ -1020,22 +1021,22 @@ if __name__ == "__main__":
             for total, no in zip(order_totals, order_no):
                 data = (no, )
                 query = "select if(client_lvl=3,15,if(client_lvl=2,10,if(client_lvl=1,5,0))) as 'discount' from cliens,orders where id_client=id_visitor && no_orders=%s into @c;"
-                cursor.execute(query, data)
+                bcursor.execute(query, data)
                 query = "select sum(product_cost) from order_content,products where content=products && id_order=%s && product_category<>'Время' into @a;  "
-                cursor.execute(query, data)
+                bcursor.execute(query, data)
                 query = "select if(@a is null,0,@a) into @a;"
-                cursor.execute(query)
+                bcursor.execute(query)
                 query = "select sum(round(Product_cost/60) * round(time_to_sec(timediff(curtime(),times))/60)) from order_content,products where id_order=%s && content=products && product_category='Время' into @b;"
-                cursor.execute(query, data)
+                bcursor.execute(query, data)
                 query = "select if(@b is null,0,@b) into @b;"
-                cursor.execute(query)
+                bcursor.execute(query)
                 query = "update orders set total=(@a+@b)/100*(100-@c) where no_orders=%s;"
-                cursor.execute(query, data)
+                bcursor.execute(query, data)
                 cnx.commit()
 
                 query = "SELECT total FROM orders WHERE No_orders = %s;"
                 data = (no, )
-                cursor.execute(query, data)
+                bcursor.execute(query, data)
                 for item in cursor:
                     total.setText("К Оплате: " + str(item[0]))
 
