@@ -24,7 +24,6 @@ is_n = False
 is_cash = False
 is_card = False
 
-
 money = ""
 
 isopen = False  # подгружать из базы
@@ -355,7 +354,7 @@ class MainWindow(object):
 
         def draw_main():
             self.backbutton.setEnabled(False)
-            query = ("select distinct product_category from products")
+            query = "select distinct product_category from products"
             cursor.execute(query)
 
             for item in cursor:
@@ -410,14 +409,6 @@ class MainWindow(object):
             cnx.commit()
 
             draw_order()
-
-        def redraw():
-            for item in menu_items:
-                try:
-                    item.deleteLater()
-                except BaseException:
-                    pass
-            menu_items.clear()
 
         def draw_order():
             global order_number
@@ -789,7 +780,7 @@ class MainWindow(object):
                         cursor.execute(query, data)
                         cnx.commit()
                         is_card = False
-                        #добавить печать чека
+                        # добавить печать чека
                         self.setupUi()
 
         def adder(number):
@@ -846,7 +837,7 @@ class MainWindow(object):
                 for value in item:
                     item_label = QtWidgets.QPushButton(str(value))
                     self.verticalLayout.addWidget(item_label)
-                    #item_label.setStyleSheet("background-color: ")
+                    # item_label.setStyleSheet("background-color: ")
                     order_items.append(item_label)
 
             query = "SELECT total FROM orders WHERE No_orders = %s;"
@@ -976,15 +967,6 @@ class MainWindow(object):
             is_ex = True
             self.setupOrderUi()
 
-        def opencashbox(value):
-            global order_number, is_ex
-
-            is_ex = True
-
-            order_number = int(value)
-
-            self.setupCashboxUi()
-
 
 if __name__ == "__main__":
     import sys
@@ -1019,7 +1001,7 @@ if __name__ == "__main__":
 
         try:
             for total, no in zip(order_totals, order_no):
-                data = (no, )
+                data = (no,)
                 query = "select if(client_lvl=3,15,if(client_lvl=2,10,if(client_lvl=1,5,0))) as 'discount' from cliens,orders where id_client=id_visitor && no_orders=%s into @c;"
                 bcursor.execute(query, data)
                 query = "select sum(product_cost) from order_content,products where content=products && id_order=%s && product_category<>'Время' into @a;  "
@@ -1035,7 +1017,7 @@ if __name__ == "__main__":
                 cnx.commit()
 
                 query = "SELECT total FROM orders WHERE No_orders = %s;"
-                data = (no, )
+                data = (no,)
                 bcursor.execute(query, data)
                 for item in cursor:
                     total.setText("К Оплате: " + str(item[0]))
