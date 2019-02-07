@@ -20,6 +20,9 @@ passenger = []
 passenger_data = {}
 passenger_k = {}
 
+user_data = {}
+user_k = {}
+
 
 class Ui_MainWindow(object):
 
@@ -162,7 +165,7 @@ class Ui_MainWindow(object):
                     j += 1
                     k = 1
 
-        query = ("select * from cliens;")
+        query = ("select * from clients;")
         cursor.execute(query)
         k = 0
         j += 2
@@ -175,36 +178,40 @@ class Ui_MainWindow(object):
 
         line_item = QtWidgets.QLabel("Имя")
         self.gridLayout.addWidget(line_item, j, 1, 1, 1)
-        line_item = QtWidgets.QLabel("Фамилия")
+        line_item = QtWidgets.QLabel("Номер карты")
         self.gridLayout.addWidget(line_item, j, 2, 1, 1)
-        line_item = QtWidgets.QLabel("Отчество")
+        line_item = QtWidgets.QLabel("ID Фото")
         self.gridLayout.addWidget(line_item, j, 3, 1, 1)
-        line_item = QtWidgets.QLabel("Паспорт")
+        line_item = QtWidgets.QLabel("Уровень скидки")
         self.gridLayout.addWidget(line_item, j, 4, 1, 1)
+        line_item = QtWidgets.QLabel("Номер телефона")
+        self.gridLayout.addWidget(line_item, j, 5, 1, 1)
+        line_item = QtWidgets.QLabel("Личный счет")
+        self.gridLayout.addWidget(line_item, j, 6, 1, 1)
         j += 1
         for item in cursor:
             passenger.append(item[0])
             for value in item:
                 if k == 0:
-                    line_item = QtWidgets.QLabel(str(value))
-                    self.gridLayout.addWidget(line_item, j, k, 1, 1)
-                    passenger_data.update({line_item: line_item.text()})
-                    passenger_k.update({line_item: k})
                     k += 1
                     continue
-                line_item = QtWidgets.QLineEdit(str(value))
-                self.gridLayout.addWidget(line_item, j, k, 1, 1)
-                line_item.textChanged.connect(lambda state, line=line_item: modify_pass(line))
+                if k != 3:
+                    line_item = QtWidgets.QLineEdit(str(value))
+                    self.gridLayout.addWidget(line_item, j, k, 1, 1)
+                    line_item.textChanged.connect(lambda state, line=line_item: modify_pass(line))
 
-                passenger_data.update({line_item: line_item.text()})
-                passenger_k.update({line_item: k})
+                    passenger_data.update({line_item: line_item.text()})
+                    passenger_k.update({line_item: k})
+                if k == 3:
+                    line_item = QtWidgets.QLabel(str(value))
+                    self.gridLayout.addWidget(line_item, j, k, 1, 1)
 
                 but_item = QtWidgets.QPushButton("Удалить")
-                self.gridLayout.addWidget(but_item, j, 5, 1, 1)
+                self.gridLayout.addWidget(but_item, j, 7, 1, 1)
                 but_item.clicked.connect(lambda state, row=i: delete_pass(row))
 
                 k += 1
-                if k % 5 == 0:
+                if k % 7 == 0:
                     j += 1
                     i += 1
                     k = 0
@@ -233,16 +240,16 @@ class Ui_MainWindow(object):
             trip.append(item[0])
             for value in item:
                 if k == 0:
-                    line_item = QtWidgets.QLabel(str(value))
-                    self.gridLayout.addWidget(line_item, j, k, 1, 1)
                     k += 1
+                    but_item = QtWidgets.QPushButton("Удалить")
+                    self.gridLayout.addWidget(but_item, j, 5, 1, 1)
+                    but_item.clicked.connect(lambda state, row=value: delete_user(row))
                     continue
                 line_item = QtWidgets.QLineEdit(str(value))
                 self.gridLayout.addWidget(line_item, j, k, 1, 1)
-
-                but_item = QtWidgets.QPushButton("Удалить")
-                self.gridLayout.addWidget(but_item, j, 5, 1, 1)
-                but_item.clicked.connect(lambda state, row=i: delete_work(row))
+                line_item.textChanged.connect(lambda state, line=line_item: modify_user(line))
+                user_data.update({line_item: line_item.text()})
+                user_k.update({line_item: k})
 
                 k += 1
                 if k % 5 == 0:
@@ -250,19 +257,38 @@ class Ui_MainWindow(object):
                     i += 1
                     k = 0
 
+        def modify_user(line):
+            self.savebutton.clicked.connect(lambda: save_user(line))
+
+        def save_user(item):
+            k = user_k.get(item)
+            position = user_data.get(item)
+            text = item.text()
+            data = (text, position)
+            if k == 1:
+                query = ("update users set Name_users = %s where Name_users = %s;")
+            if k == 2:
+                query = ("update users set Card_num = %s where Card_num = %s;")
+            if k == 3:
+                query = ("update users set pass = %s where pass = %s;")
+            if k == 4:
+                query = ("update users set User_lvl = %s where User_lvl = %s;")
+            cursor.execute(query, data)
+            cnx.commit()
+
         def save_pass(item):
             k = passenger_k.get(item)
             position = passenger_data.get(item)
             text = item.text()
             data = (text, position)
             if k == 1:
-                query = ("update passenger set NameP = %s where NameP = %s;")
+                query = ("update clients set Name = %s where Name = %s;")
             if k == 2:
-                query = ("update passenger set SurnameP = %s where SurnameP = %s;")
+                query = ("update clients set Card_Num_client = %s where Card_Num_client = %s;")
             if k == 3:
-                query = ("update passenger set Patronymic = %s where Patronymic = %s;")
+                query = ("update clients set id_photo = %s where id_photo = %s;")
             if k == 4:
-                query = ("update passenger set Passport = %s where Passport = %s;")
+                query = ("update clients set Client_lvl = %s where Client_lvl = %s;")
             cursor.execute(query, data)
             cnx.commit()
 
@@ -283,8 +309,8 @@ class Ui_MainWindow(object):
             cnx.commit()
             self.setupMainUi()
 
-        def delete_work(row):
-            query = "delete from worker where idWorker=%s;"
+        def delete_user(row):
+            query = "delete from users where idUsers=%s;"
             data = row
             cursor.execute(query, (data,))
             cnx.commit()

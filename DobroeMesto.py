@@ -220,7 +220,7 @@ class MainWindow(object):
         self.loginbutton.setText(_translate("Main", "Закрыть"))
         self.loginbutton.clicked.connect(self.setupUi)
 
-        query = "select no_orders,name,total,Open_date from orders,cliens where id_visitor=id_client && close_date is not null;"
+        query = "select no_orders,name,total,Open_date from orders,clients where id_visitor=id_client && close_date is not null;"
         cursor.execute(query)
 
         for item in cursor:
@@ -230,8 +230,6 @@ class MainWindow(object):
             for value in item:
                 item_label = QtWidgets.QLabel(str(value))
                 orderslayout.addWidget(item_label)
-
-
 
     @staticmethod
     def exittowindows():
@@ -983,7 +981,7 @@ class MainWindow(object):
         self.mainbutton.clicked.connect(self.setupUi)
         self.newbutton.clicked.connect(self.setupOrderUi)
 
-        query = "select name,open_date,total,No_orders from orders,cliens where id_visitor=id_client && isnull(close_date);"
+        query = "select name,open_date,total,No_orders from orders,clients where id_visitor=id_client && isnull(close_date);"
         cursor.execute(query)
 
         i = 1
@@ -1038,7 +1036,6 @@ if __name__ == "__main__":
     ui.setupUi()
     Main.show()
 
-
     def BackgroundThread():
         date = datetime.datetime.today()
         months = ["Января", "Февраля", "Марта", "Апреля", "Мая", "Июня", "Июля", "Августа", "Сентября", "Октября",
@@ -1062,7 +1059,7 @@ if __name__ == "__main__":
         try:
             for total, no in zip(order_totals, order_no):
                 data = (no,)
-                query = "select if(client_lvl=3,15,if(client_lvl=2,10,if(client_lvl=1,5,0))) as 'discount' from cliens,orders where id_client=id_visitor && no_orders=%s into @c;"
+                query = "select if(client_lvl=3,15,if(client_lvl=2,10,if(client_lvl=1,5,0))) as 'discount' from clients,orders where id_client=id_visitor && no_orders=%s into @c;"
                 bcursor.execute(query, data)
                 query = "select sum(product_cost) from order_content,products where content=products && id_order=%s && product_category<>'Время' into @a;  "
                 bcursor.execute(query, data)
