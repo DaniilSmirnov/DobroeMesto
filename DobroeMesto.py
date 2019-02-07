@@ -445,15 +445,31 @@ class MainWindow(object):
 
             for item in cursor:
                 for value in item:
-                    item_button = QtWidgets.QPushButton(str(value))
-                    self.categorieslayout.addWidget(item_button)
-                    item_button.clicked.connect(lambda state, button=item_button: select_item(button))
-                    item_button.setStyleSheet("background-color: orange")
-                    item_button.setFont(font)
-                    menu_items.append(item_button)
+                    query = "Select if(product_amount=0,0,1) from products where products=%s;"
+                    data = (value,)
+                    cursor.execute(query, data)
+                    for response in cursor:
+                        for result in response:
+                            if int(result) == 1:
+                                item_button = QtWidgets.QPushButton(str(value))
+                                self.categorieslayout.addWidget(item_button)
+                                item_button.clicked.connect(lambda state, button=item_button: select_item(button))
+                                item_button.setStyleSheet("background-color: orange")
+                                item_button.setFont(font)
+                                menu_items.append(item_button)
+                                item_button.setEnabled(True)
+                            if int(result) == 0:
+                                item_button = QtWidgets.QPushButton(str(value))
+                                self.categorieslayout.addWidget(item_button)
+                                item_button.clicked.connect(lambda state, button=item_button: select_item(button))
+                                item_button.setStyleSheet("background-color: orange")
+                                item_button.setFont(font)
+                                menu_items.append(item_button)
+                                item_button.setEnabled(False)
 
         def select_item(button):
             global order_number
+
 
             query = "insert into order_content values(%s,%s, default,curtime());"
 

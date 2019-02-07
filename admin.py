@@ -151,7 +151,7 @@ class Ui_MainWindow(object):
                     continue
                 line_item = QtWidgets.QLineEdit(str(value))
                 self.gridLayout.addWidget(line_item, j, k, 1, 1)
-                line_item.textChanged.connect(lambda state, line=line_item: modify_product(line))
+                line_item.textChanged.connect(lambda state, line=line_item, product=row: modify_product(line, product))
 
                 product_data.update({line_item: line_item.text()})
                 product_k.update({line_item: k})
@@ -316,26 +316,26 @@ class Ui_MainWindow(object):
             cnx.commit()
             self.setupMainUi()
 
-        def save_product(item):
+        def save_product(item, product):
             k = product_k.get(item)
             position = product_data.get(item)
             text = item.text()
-            data = (text, position)
+            data = (text, position, product)
             if k == 1:
                 query = ("update products set Products = %s where Products = %s;")
             if k == 2:
-                query = ("update products set Product_cost = %s where Product_cost = %s;")
+                query = ("update products set Product_cost = %s where Product_cost = %s && Products = %s;")
             if k == 3:
-                query = ("update products set Product_Amount = %s where Product_Amount = %s;")
+                query = ("update products set Product_Amount = %s where Product_Amount = %s && Products = %s;")
             if k == 4:
-                query = ("update products set Product_category = %s where Product_category = %s;")
+                query = ("update products set Product_category = %s where Product_category = %s && Products = %s;")
             cursor.execute(query, data)
             cnx.commit()
 
             self.setupMainUi()
 
-        def modify_product(item):
-            self.savebutton.clicked.connect(lambda: save_product(item))
+        def modify_product(item, product):
+            self.savebutton.clicked.connect(lambda: save_product(item, product))
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
