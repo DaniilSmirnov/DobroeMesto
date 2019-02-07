@@ -139,6 +139,12 @@ class MainWindow(object):
         font.setPointSize(20)
         self.groupBox.setFont(font)
         self.groupBox.setObjectName("groupBox")
+        self.adminboxlayout = QtWidgets.QVBoxLayout(self.groupBox)
+
+        self.closedordersbutton = QtWidgets.QPushButton(self.centralwidget)
+        self.adminboxlayout.addWidget(self.closedordersbutton)
+        self.closedordersbutton.setText("Закрытые заказы")
+
         self.gridLayout.addWidget(self.groupBox, 3, 0, 2, 1)
         self.gridLayout_4.addLayout(self.gridLayout, 0, 0, 1, 1)
         Main.setCentralWidget(self.centralwidget)
@@ -179,6 +185,53 @@ class MainWindow(object):
         self.closebutton.clicked.connect(self.setupLoginUi)
         self.cashbox.clicked.connect(self.setupCashboxUi)
         self.exitbutton.clicked.connect(self.exittowindows)
+        self.closedordersbutton.clicked.connect(self.setupClosedOrdersUi)
+
+    def setupClosedOrdersUi(self):
+        Main.setObjectName("Main")
+        Main.showFullScreen()
+        self.centralwidget = QtWidgets.QWidget(Main)
+        self.centralwidget.setMaximumSize(QtCore.QSize(1920, 1080))
+        self.centralwidget.setObjectName("centralwidget")
+        self.closedorderslayour = QtWidgets.QVBoxLayout(self.centralwidget)
+        self.closedorderslayour.setContentsMargins(0, 0, 0, 0)
+        self.closedorderslayour.setObjectName("closedorderslayour")
+        self.loginbutton = QtWidgets.QPushButton(self.centralwidget)
+        self.loginbutton.setObjectName("pushButton")
+        self.closedorderslayour.addWidget(self.loginbutton)
+        Main.setCentralWidget(self.centralwidget)
+
+        item_group = QtWidgets.QGroupBox("Закрытые заказы")
+        self.orderslayout = QtWidgets.QVBoxLayout(item_group)
+        self.closedorderslayour.addWidget(item_group)
+
+        self.scrollArea = QtWidgets.QScrollArea()
+        self.scrollArea.setWidgetResizable(True)
+        self.scrollArea.setObjectName("scrollArea")
+        self.scrollArea.setWidget(item_group)
+        self.closedorderslayour.addWidget(self.scrollArea)
+
+        self.retranslateClosedOrdersUi(Main)
+        QtCore.QMetaObject.connectSlotsByName(Main)
+
+    def retranslateClosedOrdersUi(self, Main):
+        _translate = QtCore.QCoreApplication.translate
+        Main.setWindowTitle(_translate("Main", "Main"))
+        self.loginbutton.setText(_translate("Main", "Закрыть"))
+        self.loginbutton.clicked.connect(self.setupUi)
+
+        query = "select no_orders,name,total,Open_date from orders,cliens where id_visitor=id_client && close_date is not null;"
+        cursor.execute(query)
+
+        for item in cursor:
+            item_group = QtWidgets.QGroupBox("Заказ: " + str(item[0]))
+            self.orderslayout.addWidget(item_group)
+            orderslayout = QtWidgets.QVBoxLayout(item_group)
+            for value in item:
+                item_label = QtWidgets.QLabel(str(value))
+                orderslayout.addWidget(item_label)
+
+
 
     @staticmethod
     def exittowindows():

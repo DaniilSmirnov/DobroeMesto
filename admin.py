@@ -167,7 +167,7 @@ class Ui_MainWindow(object):
         k = 0
         j += 2
         i = 0
-        line_item = QtWidgets.QLabel("Пассажиры")
+        line_item = QtWidgets.QLabel("Клиенты")
         self.gridLayout.addWidget(line_item, j, 0, 1, 1)
         font = QtGui.QFont()
         font.setPointSize(18)
@@ -217,11 +217,11 @@ class Ui_MainWindow(object):
 
         line_item = QtWidgets.QLabel("Имя")
         self.gridLayout.addWidget(line_item, j, 1, 1, 1)
-        line_item = QtWidgets.QLabel("Фамилия")
+        line_item = QtWidgets.QLabel("Номер карты")
         self.gridLayout.addWidget(line_item, j, 2, 1, 1)
-        line_item = QtWidgets.QLabel("Логин")
-        self.gridLayout.addWidget(line_item, j, 3, 1, 1)
         line_item = QtWidgets.QLabel("Пароль")
+        self.gridLayout.addWidget(line_item, j, 3, 1, 1)
+        line_item = QtWidgets.QLabel("Уровень доступа")
         self.gridLayout.addWidget(line_item, j, 4, 1, 1)
 
         j += 1
