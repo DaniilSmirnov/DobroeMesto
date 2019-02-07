@@ -470,7 +470,6 @@ class MainWindow(object):
         def select_item(button):
             global order_number
 
-
             query = "insert into order_content values(%s,%s, default,curtime());"
 
             try:
@@ -478,6 +477,10 @@ class MainWindow(object):
             except NameError:
                 order_number = 1
                 data = (order_number, button.text())
+            cursor.execute(query, data)
+
+            query = "update products set product_amount=product_amount-1 where products=%s && product_amount>0;"
+            data = (button.text(), )
             cursor.execute(query, data)
 
             cnx.commit()
