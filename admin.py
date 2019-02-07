@@ -482,16 +482,16 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.pushButton.setText(_translate("MainWindow", "Сохранить"))
         self.pushButton_2.setText(_translate("MainWindow", "Назад"))
-        self.label_4.setText(_translate("MainWindow", "Пароль"))
+        self.label_4.setText(_translate("MainWindow", "Уровень пользователя"))
         self.label.setText(_translate("MainWindow", "Имя"))
-        self.label_2.setText(_translate("MainWindow", "Фамилия"))
-        self.label_3.setText(_translate("MainWindow", "Логин"))
+        self.label_2.setText(_translate("MainWindow", "Номер карты"))
+        self.label_3.setText(_translate("MainWindow", "Пароль"))
 
         self.pushButton_2.clicked.connect(self.setupMainUi)
         self.pushButton.clicked.connect(self.writeworker)
 
     def writeworker(self):
-        query = "insert into worker(NameWorker, SurnameWorker, login, pass)values(%s, %s, %s, %s);"
+        query = "insert into users(Name_users, Card_num, pass, User_lvl)values(%s, %s, %s, %s);"
         data = (self.lineEdit.text(), self.lineEdit_2.text(), self.lineEdit_3.text(), self.lineEdit_4.text(),)
         cursor.execute(query, data)
         cnx.commit()
