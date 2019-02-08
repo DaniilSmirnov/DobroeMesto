@@ -187,6 +187,16 @@ class MainWindow(object):
         self.exitbutton.clicked.connect(self.exittowindows)
         self.closedordersbutton.clicked.connect(self.setupClosedOrdersUi)
 
+        self.printXbutton.clicked.connect(self.printX)
+
+    def printX(self):
+        query = "select sum(total) from orders;"
+        cursor.execute(query)
+
+        query = "select sum(total) from orders where type=%s;"
+        cursor.execute(query, "Cash")
+        cursor.execute(query, "Card")
+
     def setupClosedOrdersUi(self):
         Main.setObjectName("Main")
         Main.showFullScreen()
