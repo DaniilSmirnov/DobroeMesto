@@ -193,9 +193,11 @@ class MainWindow(object):
         query = "select sum(total) from orders;"
         cursor.execute(query)
 
-        query = "select sum(total) from orders where type=%s;"
-        cursor.execute(query, "Cash")
-        cursor.execute(query, "Card")
+        query = "select sum(total) from orders where type = %s;"
+        data = ("Cash", )
+        cursor.execute(query, data)
+        data = ("Card", )
+        cursor.execute(query, data)
 
     def setupClosedOrdersUi(self):
         Main.setObjectName("Main")
