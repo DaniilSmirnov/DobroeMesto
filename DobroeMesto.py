@@ -274,6 +274,11 @@ class MainWindow(object):
         Main.setWindowTitle(_translate("Main", "Main"))
         self.loginbutton.setText(_translate("Main", "Вход"))
 
+        self.loginbutton.clicked.connect(self.login)
+
+    def login(self):
+        pass
+
     def setupOrderUi(self):
         Main.showFullScreen()
         Main.setObjectName("Main")
@@ -1080,11 +1085,11 @@ if __name__ == "__main__":
                 data = (no,)
                 query = "select if(client_lvl=3,15,if(client_lvl=2,10,if(client_lvl=1,5,0))) as 'discount' from clients,orders where id_client=id_visitor && no_orders=%s into @c;"
                 bcursor.execute(query, data)
-                query = "select sum(product_cost) from order_content,products where content=products && id_order=%s && product_category<>'Время' into @a;  "
+                query = "select sum(product_cost) from order_content,products where content=products && id_order=%s && product_category<>'Время' into @a; "
                 bcursor.execute(query, data)
                 query = "select if(@a is null,0,@a) into @a;"
                 bcursor.execute(query)
-                query = "select sum(round(Product_cost/60) * round(time_to_sec(timediff(curtime(),times))/60)) from order_content,products where id_order=%s && content=products && product_category='Время' into @b;"
+                query = "select round(sum((Product_cost/60) * ((UNIX_TIMESTAMP(now()) - UNIX_TIMESTAMP(times))/60)))from order_content, products where id_order = %s && content = products && product_category = 'Время' into @b;"
                 bcursor.execute(query, data)
                 query = "select if(@b is null,0,@b) into @b;"
                 bcursor.execute(query)
