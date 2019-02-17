@@ -309,15 +309,32 @@ class MainWindow(object):
     def retranslateLoginUi(self, Main):
         _translate = QtCore.QCoreApplication.translate
         Main.setWindowTitle(_translate("Main", "Main"))
-        self.pushButton.setText(_translate("Main", "PushButton"))
-        self.label.setText(_translate("Main", "TextLabel"))
-        self.pushButton_3.setText(_translate("Main", "PushButton"))
-        self.pushButton_2.setText(_translate("Main", "PushButton"))
+        self.pushButton.setText(_translate("Main", "Вход"))
+        self.label.setText(_translate("Main", "Сканируйте карту"))
+        self.pushButton_3.setText(_translate("Main", "Повторное сканирование"))
+        self.pushButton_2.setText(_translate("Main", "Настройки"))
 
     def login(self):
         password = self.lineEdit.text()
+        login = self.label.text()
 
-        pass
+        query = "set @k=null;"
+        cursor.execute(query)
+        data = (password, login)
+        query = "select if(pass=%s,1,0) from users where card_num=%s into @k;"
+        cursor.execute(query, data)
+        query = "select if(isnull(@k),0,if(@k=1,1,2));"
+        cursor.execute(query)
+
+        for item in cursor:
+            for value in item:
+                if str(value) == "1":
+                    pass  # ok
+                if str(value) == "2":
+                    self.lineEdit.setText("Пароль неверный")
+                if str(value) == "0":
+                    self.label.setText("Не валидная карта")
+
 
     def setupOrderUi(self):
         Main.showFullScreen()
