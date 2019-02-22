@@ -1,5 +1,5 @@
-from PyQt5 import QtCore, QtGui, QtWidgets
 import mysql.connector
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 cnx = mysql.connector.connect(user='kultura', password='ooofreash',
                               host='25.67.82.185',
@@ -66,6 +66,7 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def setupMainUi(self):
+        MainWindow.showFullScreen()
         MainWindow.setObjectName("MainWindow")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")

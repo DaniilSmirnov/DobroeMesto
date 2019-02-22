@@ -329,12 +329,17 @@ class MainWindow(object):
         for item in cursor:
             for value in item:
                 if str(value) == "1":
-                    pass  # ok
+                    query = "select idUsers from users where card_num = %s;"
+                    cursor.execute(query, data)
+                    for item in cursor:
+                        for value in item:
+                            query = "insert into shifts values(default,now(),null,%s,null,null,null,default);"
+                            data = (str(value),)
+                            cursor.execute(query, data)
                 if str(value) == "2":
                     self.lineEdit.setText("Пароль неверный")
                 if str(value) == "0":
                     self.label.setText("Не валидная карта")
-
 
     def setupOrderUi(self):
         Main.showFullScreen()
@@ -976,7 +981,6 @@ class MainWindow(object):
                 for value in item:
                     item_label = QtWidgets.QPushButton(str(value))
                     self.verticalLayout.addWidget(item_label)
-                    # item_label.setStyleSheet("background-color: ")
                     order_items.append(item_label)
 
             query = "SELECT total FROM orders WHERE No_orders = %s;"
