@@ -4,8 +4,6 @@ import mysql.connector
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QTimer
 
-import admin
-
 d = datetime.datetime.today()  # время получается один раз при запуске программы, требует обновления перед записью
 
 cnx = mysql.connector.connect(user='root', password='i130813',
@@ -89,6 +87,9 @@ class MainWindow(object):
         self.reservebutton.setFont(font)
         self.reservebutton.setObjectName("reservebutton")
         self.gridLayout.addWidget(self.reservebutton, 1, 2, 2, 1)
+
+        self.reservebutton.setEnabled(False)
+
         self.groupBox_2 = QtWidgets.QGroupBox(self.centralwidget)
         font = QtGui.QFont()
         font.setPointSize(10)
@@ -675,6 +676,10 @@ class MainWindow(object):
                 query = "delete from orders where no_orders= %s;"
                 data = (order_number,)
                 cursor.execute(query, data)
+                query = "delete from order_content where id_order= %s;"
+                data = (order_number,)
+                cursor.execute(query, data)
+                cnx.commit()
                 cnx.commit()
 
         self.setupUi()
@@ -919,6 +924,9 @@ class MainWindow(object):
         self.noncashbutton.clicked.connect(lambda: card())
 
         self.finalbutton.setEnabled(False)
+
+        global money
+        money = ""
 
         def cash():
             global is_cash
