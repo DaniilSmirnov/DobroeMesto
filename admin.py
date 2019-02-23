@@ -1,14 +1,10 @@
 import mysql.connector
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-cnx = mysql.connector.connect(user='kultura', password='ooofreash',
-                              host='25.67.82.185',
+cnx = mysql.connector.connect(user='root', password='i130813',
+                              host='localhost',
                               database='dobroe_mesto2')
 cursor = cnx.cursor()
-
-'''
-select * from trip;
-'''
 
 items = []
 
@@ -24,12 +20,12 @@ user_data = {}
 user_k = {}
 
 
-class Ui_MainWindow(object):
+class Ui_Admin(object):
 
     def setupUi(self):
-        MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1200, 700)
-        self.centralwidget = QtWidgets.QWidget(MainWindow)
+        Main.setObjectName("Main")
+        Main.resize(1200, 700)
+        self.centralwidget = QtWidgets.QWidget(Main)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayoutWidget = QtWidgets.QWidget(self.centralwidget)
         self.verticalLayoutWidget.setGeometry(QtCore.QRect(9, 9, 391, 181))
@@ -53,22 +49,22 @@ class Ui_MainWindow(object):
         self.pushButton = QtWidgets.QPushButton(self.verticalLayoutWidget)
         self.pushButton.setObjectName("pushButton")
         self.verticalLayout.addWidget(self.pushButton)
-        MainWindow.setCentralWidget(self.verticalLayoutWidget)
-        self.menubar = QtWidgets.QMenuBar(MainWindow)
+        Main.setCentralWidget(self.verticalLayoutWidget)
+        self.menubar = QtWidgets.QMenuBar(Main)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 411, 21))
         self.menubar.setObjectName("menubar")
-        MainWindow.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(MainWindow)
+        Main.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(Main)
         self.statusbar.setObjectName("statusbar")
-        MainWindow.setStatusBar(self.statusbar)
+        Main.setStatusBar(self.statusbar)
 
-        self.retranslateUi(MainWindow)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        self.retranslateUi(Main)
+        QtCore.QMetaObject.connectSlotsByName(Main)
 
     def setupMainUi(self):
-        MainWindow.showFullScreen()
-        MainWindow.setObjectName("MainWindow")
-        self.centralwidget = QtWidgets.QWidget(MainWindow)
+        Main.showFullScreen()
+        Main.setObjectName("Main")
+        self.centralwidget = QtWidgets.QWidget(Main)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
         self.verticalLayout.setObjectName("verticalLayout")
@@ -92,27 +88,27 @@ class Ui_MainWindow(object):
         self.workerbutton.setObjectName("workerbutton")
         self.verticalLayout.addWidget(self.workerbutton)
         self.closebutton = QtWidgets.QPushButton(self.centralwidget)
-        MainWindow.setCentralWidget(self.centralwidget)
+        Main.setCentralWidget(self.centralwidget)
         self.closebutton.setObjectName("cancelbutton")
         self.verticalLayout.addWidget(self.closebutton)
-        self.menubar = QtWidgets.QMenuBar(MainWindow)
+        self.menubar = QtWidgets.QMenuBar(Main)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 575, 21))
         self.menubar.setObjectName("menubar")
-        MainWindow.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(MainWindow)
+        Main.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(Main)
         self.statusbar.setObjectName("statusbar")
-        MainWindow.setStatusBar(self.statusbar)
+        Main.setStatusBar(self.statusbar)
 
-        self.retranslateMainUi(MainWindow)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        self.retranslateMainUi(Main)
+        QtCore.QMetaObject.connectSlotsByName(Main)
 
     def retranslateMainUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.savebutton.setText(_translate("MainWindow", "Сохранить"))
-        self.closebutton.setText(_translate("MainWindow", "Выйти"))
-        self.addproductbutton.setText(_translate("MainWindow", "Добавить товар"))
-        self.workerbutton.setText(_translate("MainWindow", "Добавить сотрудника"))
+        MainWindow.setWindowTitle(_translate("Main", "Main"))
+        self.savebutton.setText(_translate("Main", "Сохранить"))
+        self.closebutton.setText(_translate("Main", "Выйти"))
+        self.addproductbutton.setText(_translate("Main", "Добавить товар"))
+        self.workerbutton.setText(_translate("Main", "Добавить сотрудника"))
 
         self.addproductbutton.clicked.connect(self.setupproductUi)
         self.closebutton.clicked.connect(self.setupUi)
@@ -340,10 +336,10 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.label_2.setText(_translate("MainWindow", "Login"))
-        self.label.setText(_translate("MainWindow", "Password"))
-        self.pushButton.setText(_translate("MainWindow", "Войти"))
+        MainWindow.setWindowTitle(_translate("Main", "Main"))
+        self.label_2.setText(_translate("Main", "Login"))
+        self.label.setText(_translate("Main", "Password"))
+        self.pushButton.setText(_translate("Main", "Войти"))
 
         self.pushButton.clicked.connect(self.login)
 
@@ -363,8 +359,8 @@ class Ui_MainWindow(object):
                         self.setupMainUi()
 
     def setupproductUi(self):
-        MainWindow.setObjectName("MainWindow")
-        self.centralwidget = QtWidgets.QWidget(MainWindow)
+        Main.setObjectName("Main")
+        self.centralwidget = QtWidgets.QWidget(Main)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
@@ -398,27 +394,27 @@ class Ui_MainWindow(object):
         self.lineEdit_4 = QtWidgets.QLineEdit(self.centralwidget)
         self.lineEdit_4.setObjectName("lineEdit_4")
         self.gridLayout.addWidget(self.lineEdit_4, 1, 3, 1, 1)
-        MainWindow.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(MainWindow)
+        Main.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(Main)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 557, 21))
         self.menubar.setObjectName("menubar")
-        MainWindow.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(MainWindow)
+        Main.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(Main)
         self.statusbar.setObjectName("statusbar")
-        MainWindow.setStatusBar(self.statusbar)
+        Main.setStatusBar(self.statusbar)
 
-        self.retranslateproductUi(MainWindow)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        self.retranslateproductUi(Main)
+        QtCore.QMetaObject.connectSlotsByName(Main)
 
-    def retranslateproductUi(self, MainWindow):
+    def retranslateproductUi(self, Main):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.pushButton.setText(_translate("MainWindow", "Сохранить"))
-        self.pushButton_2.setText(_translate("MainWindow", "Назад"))
-        self.label_4.setText(_translate("MainWindow", "Категория"))
-        self.label.setText(_translate("MainWindow", "Название"))
-        self.label_2.setText(_translate("MainWindow", "Стоимость"))
-        self.label_3.setText(_translate("MainWindow", "Количество"))
+        Main.setWindowTitle(_translate("Main", "Main"))
+        self.pushButton.setText(_translate("Main", "Сохранить"))
+        self.pushButton_2.setText(_translate("Main", "Назад"))
+        self.label_4.setText(_translate("Main", "Категория"))
+        self.label.setText(_translate("Main", "Название"))
+        self.label_2.setText(_translate("Main", "Стоимость"))
+        self.label_3.setText(_translate("Main", "Количество"))
 
         self.pushButton_2.clicked.connect(self.setupMainUi)
         self.pushButton.clicked.connect(self.writeproduct)
@@ -431,8 +427,8 @@ class Ui_MainWindow(object):
         self.setupMainUi()
 
     def setupworkUi(self):
-        MainWindow.setObjectName("MainWindow")
-        self.centralwidget = QtWidgets.QWidget(MainWindow)
+        Main.setObjectName("Main")
+        self.centralwidget = QtWidgets.QWidget(Main)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
@@ -466,27 +462,27 @@ class Ui_MainWindow(object):
         self.lineEdit = QtWidgets.QLineEdit(self.centralwidget)
         self.lineEdit.setObjectName("lineEdit")
         self.gridLayout.addWidget(self.lineEdit, 1, 0, 1, 1)
-        MainWindow.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(MainWindow)
+        Main.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(Main)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 557, 21))
         self.menubar.setObjectName("menubar")
-        MainWindow.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(MainWindow)
+        Main.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(Main)
         self.statusbar.setObjectName("statusbar")
-        MainWindow.setStatusBar(self.statusbar)
+        Main.setStatusBar(self.statusbar)
 
-        self.retranslateworkUi(MainWindow)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        self.retranslateworkUi(Main)
+        QtCore.QMetaObject.connectSlotsByName(Main)
 
-    def retranslateworkUi(self, MainWindow):
+    def retranslateworkUi(self, Main):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.pushButton.setText(_translate("MainWindow", "Сохранить"))
-        self.pushButton_2.setText(_translate("MainWindow", "Назад"))
-        self.label_4.setText(_translate("MainWindow", "Уровень пользователя"))
-        self.label.setText(_translate("MainWindow", "Имя"))
-        self.label_2.setText(_translate("MainWindow", "Номер карты"))
-        self.label_3.setText(_translate("MainWindow", "Пароль"))
+        Main.setWindowTitle(_translate("Main", "Main"))
+        self.pushButton.setText(_translate("Main", "Сохранить"))
+        self.pushButton_2.setText(_translate("Main", "Назад"))
+        self.label_4.setText(_translate("Main", "Уровень пользователя"))
+        self.label.setText(_translate("Main", "Имя"))
+        self.label_2.setText(_translate("Main", "Номер карты"))
+        self.label_3.setText(_translate("Main", "Пароль"))
 
         self.pushButton_2.clicked.connect(self.setupMainUi)
         self.pushButton.clicked.connect(self.writeworker)
@@ -503,9 +499,14 @@ if __name__ == "__main__":
     import sys
 
     app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
+    Main = QtWidgets.QMainWindow()
     app.setStyle("Fusion")
-    ui = Ui_MainWindow()
+    ui = Ui_Admin()
     ui.setupMainUi()
-    MainWindow.show()
+    Main.show()
     sys.exit(app.exec_())
+else:
+    import sys
+
+    Main = QtWidgets.QMainWindow()
+    ui = Ui_Admin()

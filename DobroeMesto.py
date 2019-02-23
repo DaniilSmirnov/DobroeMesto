@@ -4,6 +4,8 @@ import mysql.connector
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QTimer
 
+import admin
+
 d = datetime.datetime.today()  # время получается один раз при запуске программы, требует обновления перед записью
 
 cnx = mysql.connector.connect(user='root', password='i130813',
@@ -144,6 +146,12 @@ class MainWindow(object):
         self.closedordersbutton = QtWidgets.QPushButton(self.centralwidget)
         self.adminboxlayout.addWidget(self.closedordersbutton)
         self.closedordersbutton.setText("Закрытые заказы")
+        self.closedordersbutton.setEnabled(False)
+
+        self.modifydatabutton = QtWidgets.QPushButton(self.centralwidget)
+        self.adminboxlayout.addWidget(self.modifydatabutton)
+        self.modifydatabutton.setText("Редактирование базы")
+        # self.modifydatabutton.setEnabled(False)
 
         self.gridLayout.addWidget(self.groupBox, 3, 0, 2, 1)
         self.gridLayout_4.addLayout(self.gridLayout, 0, 0, 1, 1)
@@ -188,6 +196,25 @@ class MainWindow(object):
         self.closedordersbutton.clicked.connect(self.setupClosedOrdersUi)
 
         self.printXbutton.clicked.connect(self.printX)
+
+        self.modifydatabutton.clicked.connect(self.openadmin)
+        '''
+        query = "select User_lvl from users where idUsers = %s"
+        cursor.execute(query, (iduser, ))
+
+        for item in cursor:
+            for value in item:
+                if int(value) == 1:
+                    pass
+                if int(value) == 2:
+                    pass
+                if int(value) == 3:
+                    self.closedordersbutton.setEnabled(True)
+                    self.modifydatabutton.setEnabled(True)
+        '''
+
+    def openadmin(self):
+        admin.Ui_Admin.setupMainUi(self, self)
 
     def printX(self):
         query = "select sum(total) from orders;"
@@ -329,13 +356,17 @@ class MainWindow(object):
         for item in cursor:
             for value in item:
                 if str(value) == "1":
-                    query = "select idUsers from users where card_num = %s;"
-                    cursor.execute(query, data)
-                    for item in cursor:
-                        for value in item:
-                            query = "insert into shifts values(default,now(),null,%s,null,null,null,default);"
-                            data = (str(value),)
-                            cursor.execute(query, data)
+                    global isopen
+                    if isopen:
+                        pass
+                    else:
+                        query = "select idUsers from users where card_num = %s;"
+                        cursor.execute(query, data)
+                        for item in cursor:
+                            for value in item:
+                                query = "insert into shifts values(default,now(),null,%s,null,null,null,default);"
+                                data = (str(value),)
+                                cursor.execute(query, data)
                 if str(value) == "2":
                     self.lineEdit.setText("Пароль неверный")
                 if str(value) == "0":
@@ -430,11 +461,11 @@ class MainWindow(object):
 
     def retranslateOrderUi(self, Main):
         _translate = QtCore.QCoreApplication.translate
-        Main.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.backbutton.setText(_translate("MainWindow", "Назад"))
-        self.savebutton.setText(_translate("MainWindow", "Сохранить"))
-        self.cancelbutton.setText(_translate("MainWindow", "Отмена"))
-        self.cashbutton.setText(_translate("MainWindow", "Чек"))
+        Main.setWindowTitle(_translate("Main", "Main"))
+        self.backbutton.setText(_translate("Main", "Назад"))
+        self.savebutton.setText(_translate("Main", "Сохранить"))
+        self.cancelbutton.setText(_translate("Main", "Отмена"))
+        self.cashbutton.setText(_translate("Main", "Чек"))
 
         self.cashbutton.clicked.connect(lambda: opencashbox())
         self.cancelbutton.clicked.connect(self.cancel_order)
