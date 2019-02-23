@@ -62,6 +62,7 @@ class Ui_Admin(object):
         QtCore.QMetaObject.connectSlotsByName(Main)
 
     def setupMainUi(self):
+
         Main.showFullScreen()
         Main.setObjectName("Main")
         self.centralwidget = QtWidgets.QWidget(Main)
@@ -505,8 +506,7 @@ if __name__ == "__main__":
     ui.setupMainUi()
     Main.show()
     sys.exit(app.exec_())
+'''
 else:
-    import sys
-
     Main = QtWidgets.QMainWindow()
-    ui = Ui_Admin()
+'''

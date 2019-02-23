@@ -148,10 +148,9 @@ class MainWindow(object):
         self.closedordersbutton.setText("Закрытые заказы")
         self.closedordersbutton.setEnabled(False)
 
-        self.modifydatabutton = QtWidgets.QPushButton(self.centralwidget)
-        self.adminboxlayout.addWidget(self.modifydatabutton)
-        self.modifydatabutton.setText("Редактирование базы")
-        # self.modifydatabutton.setEnabled(False)
+        self.raspbutton = QtWidgets.QPushButton(self.centralwidget)
+        self.adminboxlayout.addWidget(self.raspbutton)
+        self.raspbutton.setText("Расписание")
 
         self.gridLayout.addWidget(self.groupBox, 3, 0, 2, 1)
         self.gridLayout_4.addLayout(self.gridLayout, 0, 0, 1, 1)
@@ -196,8 +195,8 @@ class MainWindow(object):
         self.closedordersbutton.clicked.connect(self.setupClosedOrdersUi)
 
         self.printXbutton.clicked.connect(self.printX)
+        self.raspbutton.clicked.connect(self.setupraspUi)
 
-        self.modifydatabutton.clicked.connect(self.openadmin)
         '''
         query = "select User_lvl from users where idUsers = %s"
         cursor.execute(query, (iduser, ))
@@ -210,11 +209,7 @@ class MainWindow(object):
                     pass
                 if int(value) == 3:
                     self.closedordersbutton.setEnabled(True)
-                    self.modifydatabutton.setEnabled(True)
         '''
-
-    def openadmin(self):
-        admin.Ui_Admin.setupMainUi(self, self)
 
     def printX(self):
         query = "select sum(total) from orders;"
@@ -1140,6 +1135,74 @@ class MainWindow(object):
             order_number = int(value)
             is_ex = True
             self.setupOrderUi()
+
+    def setupraspUi(self):
+        Main.setObjectName("Main")
+        Main.showFullScreen()
+        self.centralwidget = QtWidgets.QWidget(Main)
+        self.centralwidget.setObjectName("centralwidget")
+        self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
+        self.gridLayout.setObjectName("gridLayout")
+        self.label = QtWidgets.QLabel(self.centralwidget)
+        self.label.setObjectName("label")
+        self.gridLayout.addWidget(self.label, 0, 0, 1, 1)
+        self.label_2 = QtWidgets.QLabel(self.centralwidget)
+        self.label_2.setObjectName("label_2")
+        self.gridLayout.addWidget(self.label_2, 0, 1, 1, 1)
+        self.label_3 = QtWidgets.QLabel(self.centralwidget)
+        self.label_3.setObjectName("label_3")
+        self.gridLayout.addWidget(self.label_3, 0, 2, 1, 1)
+        self.label_4 = QtWidgets.QLabel(self.centralwidget)
+        self.label_4.setObjectName("label_4")
+        self.gridLayout.addWidget(self.label_4, 0, 3, 1, 1)
+        self.label_5 = QtWidgets.QLabel(self.centralwidget)
+        self.label_5.setObjectName("label_5")
+        self.gridLayout.addWidget(self.label_5, 0, 4, 1, 1)
+        self.label_6 = QtWidgets.QLabel(self.centralwidget)
+        self.label_6.setObjectName("label_6")
+        self.gridLayout.addWidget(self.label_6, 0, 5, 1, 1)
+        self.label_7 = QtWidgets.QLabel(self.centralwidget)
+        self.label_7.setObjectName("label_7")
+        self.gridLayout.addWidget(self.label_7, 0, 6, 1, 1)
+        self.label_8 = QtWidgets.QLabel(self.centralwidget)
+        self.label_8.setObjectName("label_8")
+        self.gridLayout.addWidget(self.label_8, 0, 7, 1, 1)
+        Main.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(Main)
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 785, 20))
+        self.menubar.setObjectName("menubar")
+        Main.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(Main)
+        self.statusbar.setObjectName("statusbar")
+        Main.setStatusBar(self.statusbar)
+
+        self.retranslateraspUi(Main)
+        QtCore.QMetaObject.connectSlotsByName(Main)
+
+    def retranslateraspUi(self, MainWindow):
+        _translate = QtCore.QCoreApplication.translate
+        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        self.label.setText(_translate("MainWindow", "Сотрудник"))
+        self.label_2.setText(_translate("MainWindow", "Пн"))
+        self.label_3.setText(_translate("MainWindow", "Вт"))
+        self.label_4.setText(_translate("MainWindow", "Ср"))
+        self.label_5.setText(_translate("MainWindow", "Чт"))
+        self.label_6.setText(_translate("MainWindow", "Пт"))
+        self.label_7.setText(_translate("MainWindow", "Сб"))
+        self.label_8.setText(_translate("MainWindow", "Вс"))
+
+        query = "select * from schedule"
+        cursor.execute(query)
+
+        j = 0
+        i = 1
+        for item in cursor:
+            for value in item:
+                label = QtWidgets.QLabel(str(value))
+                self.gridLayout.addWidget(label, i, j, 1, 1)
+                j += 1
+            i += 1
+            j = 0
 
 
 if __name__ == "__main__":
