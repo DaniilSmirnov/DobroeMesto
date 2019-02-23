@@ -1212,6 +1212,10 @@ class MainWindow(object):
             i += 1
             j = 0
 
+        cancelbutton = QtWidgets.QPushButton("Назад")
+        cancelbutton.clicked.connect(self.setupUi)
+        self.gridLayout.addWidget(cancelbutton, i, j, 8, 8)
+
 
 if __name__ == "__main__":
     import sys
