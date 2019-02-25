@@ -259,8 +259,11 @@ class MainWindow(object):
         cursor.execute(query)
 
         for item in cursor:
+            font = QtGui.QFont()
+            font.setPointSize(20)
             item_group = QtWidgets.QGroupBox("Заказ: " + str(item[0]))
             self.orderslayout.addWidget(item_group)
+            item_group.setFont(font)
             orderslayout = QtWidgets.QVBoxLayout(item_group)
             for value in item:
                 item_label = QtWidgets.QLabel(str(value))
@@ -506,13 +509,15 @@ class MainWindow(object):
 
             for item in cursor:
                 for value in item:
+                    font = QtGui.QFont()
+                    font.setPointSize(20)
                     item_button = QtWidgets.QPushButton(str(value))
                     self.categorieslayout.addWidget(item_button)
                     item_button.clicked.connect(lambda state, button=item_button: select_sub(button))
                     item_button.setStyleSheet("background-color: orange")
                     item_button.setFont(font)
                     menu_items.append(item_button)
-
+                    item_button.setFont(font)
             if is_ex:
                 draw_order()
 
@@ -603,10 +608,13 @@ class MainWindow(object):
                         j += 1
                         no = int(value)
                         continue
+                    font = QtGui.QFont()
+                    font.setPointSize(20)
                     item_label = QtWidgets.QPushButton(str(value))
                     self.gridLayout_2.addWidget(item_label, i, 0, 1, 1)
                     item_label.clicked.connect(lambda state, id=no: delete_item(id))
                     item_label.setStyleSheet("background-color: red")
+                    item_label.setFont(font)
                     order_items.append(item_label)
                     i += 1
                     j += 1
@@ -1110,10 +1118,14 @@ class MainWindow(object):
         order_totals.clear()
         order_no.clear()
 
+        font = QtGui.QFont()
+        font.setPointSize(20)
+
         for item in cursor:
             item_group = QtWidgets.QGroupBox("Клиент: " + str(item[0]))
             categorieslayout = QtWidgets.QVBoxLayout(item_group)
             self.orderslayout.addWidget(item_group, j, k, 1, 1)
+            item_group.setFont(font)
 
             k += 1
             if k % 3 == 0:
@@ -1122,18 +1134,22 @@ class MainWindow(object):
             for value in item:
                 if i == 2:
                     item_label = QtWidgets.QLabel("Заказ открыт: " + str(value))
+                    item_label.setFont(font)
                     categorieslayout.addWidget(item_label)
                 if i == 3:
                     item_label = QtWidgets.QLabel("К оплате: " + str(value))
+                    item_label.setFont(font)
                     categorieslayout.addWidget(item_label)
                     order_totals.append(item_label)
                 if i == 4:
                     item_button = QtWidgets.QPushButton("Просмотреть")
+                    item_button.setFont(font)
                     categorieslayout.addWidget(item_button)
                     item_button.clicked.connect(lambda state, order=value: open_order(order))
                     order_no.append(value)
                     item_button = QtWidgets.QPushButton("Рассчитать")
                     categorieslayout.addWidget(item_button)
+                    item_button.setFont(font)
                     item_button.clicked.connect(lambda state, order=value: open_order(order))
                     i = 0
                 i += 1
@@ -1273,7 +1289,7 @@ if __name__ == "__main__":
         except RuntimeError:
             pass
 
-
+    BackgroundThread()
     timer = QTimer()
     timer.timeout.connect(BackgroundThread)
     timer.start(1000)
