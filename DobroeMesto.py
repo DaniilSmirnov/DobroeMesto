@@ -1620,6 +1620,6 @@ if __name__ == "__main__":
 
     timer = QTimer()
     timer.timeout.connect(BackgroundThread)
-    timer.start(1000)
+    timer.start(100)
 
     sys.exit(app.exec_())
