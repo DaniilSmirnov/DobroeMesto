@@ -210,7 +210,6 @@ class MainWindow(object):
 
         self.modifydatabutton.clicked.connect(self.setupAdminUi)
 
-
         '''
         query = "select User_lvl from users where idUsers = %s"
         cursor.execute(query, (iduser, ))
@@ -226,15 +225,14 @@ class MainWindow(object):
                     self.modifydatabutton.setEnabled(True)
         '''
 
-
     def printX(self):
         query = "select sum(total) from orders;"
         cursor.execute(query)
 
         query = "select sum(total) from orders where type = %s;"
-        data = ("Cash", )
+        data = ("Cash",)
         cursor.execute(query, data)
-        data = ("Card", )
+        data = ("Card",)
         cursor.execute(query, data)
 
     def setupClosedOrdersUi(self):
@@ -270,7 +268,8 @@ class MainWindow(object):
         self.loginbutton.setText(_translate("Main", "Закрыть"))
         self.loginbutton.clicked.connect(self.setupUi)
 
-        query = "select no_orders,name,total,Open_date from orders,clients where id_visitor=id_client && close_date is not null;"
+        query = "select no_orders,name,total,Open_date from orders,clients " \
+                "where id_visitor=id_client && close_date is not null;"
         cursor.execute(query)
 
         for item in cursor:
@@ -589,7 +588,7 @@ class MainWindow(object):
             cursor.execute(query, data)
 
             query = "update products set product_amount=product_amount-1 where products=%s && product_amount>0;"
-            data = (button.text(), )
+            data = (button.text(),)
             cursor.execute(query, data)
 
             cnx.commit()
@@ -1108,7 +1107,8 @@ class MainWindow(object):
         self.mainbutton.clicked.connect(self.setupUi)
         self.newbutton.clicked.connect(self.setupOrderUi)
 
-        query = "select name,open_date,total,No_orders from orders,clients where id_visitor=id_client && isnull(close_date);"
+        query = "select name,open_date,total,No_orders from orders,clients " \
+                "where id_visitor=id_client && isnull(close_date);"
         cursor.execute(query)
 
         i = 1
@@ -1572,6 +1572,7 @@ if __name__ == "__main__":
     ui.setupUi()
     Main.show()
 
+
     def BackgroundThread():
         date = datetime.datetime.today()
         months = ["Января", "Февраля", "Марта", "Апреля", "Мая", "Июня", "Июля", "Августа", "Сентября", "Октября",
@@ -1617,6 +1618,7 @@ if __name__ == "__main__":
 
         except RuntimeError:
             pass
+
 
     timer = QTimer()
     timer.timeout.connect(BackgroundThread)
