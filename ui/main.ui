@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>998</width>
-    <height>775</height>
+       <width>816</width>
+       <height>628</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -16,6 +16,11 @@
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
+     <property name="font">
+         <font>
+             <pointsize>20</pointsize>
+         </font>
+     </property>
   <property name="windowTitle">
    <string>Main</string>
   </property>
@@ -38,57 +43,8 @@
       <property name="sizeConstraint">
        <enum>QLayout::SetDefaultConstraint</enum>
       </property>
-      <item row="3" column="3" rowspan="2">
-       <widget class="QGroupBox" name="managementgroup">
-        <property name="font">
-         <font>
-          <pointsize>20</pointsize>
-         </font>
-        </property>
-        <property name="title">
-         <string>Управление</string>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_3">
-         <item row="0" column="0">
-          <widget class="QPushButton" name="opencashboxbuttton">
-           <property name="text">
-            <string>Открыть кассу</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QPushButton" name="closebutton">
-           <property name="text">
-            <string>Закрыть смену</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QPushButton" name="printXbutton">
-           <property name="text">
-            <string>Печать X отчета</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="0">
-          <widget class="QPushButton" name="exitbutton">
-           <property name="text">
-            <string>Выход в Windows</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item row="5" column="0">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="2" rowspan="2">
-       <widget class="QPushButton" name="reservebutton">
+         <item row="3" column="3">
+             <widget class="QPushButton" name="cashbox">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
           <horstretch>0</horstretch>
@@ -101,7 +57,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Бронирование</string>
+            <string>Рассчет</string>
         </property>
        </widget>
       </item>
@@ -131,7 +87,34 @@
         </layout>
        </widget>
       </item>
-      <item row="1" column="0" rowspan="2">
+         <item row="1" column="0" rowspan="10" colspan="3">
+             <widget class="QGroupBox" name="groupBox">
+                 <property name="title">
+                     <string>Гости</string>
+                 </property>
+                 <layout class="QVBoxLayout" name="verticalLayout">
+                     <item>
+                         <widget class="QScrollArea" name="scrollArea">
+                             <property name="widgetResizable">
+                                 <bool>true</bool>
+                             </property>
+                             <widget class="QWidget" name="ordersview">
+                                 <property name="geometry">
+                                     <rect>
+                                         <x>0</x>
+                                         <y>0</y>
+                                         <width>474</width>
+                                         <height>422</height>
+                                     </rect>
+                                 </property>
+                                 <layout class="QGridLayout" name="gridLayout_2"/>
+                             </widget>
+                         </widget>
+                     </item>
+                 </layout>
+             </widget>
+         </item>
+         <item row="1" column="3">
        <widget class="QPushButton" name="orderbutton">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -145,12 +128,12 @@
          </font>
         </property>
         <property name="text">
-         <string>Заказ</string>
+            <string>Новый гость</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="1" rowspan="2">
-       <widget class="QPushButton" name="pushButton">
+         <item row="2" column="3">
+             <widget class="QPushButton" name="reservebutton">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
           <horstretch>0</horstretch>
@@ -163,12 +146,38 @@
          </font>
         </property>
         <property name="text">
-         <string>Просмотр</string>
+            <string>Бронирование</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="3" rowspan="2">
-       <widget class="QPushButton" name="cashbox">
+         <item row="9" column="3">
+             <widget class="QPushButton" name="closedaybutton">
+                 <property name="sizePolicy">
+                     <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                     </sizepolicy>
+                 </property>
+                 <property name="text">
+                     <string>Закрытие смены</string>
+                 </property>
+             </widget>
+         </item>
+         <item row="10" column="3">
+             <widget class="QPushButton" name="adminbutton">
+                 <property name="sizePolicy">
+                     <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                     </sizepolicy>
+                 </property>
+                 <property name="text">
+                     <string>Редактирование Базы</string>
+                 </property>
+             </widget>
+         </item>
+         <item row="7" column="3">
+             <widget class="QPushButton" name="notificationbutton">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
           <horstretch>0</horstretch>
@@ -181,19 +190,32 @@
          </font>
         </property>
         <property name="text">
-         <string>Касса</string>
+            <string>Уведомления</string>
         </property>
        </widget>
       </item>
-      <item row="3" column="0" rowspan="2">
-       <widget class="QGroupBox" name="groupBox">
+         <item row="4" column="3">
+             <widget class="QPushButton" name="xbutton">
+                 <property name="sizePolicy">
+                     <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                     </sizepolicy>
+                 </property>
         <property name="font">
          <font>
           <pointsize>20</pointsize>
          </font>
         </property>
-        <property name="title">
-         <string>Администрирование</string>
+                 <property name="text">
+                     <string>Промежуточный отчет</string>
+                 </property>
+             </widget>
+         </item>
+         <item row="6" column="3">
+             <widget class="QPushButton" name="screenlockbutton">
+                 <property name="text">
+                     <string>Блокировка</string>
         </property>
        </widget>
       </item>
