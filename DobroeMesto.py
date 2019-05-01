@@ -13,6 +13,7 @@ try:
 
     cursor = cnx.cursor(buffered=True)
     bcursor = cnx.cursor(buffered=True)
+    ccursor = cnx.cursor(buffered=True)
 
 except BaseException as e:
     # TODO: Доделать
@@ -177,8 +178,12 @@ class MainWindow(object):
         self.retranslateUi(Main)
         QtCore.QMetaObject.connectSlotsByName(Main)
 
-    def test(self):
+    def openAdmin(self):
         w = AdminWindow()
+        w.exec_()
+
+    def openNewOrder(self):
+        w = NewOrderWindow()
         w.exec_()
 
     def retranslateUi(self, Main):
@@ -196,7 +201,8 @@ class MainWindow(object):
         self.xbutton.setText(_translate("Main", "Промежуточный отчет"))
         self.screenlockbutton.setText(_translate("Main", "Блокировка"))
 
-        self.adminbutton.clicked.connect(self.test)
+        self.adminbutton.clicked.connect(self.openAdmin)
+        self.orderbutton.clicked.connect(self.openNewOrder)
 
         '''
         query = "select User_lvl from users where idUsers = %s"
@@ -1467,6 +1473,98 @@ class AdminWindow(QtWidgets.QDialog, AdminWindowUi):
     def __init__(self, parent=None):
         super(AdminWindow, self).__init__(parent)
         self.setupAdminUi(self)
+
+
+class NewOrderWindowUi(object):
+    def setupUi(self, NewOrderWindowUi):
+        NewOrderWindowUi.setWindowTitle("Новый клиент")
+        NewOrderWindowUi.setObjectName("NewOrderWindowUi")
+        NewOrderWindowUi.resize(408, 300)
+        self.gridLayout = QtWidgets.QGridLayout(NewOrderWindowUi)
+        self.gridLayout.setObjectName("gridLayout")
+        self.tabWidget = QtWidgets.QTabWidget(NewOrderWindowUi)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy.setHorizontalStretch(10)
+        sizePolicy.setVerticalStretch(10)
+        sizePolicy.setHeightForWidth(self.tabWidget.sizePolicy().hasHeightForWidth())
+        self.tabWidget.setSizePolicy(sizePolicy)
+        self.tabWidget.setObjectName("tabWidget")
+        self.gridLayout.addWidget(self.tabWidget, 1, 0, 1, 1)
+        self.scanbutton = QtWidgets.QPushButton(NewOrderWindowUi)
+        self.scanbutton.setObjectName("scanbutton")
+        self.gridLayout.addWidget(self.scanbutton, 2, 0, 1, 2)
+        self.createbutton = QtWidgets.QPushButton(NewOrderWindowUi)
+        self.createbutton.setObjectName("createbutton")
+        self.gridLayout.addWidget(self.createbutton, 3, 0, 1, 2)
+        self.OrderBox = QtWidgets.QGroupBox(NewOrderWindowUi)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy.setHorizontalStretch(10)
+        sizePolicy.setVerticalStretch(10)
+        sizePolicy.setHeightForWidth(self.OrderBox.sizePolicy().hasHeightForWidth())
+        self.OrderBox.setSizePolicy(sizePolicy)
+        self.OrderBox.setObjectName("OrderBox")
+        self.scrollArea = QtWidgets.QScrollArea(self.OrderBox)
+        self.scrollArea.setWidgetResizable(True)
+        self.scrollArea.setObjectName("scrollArea")
+        self.scrollAreaWidgetContents = QtWidgets.QWidget()
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 170, 189))
+        self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
+        self.gridLayout_3 = QtWidgets.QGridLayout(self.scrollAreaWidgetContents)
+        self.gridLayout_3.setObjectName("gridLayout_3")
+        self.scrollArea.setWidget(self.scrollAreaWidgetContents)
+        self.gridLayout_2 = QtWidgets.QGridLayout(self.OrderBox)
+        self.gridLayout_2.setObjectName("gridLayout_2")
+        self.gridLayout_2.addWidget(self.scrollArea, 0, 0, 1, 1)
+        self.gridLayout.addWidget(self.OrderBox, 1, 1, 1, 1)
+
+        self.retranslateUi(NewOrderWindowUi)
+        self.tabWidget.setCurrentIndex(0)
+        QtCore.QMetaObject.connectSlotsByName(NewOrderWindowUi)
+
+    def retranslateUi(self, NewOrderWindowUi):
+        _translate = QtCore.QCoreApplication.translate
+        self.scanbutton.setText(_translate("NewOrderWindowUi", "Сканировать карту гостя"))
+        self.createbutton.setText(_translate("NewOrderWindowUi", "Создать "))
+        self.OrderBox.setTitle(_translate("NewOrderWindowUi", "Заказ"))
+
+        order = []
+
+        query = "select distinct product_category from products"
+        cursor.execute(query)
+        for item in cursor:
+            for value in item:
+                tab = QtWidgets.QWidget()
+                self.tabWidget.addTab(tab, str(value))
+                tab_layout = QtWidgets.QVBoxLayout()
+                tab.setLayout(tab_layout)
+                query = "select products from products where product_category=%s;"
+                data = (value,)
+                bcursor.execute(query, data)
+                for response in bcursor:
+                    for result in response:
+                        result = str(result)
+                        item_button = QtWidgets.QPushButton(result)
+                        tab_layout.addWidget(item_button)
+                        item_button.clicked.connect(lambda state, button=item_button: select_item(button))
+
+        def select_item(button):
+            order.append(button)
+            i = 0
+            for item in order:
+                self.gridLayout_3.addWidget(QtWidgets.QPushButton(item.text()), i, 0, 1, 1)
+                query = "select Product_cost from products where products=%s;"
+                data = (item.text(),)
+                ccursor.execute(query, data)
+                for citem in ccursor:
+                    for cvalue in citem:
+                        self.gridLayout_3.addWidget(QtWidgets.QLabel(str(cvalue)), i, 1, 1, 1)
+                i += 1
+
+
+class NewOrderWindow(QtWidgets.QDialog, NewOrderWindowUi):
+    def __init__(self, parent=None):
+        super(NewOrderWindow, self).__init__(parent)
+        self.setupUi(self)
 
 
 if __name__ == "__main__":
