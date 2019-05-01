@@ -196,20 +196,21 @@ class MainWindow(object):
 
         Main.showMaximized()
 
-        self.retranslateUi(Main)
+        self.retranslateUi()
         QtCore.QMetaObject.connectSlotsByName(Main)
 
     def openAdmin(self):
         w = AdminWindow()
         w.exec_()
+        self.draw_orders()
 
     def openNewOrder(self):
         w = NewOrderWindow()
         w.exec_()
+        self.draw_orders()
 
-    def retranslateUi(self, Main):
+    def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
-        Main.setWindowTitle(_translate("Main", "Main"))
         self.cashbox.setText(_translate("Main", "Рассчет"))
         self.groupBox_2.setTitle(_translate("Main", "Информация"))
         self.infolabel.setText(_translate("Main", "Время + дата"))
@@ -224,6 +225,7 @@ class MainWindow(object):
 
         self.adminbutton.clicked.connect(self.openAdmin)
         self.orderbutton.clicked.connect(self.openNewOrder)
+        self.draw_orders()
 
         '''
         query = "select User_lvl from users where idUsers = %s"
@@ -240,13 +242,12 @@ class MainWindow(object):
                     self.modifydatabutton.setEnabled(True)
         '''
 
+    def draw_orders(self):
         query = "select name,open_date,total,No_orders from orders,clients " \
                 "where id_visitor=id_client && isnull(close_date);"
         cursor.execute(query)
 
         i = 1
-        j = 1
-        k = 0
 
         order_totals.clear()
         order_no.clear()
@@ -1331,7 +1332,8 @@ class NewOrderWindowUi(object):
                 data = (number, item.text())
                 cursor.execute(query, data)
                 cnx.commit()
-                NewOrderWindowUi.done(1)
+            Message.create(Message, "Инфо", "Заказ добавлен")
+            NewOrderWindowUi.accept()
 
         self.createbutton.clicked.connect(create_order)
 
@@ -1340,6 +1342,14 @@ class NewOrderWindow(QtWidgets.QDialog, NewOrderWindowUi):
     def __init__(self, parent=None):
         super(NewOrderWindow, self).__init__(parent)
         self.setupUi(self)
+
+
+class Message(object):
+    def create(self, Title, Text):
+        msgbox = QtWidgets.QMessageBox()
+        msgbox.setWindowTitle(Title)
+        msgbox.setText(Text)
+        msgbox.exec()
 
 
 if __name__ == "__main__":
@@ -1403,7 +1413,6 @@ if __name__ == "__main__":
 
         except BaseException:
             pass
-
 
     timer = QTimer()
     timer.timeout.connect(BackgroundThread)
