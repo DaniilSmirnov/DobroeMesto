@@ -16,9 +16,16 @@ try:
     ccursor = cnx.cursor(buffered=True)
 
 except BaseException as e:
-    # TODO: Доделать
-    pass
-    # QtWidgets.QMessageBox.about(, "Title", "Message")
+    import sys
+
+    app = QtWidgets.QApplication(sys.argv)
+    app.setStyle("Fusion")
+    msgbox = QtWidgets.QMessageBox()
+    msgbox.setWindowTitle("Ошибка соединения с базой данных")
+    msgbox.setText('Проверьте подключение к Базе Данных')
+    msgbox.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
+    msgbox.setDetailedText(str(e))
+    msgbox.exec()
 
 query = "insert into orders values (default,now(),null,null,228,null,228);"
 
@@ -29,6 +36,10 @@ query = "select no_orders from orders order by no_orders desc limit 1 ;"
 query = "insert into order_content values(%s,%s, default,curtime());"
 
 query = "select no, content from order_content where id_order=%s;"
+
+query = "delete from order_content where no =%s;"
+
+query = "UPDATE order_content SET no = no-1 WHERE no > %s;"
 
 menu_items = []
 order_items = []
@@ -429,20 +440,6 @@ class MainWindow(object):
                     self.lineEdit.setText("Пароль неверный")
                 if str(value) == "0":
                     self.label.setText("Не валидная карта")
-
-    def retranslateOrderUi(self, Main):
-
-        def delete_item(id):
-
-            query = "delete from order_content where no =%s;"
-            data = (id,)
-            cursor.execute(query, data)
-
-            query = "UPDATE order_content SET no = no-1 WHERE no > %s;"
-            data = (id,)
-            cursor.execute(query, data)
-
-            cnx.commit()
 
     def save_order(self):
         global order_number
@@ -1286,7 +1283,6 @@ class NewOrderWindowUi(object):
         self.scanbutton.setText(_translate("NewOrderWindowUi", "Сканировать карту гостя"))
         self.createbutton.setText(_translate("NewOrderWindowUi", "Создать "))
         self.OrderBox.setTitle(_translate("NewOrderWindowUi", "Заказ"))
-
 
         order = []
 
