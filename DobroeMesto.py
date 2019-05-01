@@ -1092,7 +1092,8 @@ class MainWindow(object):
 class AdminWindowUi(object):
     def setupAdminUi(self, AdminWindowUi):
         AdminWindowUi.setObjectName("AdminWindowUi")
-        AdminWindowUi.resize(400, 300)
+        AdminWindowUi.showNormal()
+        AdminWindowUi.setWindowTitle("Редактирование Базы Данных")
         self.gridLayout = QtWidgets.QGridLayout(AdminWindowUi)
         self.gridLayout.setObjectName("gridLayout")
         self.savebutton = QtWidgets.QPushButton(AdminWindowUi)
@@ -1134,8 +1135,10 @@ class AdminWindowUi(object):
         self.addworkerbutton.setText(_translate("AdminWindowUi", "Добавить сотрудника"))
         self.addproductbutton.setText(_translate("AdminWindowUi", "Добавить товар"))
         self.addproductbutton.clicked.connect(self.setupproductUi)
-        # self.closebutton.clicked.connect(self.setupUi)
         self.addworkerbutton.clicked.connect(self.setupworkUi)
+
+        for i in reversed(range(self.gridLayout_3.count())):
+            self.gridLayout_3.itemAt(i).widget().deleteLater()
 
         def draw_labels(labels, widget, line):
             for label in labels:
@@ -1168,22 +1171,22 @@ class AdminWindowUi(object):
                 if k == 1:
                     line_item = QtWidgets.QLineEdit(str(value))
                     self.gridLayout_3.addWidget(line_item, j, k, 1, 1)
-                    row = str(value)
-                    product_data.update({line_item: line_item.text()})
-                    product_k.update({line_item: k})
-                    line_item.textChanged.connect(lambda state, line=line_item: modify_product(line))
+                    id = str(value)
+                    line_item.textChanged.connect(
+                        lambda state, line=[line_item, str(value), id, k]: modify(line, "product"))
                     k += 1
                     continue
                 line_item = QtWidgets.QLineEdit(str(value))
                 self.gridLayout_3.addWidget(line_item, j, k, 1, 1)
-                line_item.textChanged.connect(lambda state, line=line_item, product=row: modify_product(line, product))
+                line_item.textChanged.connect(
+                    lambda state, line=[line_item, str(value), id, k]: modify(line, "product"))
 
                 product_data.update({line_item: line_item.text()})
                 product_k.update({line_item: k})
 
                 but_item = QtWidgets.QPushButton("Удалить")
                 self.gridLayout_3.addWidget(but_item, j, 5, 1, 1)
-                but_item.clicked.connect(lambda state, name=row: delete_product(name))
+                but_item.clicked.connect(lambda state, name=id: delete(name, "product"))
 
                 k += 1
                 if k % 5 == 0:
@@ -1218,22 +1221,21 @@ class AdminWindowUi(object):
             passenger.append(item[0])
             for value in item:
                 if k == 0:
+                    id = str(value)
                     k += 1
                     continue
                 if k != 3:
                     line_item = QtWidgets.QLineEdit(str(value))
                     self.gridLayout_3.addWidget(line_item, j, k, 1, 1)
-                    line_item.textChanged.connect(lambda state, line=line_item: modify_pass(line))
-
-                    passenger_data.update({line_item: line_item.text()})
-                    passenger_k.update({line_item: k})
+                    line_item.textChanged.connect(
+                        lambda state, line=[line_item, str(value), id, k]: modify(line, "client"))
                 if k == 3:
                     line_item = QtWidgets.QLabel(str(value))
                     self.gridLayout_3.addWidget(line_item, j, k, 1, 1)
 
                 but_item = QtWidgets.QPushButton("Удалить")
                 self.gridLayout_3.addWidget(but_item, j, 7, 1, 1)
-                but_item.clicked.connect(lambda state, row=i: delete_pass(row))
+                but_item.clicked.connect(lambda state, row=id: delete(row, "client"))
 
                 k += 1
                 if k % 7 == 0:
@@ -1263,17 +1265,17 @@ class AdminWindowUi(object):
         cursor.execute(query)
         k = 0
         for item in cursor:
-            trip.append(item[0])
             for value in item:
                 if k == 0:
                     k += 1
                     but_item = QtWidgets.QPushButton("Удалить")
                     self.gridLayout_3.addWidget(but_item, j, 5, 1, 1)
-                    but_item.clicked.connect(lambda state, row=value: delete_user(row))
+                    id = str(value)
+                    but_item.clicked.connect(lambda state, row=str(value): delete(row, "user"))
                     continue
                 line_item = QtWidgets.QLineEdit(str(value))
                 self.gridLayout_3.addWidget(line_item, j, k, 1, 1)
-                line_item.textChanged.connect(lambda state, line=line_item: modify_user(line))
+                line_item.textChanged.connect(lambda state, line=[line_item, str(value), id, k]: modify(line, "user"))
                 user_data.update({line_item: line_item.text()})
                 user_k.update({line_item: k})
 
@@ -1283,85 +1285,62 @@ class AdminWindowUi(object):
                     i += 1
                     k = 0
 
-        def modify_user(line):
-            self.savebutton.clicked.connect(lambda: save_user(line))
+        def modify(data, type):
+            self.savebutton.clicked.connect(lambda: save(data, type))
 
-        def save_user(item):
-            k = user_k.get(item)
-            position = user_data.get(item)
-            text = item.text()
-            data = (text, position)
-            if k == 1:
-                query = ("update users set Name_users = %s where Name_users = %s;")
-            if k == 2:
-                query = ("update users set Card_num = %s where Card_num = %s;")
-            if k == 3:
-                query = ("update users set pass = %s where pass = %s;")
-            if k == 4:
-                query = ("update users set User_lvl = %s where User_lvl = %s;")
-            cursor.execute(query, data)
-            cnx.commit()
-
-        def save_pass(item):
-            k = passenger_k.get(item)
-            position = passenger_data.get(item)
-            text = item.text()
-            data = (text, position)
-            if k == 1:
-                query = ("update clients set Name = %s where Name = %s;")
-            if k == 2:
-                query = ("update clients set Card_Num_client = %s where Card_Num_client = %s;")
-            if k == 3:
-                query = ("update clients set id_photo = %s where id_photo = %s;")
-            if k == 4:
-                query = ("update clients set Client_lvl = %s where Client_lvl = %s;")
-            cursor.execute(query, data)
-            cnx.commit()
-
-        def modify_pass(item):
-            self.savebutton.clicked.connect(lambda: save_pass(item))
-
-        def delete_product(row):
-            query = "delete from products where Products = %s;"
-            data = (row,)
-            cursor.execute(query, data)
-            cnx.commit()
-            self.setupMainUi()
-
-        def delete_pass(row):
-            query = "delete from passenger where idPassenger=%s;"
-            data = row
-            cursor.execute(query, (data,))
-            cnx.commit()
-            self.setupMainUi()
-
-        def delete_user(row):
-            query = "delete from users where idUsers=%s;"
-            data = row
-            cursor.execute(query, (data,))
-            cnx.commit()
-            self.setupMainUi()
-
-        def save_product(item, product):
-            k = product_k.get(item)
-            position = product_data.get(item)
-            text = item.text()
-            data = (text, position, product)
-            if k == 1:
-                query = ("update products set Products = %s where Products = %s;")
-            if k == 2:
-                query = ("update products set Product_cost = %s where Product_cost = %s && Products = %s;")
-            if k == 3:
-                query = ("update products set Product_Amount = %s where Product_Amount = %s && Products = %s;")
-            if k == 4:
-                query = ("update products set Product_category = %s where Product_category = %s && Products = %s;")
-            cursor.execute(query, data)
-            cnx.commit()
-
+        def save(list, type):
+            data = (list[0].text(), list[1], list[2])
+            k = list[3]
+            if type == "user":
+                if k == 1:
+                    query = ("update users set Name_users = %s where Name_users = %s;")
+                if k == 2:
+                    query = ("update users set Card_num = %s where Card_num = %s;")
+                if k == 3:
+                    query = ("update users set pass = %s where pass = %s;")
+                if k == 4:
+                    query = ("update users set User_lvl = %s where User_lvl = %s;")
+                cursor.execute(query, data)
+                cnx.commit()
+            if type == "client":
+                if k == 1:
+                    query = ("update clients set Name = %s where Name = %s;")
+                if k == 2:
+                    query = ("update clients set Card_Num_client = %s where Card_Num_client = %s;")
+                if k == 3:
+                    query = ("update clients set id_photo = %s where id_photo = %s;")
+                if k == 4:
+                    query = ("update clients set Client_lvl = %s where Client_lvl = %s;")
+                cursor.execute(query, data)
+                cnx.commit()
+            if type == "product":
+                if k == 1:
+                    query = ("update products set Products = %s where Products = %s;")
+                if k == 2:
+                    query = ("update products set Product_cost = %s where Product_cost = %s && Products = %s;")
+                if k == 3:
+                    query = ("update products set Product_Amount = %s where Product_Amount = %s && Products = %s;")
+                if k == 4:
+                    query = ("update products set Product_category = %s where Product_category = %s && Products = %s;")
+                cursor.execute(query, data)
+                cnx.commit()
             self.retranslateAdminUi()
 
-        def modify_product(item, product):
-            self.savebutton.clicked.connect(lambda: save_product(item, product))
+        def delete(id, type):
+            data = id
+            if type == "user":
+                query = "delete from users where idUsers=%s;"
+                cursor.execute(query, (data,))
+                cnx.commit()
+            if type == "client":
+                query = "delete from passenger where idPassenger=%s;"
+                cursor.execute(query, (data,))
+                cnx.commit()
+            if type == "product":
+                query = "delete from users where idUsers=%s;"
+                cursor.execute(query, (data,))
+                cnx.commit()
+            self.retranslateAdminUi()
 
     def setupproductUi(self):
         AdminWindowUi.setObjectName("AdminWindowUi")
