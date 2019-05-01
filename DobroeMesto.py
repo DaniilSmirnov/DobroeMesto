@@ -6,11 +6,20 @@ from PyQt5.QtCore import QTimer
 
 d = datetime.datetime.today()  # время получается один раз при запуске программы, требует обновления перед записью
 
-cnx = mysql.connector.connect(user='root', password='i130813',
-                              host='127.0.0.1',
-                              database='dobroe_mesto')
-cursor = cnx.cursor(buffered=True)
-bcursor = cnx.cursor(buffered=True)
+try:
+    cnx = mysql.connector.connect(user='root', password='i130813',
+                                  host='127.0.0.1',
+                                  database='dobroe_mesto')
+
+    cursor = cnx.cursor(buffered=True)
+    bcursor = cnx.cursor(buffered=True)
+
+except BaseException as e:
+    # TODO: Доделать
+    ok = QtWidgets.QMessageBox.setText(str(e))
+    ok.show()
+
+
 
 menu_items = []
 order_items = []
@@ -46,10 +55,9 @@ class MainWindow(object):
 
     def setupUi(self):
         Main.setObjectName("Main")
-        Main.resize(816, 628)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy.setHorizontalStretch(10)
+        sizePolicy.setVerticalStretch(10)
         sizePolicy.setHeightForWidth(Main.sizePolicy().hasHeightForWidth())
         Main.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
@@ -177,8 +185,14 @@ class MainWindow(object):
         self.statusbar.setObjectName("statusbar")
         Main.setStatusBar(self.statusbar)
 
+        Main.showMaximized()
+
         self.retranslateUi(Main)
         QtCore.QMetaObject.connectSlotsByName(Main)
+
+    def test(self):
+        w = AdminWindow()
+        w.exec_()
 
     def retranslateUi(self, Main):
         _translate = QtCore.QCoreApplication.translate
@@ -195,7 +209,7 @@ class MainWindow(object):
         self.xbutton.setText(_translate("Main", "Промежуточный отчет"))
         self.screenlockbutton.setText(_translate("Main", "Блокировка"))
 
-        self.adminbutton.clicked.connect(self.setupAdminUi)
+        self.adminbutton.clicked.connect(self.test)
 
         '''
         query = "select User_lvl from users where idUsers = %s"
@@ -229,6 +243,7 @@ class MainWindow(object):
             item_group = QtWidgets.QGroupBox("Клиент: " + str(item[0]))
             categorieslayout = QtWidgets.QGridLayout(item_group)
             self.orderslayout.addWidget(item_group)
+            item_group.clicked.connect(lambda: print(1))
             for value in item:
                 if i == 2:
                     item_label = QtWidgets.QLabel("Гость пришел: " + str(value))
@@ -250,7 +265,7 @@ class MainWindow(object):
                     categorieslayout.addWidget(item_button, 1, j, 1, 1)
                     j += 1
                     # item_button.clicked.connect(lambda state, order=value: open_order(order))
-                    # Добавить комментарии и иконки
+                    # TODO: Добавить комментарии и иконки
                     i = 0
                 i += 1
             j = 0
@@ -1073,73 +1088,74 @@ class MainWindow(object):
         self.buttonC.clicked.connect(delete)
         self.cancelbutton.clicked.connect(self.setupUi)
 
-    def setupAdminUi(self):
-        Main.showFullScreen()
-        Main.setObjectName("Main")
-        self.centralwidget = QtWidgets.QWidget(Main)
-        self.centralwidget.setObjectName("centralwidget")
-        self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
-        self.verticalLayout.setObjectName("verticalLayout")
-        self.scrollArea = QtWidgets.QScrollArea(self.centralwidget)
+
+class AdminWindowUi(object):
+    def setupAdminUi(self, AdminWindowUi):
+        AdminWindowUi.setObjectName("AdminWindowUi")
+        AdminWindowUi.resize(400, 300)
+        self.gridLayout = QtWidgets.QGridLayout(AdminWindowUi)
+        self.gridLayout.setObjectName("gridLayout")
+        self.savebutton = QtWidgets.QPushButton(AdminWindowUi)
+        self.savebutton.setObjectName("savebutton")
+        self.gridLayout.addWidget(self.savebutton, 0, 3, 1, 1)
+        self.addclientbutton = QtWidgets.QPushButton(AdminWindowUi)
+        self.addclientbutton.setObjectName("addclientbutton")
+        self.gridLayout.addWidget(self.addclientbutton, 0, 1, 1, 1)
+        self.addworkerbutton = QtWidgets.QPushButton(AdminWindowUi)
+        self.addworkerbutton.setObjectName("addworkerbutton")
+        self.gridLayout.addWidget(self.addworkerbutton, 0, 2, 1, 1)
+        self.addproductbutton = QtWidgets.QPushButton(AdminWindowUi)
+        self.addproductbutton.setObjectName("addproductbutton")
+        self.gridLayout.addWidget(self.addproductbutton, 0, 0, 1, 1)
+        self.groupBox = QtWidgets.QGroupBox(AdminWindowUi)
+        self.groupBox.setTitle("")
+        self.groupBox.setObjectName("groupBox")
+        self.gridLayout_2 = QtWidgets.QGridLayout(self.groupBox)
+        self.gridLayout_2.setObjectName("gridLayout_2")
+        self.scrollArea = QtWidgets.QScrollArea(self.groupBox)
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 555, 291))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 360, 231))
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
-        self.gridLayout = QtWidgets.QGridLayout(self.scrollAreaWidgetContents)
-        self.gridLayout.setObjectName("gridLayout")
+        self.gridLayout_3 = QtWidgets.QGridLayout(self.scrollAreaWidgetContents)
+        self.gridLayout_3.setObjectName("gridLayout_3")
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
-        self.verticalLayout.addWidget(self.scrollArea)
-        self.savebutton = QtWidgets.QPushButton(self.centralwidget)
-        self.savebutton.setObjectName("savebutton")
-        self.verticalLayout.addWidget(self.savebutton)
-        self.addproductbutton = QtWidgets.QPushButton(self.centralwidget)
-        self.addproductbutton.setObjectName("addproductbutton")
-        self.verticalLayout.addWidget(self.addproductbutton)
-        self.workerbutton = QtWidgets.QPushButton(self.centralwidget)
-        self.workerbutton.setObjectName("workerbutton")
-        self.verticalLayout.addWidget(self.workerbutton)
-        self.closebutton = QtWidgets.QPushButton(self.centralwidget)
-        Main.setCentralWidget(self.centralwidget)
-        self.closebutton.setObjectName("cancelbutton")
-        self.verticalLayout.addWidget(self.closebutton)
-        self.menubar = QtWidgets.QMenuBar(Main)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 575, 21))
-        self.menubar.setObjectName("menubar")
-        Main.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(Main)
-        self.statusbar.setObjectName("statusbar")
-        Main.setStatusBar(self.statusbar)
+        self.gridLayout_2.addWidget(self.scrollArea, 0, 0, 1, 1)
+        self.gridLayout.addWidget(self.groupBox, 1, 0, 1, 4)
 
-        self.retranslateAdminUi(Main)
-        QtCore.QMetaObject.connectSlotsByName(Main)
+        self.retranslateAdminUi()
+        QtCore.QMetaObject.connectSlotsByName(AdminWindowUi)
 
-    def retranslateAdminUi(self, MainWindow):
+    def retranslateAdminUi(self):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("Main", "Main"))
-        self.savebutton.setText(_translate("Main", "Сохранить"))
-        self.closebutton.setText(_translate("Main", "Выйти"))
-        self.addproductbutton.setText(_translate("Main", "Добавить товар"))
-        self.workerbutton.setText(_translate("Main", "Добавить сотрудника"))
-
+        self.savebutton.setText(_translate("AdminWindowUi", "Применить"))
+        self.addclientbutton.setText(_translate("AdminWindowUi", "Добавить клиента"))
+        self.addworkerbutton.setText(_translate("AdminWindowUi", "Добавить сотрудника"))
+        self.addproductbutton.setText(_translate("AdminWindowUi", "Добавить товар"))
         self.addproductbutton.clicked.connect(self.setupproductUi)
-        self.closebutton.clicked.connect(self.setupUi)
-        self.workerbutton.clicked.connect(self.setupworkUi)
+        # self.closebutton.clicked.connect(self.setupUi)
+        self.addworkerbutton.clicked.connect(self.setupworkUi)
+
+        def draw_labels(labels, widget, line):
+            for label in labels:
+                line_item = QtWidgets.QLabel(label)
+                widget.addWidget(line_item, line, labels.index(label) + 1, 1, 1)
 
         line_item = QtWidgets.QLabel("Товары")
-        self.gridLayout.addWidget(line_item, 0, 0, 1, 1)
+        self.gridLayout_3.addWidget(line_item, 0, 0, 1, 1)
         font = QtGui.QFont()
         font.setPointSize(18)
         line_item.setFont(font)
 
-        line_item = QtWidgets.QLabel("Название")
-        self.gridLayout.addWidget(line_item, 0, 1, 1, 1)
-        line_item = QtWidgets.QLabel("Стоимость")
-        self.gridLayout.addWidget(line_item, 0, 2, 1, 1)
-        line_item = QtWidgets.QLabel("Количество")
-        self.gridLayout.addWidget(line_item, 0, 3, 1, 1)
-        line_item = QtWidgets.QLabel("Категория")
-        self.gridLayout.addWidget(line_item, 0, 4, 1, 1)
+        labels = [
+            "Название",
+            "Cтоимость",
+            "Количество",
+            "Категория"
+        ]
+
+        draw_labels(labels, self.gridLayout_3, 1)
 
         query = ("select * from products;")
         cursor.execute(query)
@@ -1151,7 +1167,7 @@ class MainWindow(object):
             for value in item:
                 if k == 1:
                     line_item = QtWidgets.QLineEdit(str(value))
-                    self.gridLayout.addWidget(line_item, j, k, 1, 1)
+                    self.gridLayout_3.addWidget(line_item, j, k, 1, 1)
                     row = str(value)
                     product_data.update({line_item: line_item.text()})
                     product_k.update({line_item: k})
@@ -1159,14 +1175,14 @@ class MainWindow(object):
                     k += 1
                     continue
                 line_item = QtWidgets.QLineEdit(str(value))
-                self.gridLayout.addWidget(line_item, j, k, 1, 1)
+                self.gridLayout_3.addWidget(line_item, j, k, 1, 1)
                 line_item.textChanged.connect(lambda state, line=line_item, product=row: modify_product(line, product))
 
                 product_data.update({line_item: line_item.text()})
                 product_k.update({line_item: k})
 
                 but_item = QtWidgets.QPushButton("Удалить")
-                self.gridLayout.addWidget(but_item, j, 5, 1, 1)
+                self.gridLayout_3.addWidget(but_item, j, 5, 1, 1)
                 but_item.clicked.connect(lambda state, name=row: delete_product(name))
 
                 k += 1
@@ -1180,23 +1196,23 @@ class MainWindow(object):
         j += 2
         i = 0
         line_item = QtWidgets.QLabel("Клиенты")
-        self.gridLayout.addWidget(line_item, j, 0, 1, 1)
+        self.gridLayout_3.addWidget(line_item, j, 0, 1, 1)
         font = QtGui.QFont()
         font.setPointSize(18)
         line_item.setFont(font)
 
-        line_item = QtWidgets.QLabel("Имя")
-        self.gridLayout.addWidget(line_item, j, 1, 1, 1)
-        line_item = QtWidgets.QLabel("Номер карты")
-        self.gridLayout.addWidget(line_item, j, 2, 1, 1)
-        line_item = QtWidgets.QLabel("ID Фото")
-        self.gridLayout.addWidget(line_item, j, 3, 1, 1)
-        line_item = QtWidgets.QLabel("Уровень скидки")
-        self.gridLayout.addWidget(line_item, j, 4, 1, 1)
-        line_item = QtWidgets.QLabel("Номер телефона")
-        self.gridLayout.addWidget(line_item, j, 5, 1, 1)
-        line_item = QtWidgets.QLabel("Личный счет")
-        self.gridLayout.addWidget(line_item, j, 6, 1, 1)
+        labels = [
+            "Имя",
+            "Номер карты",
+            "Пароль",
+            "ID Фото",
+            "Уровень скидки",
+            "Номер телефона",
+            "Контакт",
+            "Личный счет"
+        ]
+        draw_labels(labels, self.gridLayout_3, j)
+
         j += 1
         for item in cursor:
             passenger.append(item[0])
@@ -1206,17 +1222,17 @@ class MainWindow(object):
                     continue
                 if k != 3:
                     line_item = QtWidgets.QLineEdit(str(value))
-                    self.gridLayout.addWidget(line_item, j, k, 1, 1)
+                    self.gridLayout_3.addWidget(line_item, j, k, 1, 1)
                     line_item.textChanged.connect(lambda state, line=line_item: modify_pass(line))
 
                     passenger_data.update({line_item: line_item.text()})
                     passenger_k.update({line_item: k})
                 if k == 3:
                     line_item = QtWidgets.QLabel(str(value))
-                    self.gridLayout.addWidget(line_item, j, k, 1, 1)
+                    self.gridLayout_3.addWidget(line_item, j, k, 1, 1)
 
                 but_item = QtWidgets.QPushButton("Удалить")
-                self.gridLayout.addWidget(but_item, j, 7, 1, 1)
+                self.gridLayout_3.addWidget(but_item, j, 7, 1, 1)
                 but_item.clicked.connect(lambda state, row=i: delete_pass(row))
 
                 k += 1
@@ -1226,23 +1242,24 @@ class MainWindow(object):
                     k = 0
 
         line_item = QtWidgets.QLabel("Работники")
-        self.gridLayout.addWidget(line_item, j, 0, 1, 1)
+        self.gridLayout_3.addWidget(line_item, j, 0, 1, 1)
         font = QtGui.QFont()
         font.setPointSize(18)
         line_item.setFont(font)
 
-        line_item = QtWidgets.QLabel("Имя")
-        self.gridLayout.addWidget(line_item, j, 1, 1, 1)
-        line_item = QtWidgets.QLabel("Номер карты")
-        self.gridLayout.addWidget(line_item, j, 2, 1, 1)
-        line_item = QtWidgets.QLabel("Пароль")
-        self.gridLayout.addWidget(line_item, j, 3, 1, 1)
-        line_item = QtWidgets.QLabel("Уровень доступа")
-        self.gridLayout.addWidget(line_item, j, 4, 1, 1)
+        labels = [
+            "Имя",
+            "Номер карты",
+            "Пароль",
+            "Уровень доступа",
+            "Номер телефона",
+            "Контакт",
+        ]
+        draw_labels(labels, self.gridLayout_3, j)
 
         j += 1
         i = 0
-        query = ("select * from users;")
+        query = "select * from users;"
         cursor.execute(query)
         k = 0
         for item in cursor:
@@ -1251,11 +1268,11 @@ class MainWindow(object):
                 if k == 0:
                     k += 1
                     but_item = QtWidgets.QPushButton("Удалить")
-                    self.gridLayout.addWidget(but_item, j, 5, 1, 1)
+                    self.gridLayout_3.addWidget(but_item, j, 5, 1, 1)
                     but_item.clicked.connect(lambda state, row=value: delete_user(row))
                     continue
                 line_item = QtWidgets.QLineEdit(str(value))
-                self.gridLayout.addWidget(line_item, j, k, 1, 1)
+                self.gridLayout_3.addWidget(line_item, j, k, 1, 1)
                 line_item.textChanged.connect(lambda state, line=line_item: modify_user(line))
                 user_data.update({line_item: line_item.text()})
                 user_k.update({line_item: k})
@@ -1341,14 +1358,14 @@ class MainWindow(object):
             cursor.execute(query, data)
             cnx.commit()
 
-            self.setupAdminUi()
+            self.retranslateAdminUi()
 
         def modify_product(item, product):
             self.savebutton.clicked.connect(lambda: save_product(item, product))
 
     def setupproductUi(self):
-        Main.setObjectName("Main")
-        self.centralwidget = QtWidgets.QWidget(Main)
+        AdminWindowUi.setObjectName("AdminWindowUi")
+        self.centralwidget = QtWidgets.QWidget(AdminWindowUi)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
@@ -1382,27 +1399,27 @@ class MainWindow(object):
         self.lineEdit_4 = QtWidgets.QLineEdit(self.centralwidget)
         self.lineEdit_4.setObjectName("lineEdit_4")
         self.gridLayout.addWidget(self.lineEdit_4, 1, 3, 1, 1)
-        Main.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(Main)
+        AdminWindowUi.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(AdminWindowUi)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 557, 21))
         self.menubar.setObjectName("menubar")
-        Main.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(Main)
+        AdminWindowUi.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(AdminWindowUi)
         self.statusbar.setObjectName("statusbar")
-        Main.setStatusBar(self.statusbar)
+        AdminWindowUi.setStatusBar(self.statusbar)
 
-        self.retranslateproductUi(Main)
-        QtCore.QMetaObject.connectSlotsByName(Main)
+        self.retranslateproductUi(AdminWindowUi)
+        QtCore.QMetaObject.connectSlotsByName(AdminWindowUi)
 
     def retranslateproductUi(self, Main):
         _translate = QtCore.QCoreApplication.translate
-        Main.setWindowTitle(_translate("Main", "Main"))
-        self.pushButton.setText(_translate("Main", "Сохранить"))
-        self.pushButton_2.setText(_translate("Main", "Назад"))
-        self.label_4.setText(_translate("Main", "Категория"))
-        self.label.setText(_translate("Main", "Название"))
-        self.label_2.setText(_translate("Main", "Стоимость"))
-        self.label_3.setText(_translate("Main", "Количество"))
+        Main.setWindowTitle(_translate("AdminWindowUi", "AdminWindowUi"))
+        self.pushButton.setText(_translate("AdminWindowUi", "Сохранить"))
+        self.pushButton_2.setText(_translate("AdminWindowUi", "Назад"))
+        self.label_4.setText(_translate("AdminWindowUi", "Категория"))
+        self.label.setText(_translate("AdminWindowUi", "Название"))
+        self.label_2.setText(_translate("AdminWindowUi", "Стоимость"))
+        self.label_3.setText(_translate("AdminWindowUi", "Количество"))
 
         self.pushButton_2.clicked.connect(self.setupAdminUi)
         self.pushButton.clicked.connect(self.writeproduct)
@@ -1415,8 +1432,8 @@ class MainWindow(object):
         self.setupAdminUi()
 
     def setupworkUi(self):
-        Main.setObjectName("Main")
-        self.centralwidget = QtWidgets.QWidget(Main)
+        AdminWindowUi.setObjectName("AdminWindowUi")
+        self.centralwidget = QtWidgets.QWidget(AdminWindowUi)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
@@ -1450,27 +1467,27 @@ class MainWindow(object):
         self.lineEdit = QtWidgets.QLineEdit(self.centralwidget)
         self.lineEdit.setObjectName("lineEdit")
         self.gridLayout.addWidget(self.lineEdit, 1, 0, 1, 1)
-        Main.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(Main)
+        AdminWindowUi.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(AdminWindowUi)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 557, 21))
         self.menubar.setObjectName("menubar")
-        Main.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(Main)
+        AdminWindowUi.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(AdminWindowUi)
         self.statusbar.setObjectName("statusbar")
-        Main.setStatusBar(self.statusbar)
+        AdminWindowUi.setStatusBar(self.statusbar)
 
-        self.retranslateworkUi(Main)
-        QtCore.QMetaObject.connectSlotsByName(Main)
+        self.retranslateworkUi(AdminWindowUi)
+        QtCore.QMetaObject.connectSlotsByName(AdminWindowUi)
 
     def retranslateworkUi(self, Main):
         _translate = QtCore.QCoreApplication.translate
-        Main.setWindowTitle(_translate("Main", "Main"))
-        self.pushButton.setText(_translate("Main", "Сохранить"))
-        self.pushButton_2.setText(_translate("Main", "Назад"))
-        self.label_4.setText(_translate("Main", "Уровень пользователя"))
-        self.label.setText(_translate("Main", "Имя"))
-        self.label_2.setText(_translate("Main", "Номер карты"))
-        self.label_3.setText(_translate("Main", "Пароль"))
+        Main.setWindowTitle(_translate("AdminWindowUi", "AdminWindowUi"))
+        self.pushButton.setText(_translate("AdminWindowUi", "Сохранить"))
+        self.pushButton_2.setText(_translate("AdminWindowUi", "Назад"))
+        self.label_4.setText(_translate("AdminWindowUi", "Уровень пользователя"))
+        self.label.setText(_translate("AdminWindowUi", "Имя"))
+        self.label_2.setText(_translate("AdminWindowUi", "Номер карты"))
+        self.label_3.setText(_translate("AdminWindowUi", "Пароль"))
 
         self.pushButton_2.clicked.connect(self.setupAdminUi)
         self.pushButton.clicked.connect(self.writeworker)
@@ -1481,6 +1498,12 @@ class MainWindow(object):
         cursor.execute(query, data)
         cnx.commit()
         self.setupAdminUi()
+
+
+class AdminWindow(QtWidgets.QDialog, AdminWindowUi):
+    def __init__(self, parent=None):
+        super(AdminWindow, self).__init__(parent)
+        self.setupAdminUi(self)
 
 
 if __name__ == "__main__":
