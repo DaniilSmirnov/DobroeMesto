@@ -16,10 +16,8 @@ try:
 
 except BaseException as e:
     # TODO: Доделать
-    ok = QtWidgets.QMessageBox.setText(str(e))
-    ok.show()
-
-
+    pass
+    # QtWidgets.QMessageBox.about(, "Title", "Message")
 
 menu_items = []
 order_items = []
@@ -27,17 +25,6 @@ order_totals = []
 order_no = []
 
 items = []
-
-trip = []
-product_data = {}
-product_k = {}
-
-passenger = []
-passenger_data = {}
-passenger_k = {}
-
-user_data = {}
-user_k = {}
 
 is_ex = False
 
@@ -1138,7 +1125,8 @@ class AdminWindowUi(object):
         self.addworkerbutton.clicked.connect(self.setupworkUi)
 
         for i in reversed(range(self.gridLayout_3.count())):
-            self.gridLayout_3.itemAt(i).widget().deleteLater()
+            if isinstance(self.gridLayout_3.itemAt(i).widget(), QtWidgets.QLabel):
+                self.gridLayout_3.itemAt(i).widget().deleteLater()
 
         def draw_labels(labels, widget, line):
             for label in labels:
@@ -1160,13 +1148,12 @@ class AdminWindowUi(object):
 
         draw_labels(labels, self.gridLayout_3, 1)
 
-        query = ("select * from products;")
+        query = "select * from products;"
         cursor.execute(query)
         i = 1
         j = 4
         k = 1
         for item in cursor:
-            trip.append(item[0])
             for value in item:
                 if k == 1:
                     line_item = QtWidgets.QLineEdit(str(value))
@@ -1180,9 +1167,6 @@ class AdminWindowUi(object):
                 self.gridLayout_3.addWidget(line_item, j, k, 1, 1)
                 line_item.textChanged.connect(
                     lambda state, line=[line_item, str(value), id, k]: modify(line, "product"))
-
-                product_data.update({line_item: line_item.text()})
-                product_k.update({line_item: k})
 
                 but_item = QtWidgets.QPushButton("Удалить")
                 self.gridLayout_3.addWidget(but_item, j, 5, 1, 1)
@@ -1218,7 +1202,6 @@ class AdminWindowUi(object):
 
         j += 1
         for item in cursor:
-            passenger.append(item[0])
             for value in item:
                 if k == 0:
                     id = str(value)
@@ -1276,8 +1259,6 @@ class AdminWindowUi(object):
                 line_item = QtWidgets.QLineEdit(str(value))
                 self.gridLayout_3.addWidget(line_item, j, k, 1, 1)
                 line_item.textChanged.connect(lambda state, line=[line_item, str(value), id, k]: modify(line, "user"))
-                user_data.update({line_item: line_item.text()})
-                user_k.update({line_item: k})
 
                 k += 1
                 if k % 5 == 0:
@@ -1287,43 +1268,45 @@ class AdminWindowUi(object):
 
         def modify(data, type):
             self.savebutton.clicked.connect(lambda: save(data, type))
+            self.savebutton.setEnabled(True)
 
         def save(list, type):
             data = (list[0].text(), list[1], list[2])
             k = list[3]
             if type == "user":
                 if k == 1:
-                    query = ("update users set Name_users = %s where Name_users = %s;")
+                    query = "update users set Name_users = %s where Name_users = %s;"
                 if k == 2:
-                    query = ("update users set Card_num = %s where Card_num = %s;")
+                    query = "update users set Card_num = %s where Card_num = %s;"
                 if k == 3:
-                    query = ("update users set pass = %s where pass = %s;")
+                    query = "update users set pass = %s where pass = %s;"
                 if k == 4:
-                    query = ("update users set User_lvl = %s where User_lvl = %s;")
+                    query = "update users set User_lvl = %s where User_lvl = %s;"
                 cursor.execute(query, data)
                 cnx.commit()
             if type == "client":
                 if k == 1:
-                    query = ("update clients set Name = %s where Name = %s;")
+                    query = "update clients set Name = %s where Name = %s;"
                 if k == 2:
-                    query = ("update clients set Card_Num_client = %s where Card_Num_client = %s;")
+                    query = "update clients set Card_Num_client = %s where Card_Num_client = %s;"
                 if k == 3:
-                    query = ("update clients set id_photo = %s where id_photo = %s;")
+                    query = "update clients set id_photo = %s where id_photo = %s;"
                 if k == 4:
-                    query = ("update clients set Client_lvl = %s where Client_lvl = %s;")
+                    query = "update clients set Client_lvl = %s where Client_lvl = %s;"
                 cursor.execute(query, data)
                 cnx.commit()
             if type == "product":
                 if k == 1:
-                    query = ("update products set Products = %s where Products = %s;")
+                    query = "update products set Products = %s where Products = %s;"
                 if k == 2:
-                    query = ("update products set Product_cost = %s where Product_cost = %s && Products = %s;")
+                    query = "update products set Product_cost = %s where Product_cost = %s && Products = %s;"
                 if k == 3:
-                    query = ("update products set Product_Amount = %s where Product_Amount = %s && Products = %s;")
+                    query = "update products set Product_Amount = %s where Product_Amount = %s && Products = %s;"
                 if k == 4:
-                    query = ("update products set Product_category = %s where Product_category = %s && Products = %s;")
+                    query = "update products set Product_category = %s where Product_category = %s && Products = %s;"
                 cursor.execute(query, data)
                 cnx.commit()
+            self.savebutton.setEnabled(False)
             self.retranslateAdminUi()
 
         def delete(id, type):
@@ -1340,6 +1323,7 @@ class AdminWindowUi(object):
                 query = "delete from users where idUsers=%s;"
                 cursor.execute(query, (data,))
                 cnx.commit()
+            QtWidgets.QMessageBox.about(self, "Инфо", "Удалено успешно")
             self.retranslateAdminUi()
 
     def setupproductUi(self):
