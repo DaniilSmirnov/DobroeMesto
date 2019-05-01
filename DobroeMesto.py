@@ -20,6 +20,16 @@ except BaseException as e:
     pass
     # QtWidgets.QMessageBox.about(, "Title", "Message")
 
+query = "insert into orders values (default,now(),null,null,228,null,228);"
+
+query = "update products set product_amount=product_amount-1 where products=%s && product_amount>0;"
+
+query = "select no_orders from orders order by no_orders desc limit 1 ;"
+
+query = "insert into order_content values(%s,%s, default,curtime());"
+
+query = "select no, content from order_content where id_order=%s;"
+
 menu_items = []
 order_items = []
 order_totals = []
@@ -420,247 +430,7 @@ class MainWindow(object):
                 if str(value) == "0":
                     self.label.setText("Не валидная карта")
 
-    def setupOrderUi(self):
-        Main.showFullScreen()
-        Main.setObjectName("Main")
-        Main.setMaximumSize(QtCore.QSize(1920, 1080))
-        self.centralwidget = QtWidgets.QWidget(Main)
-        self.centralwidget.setObjectName("centralwidget")
-        self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
-        self.gridLayout.setObjectName("gridLayout")
-        self.verticalLayout = QtWidgets.QVBoxLayout()
-        self.verticalLayout.setObjectName("verticalLayout")
-        self.horizontalLayout = QtWidgets.QHBoxLayout()
-        self.horizontalLayout.setObjectName("horizontalLayout")
-        self.scrollArea = QtWidgets.QScrollArea(self.centralwidget)
-        self.scrollArea.setWidgetResizable(True)
-        self.scrollArea.setObjectName("scrollArea")
-        self.categorieswidget = QtWidgets.QWidget()
-        self.categorieswidget.setGeometry(QtCore.QRect(0, 0, 377, 372))
-        self.categorieswidget.setObjectName("categorieslayout")
-        self.categorieslayout = QtWidgets.QVBoxLayout(self.categorieswidget)
-        self.categorieslayout.setObjectName("verticalLayout_2")
-        self.backbutton = QtWidgets.QPushButton(self.categorieswidget)
-        font = QtGui.QFont()
-        font.setPointSize(20)
-        self.backbutton.setFont(font)
-        self.backbutton.setObjectName("backbutton")
-        self.categorieslayout.addWidget(self.backbutton)
-        self.scrollArea.setWidget(self.categorieswidget)
-        self.horizontalLayout.addWidget(self.scrollArea)
-        self.scrollArea_2 = QtWidgets.QScrollArea(self.centralwidget)
-        self.scrollArea_2.setWidgetResizable(True)
-        self.scrollArea_2.setObjectName("scrollArea_2")
-        self.orderlayout = QtWidgets.QWidget()
-        self.orderlayout.setGeometry(QtCore.QRect(0, 0, 376, 372))
-        self.orderlayout.setObjectName("orderlayout")
-        self.orderslayout = QtWidgets.QGridLayout(self.orderlayout)
-        self.orderslayout.setObjectName("orderslayout")
-        self.scrollArea_2.setWidget(self.orderlayout)
-        self.horizontalLayout.addWidget(self.scrollArea_2)
-        self.verticalLayout.addLayout(self.horizontalLayout)
-        self.savebutton = QtWidgets.QPushButton(self.centralwidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.savebutton.sizePolicy().hasHeightForWidth())
-        self.savebutton.setSizePolicy(sizePolicy)
-        font = QtGui.QFont()
-        font.setPointSize(20)
-        self.savebutton.setFont(font)
-        self.savebutton.setObjectName("savebutton")
-        self.verticalLayout.addWidget(self.savebutton)
-        self.cancelbutton = QtWidgets.QPushButton(self.centralwidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.cancelbutton.sizePolicy().hasHeightForWidth())
-        self.cancelbutton.setSizePolicy(sizePolicy)
-        font = QtGui.QFont()
-        font.setPointSize(20)
-        self.cancelbutton.setFont(font)
-        self.cancelbutton.setObjectName("cancelbutton")
-        self.verticalLayout.addWidget(self.cancelbutton)
-
-        self.cashbutton = QtWidgets.QPushButton(self.centralwidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.cashbutton.sizePolicy().hasHeightForWidth())
-        self.cashbutton.setSizePolicy(sizePolicy)
-        font = QtGui.QFont()
-        font.setPointSize(20)
-        self.cashbutton.setFont(font)
-        self.cashbutton.setObjectName("cashbutton")
-        self.verticalLayout.addWidget(self.cashbutton)
-
-        self.gridLayout.addLayout(self.verticalLayout, 0, 0, 1, 1)
-        Main.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(Main)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 785, 21))
-        self.menubar.setObjectName("menubar")
-        Main.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(Main)
-        self.statusbar.setObjectName("statusbar")
-        Main.setStatusBar(self.statusbar)
-
-        self.retranslateOrderUi(Main)
-        QtCore.QMetaObject.connectSlotsByName(Main)
-
     def retranslateOrderUi(self, Main):
-        _translate = QtCore.QCoreApplication.translate
-        Main.setWindowTitle(_translate("Main", "Main"))
-        self.backbutton.setText(_translate("Main", "Назад"))
-        self.savebutton.setText(_translate("Main", "Сохранить"))
-        self.cancelbutton.setText(_translate("Main", "Отмена"))
-        self.cashbutton.setText(_translate("Main", "Чек"))
-
-        self.cashbutton.clicked.connect(lambda: opencashbox())
-        self.cancelbutton.clicked.connect(self.cancel_order)
-        self.savebutton.clicked.connect(self.save_order)
-
-        def opencashbox():
-            global is_n, is_ex
-
-            if not is_ex:
-                is_n = True
-            if is_n:
-                is_n = False
-
-            self.setupCashboxUi()
-
-        def create():
-            global order_number
-
-            draw_main()
-
-            if not is_ex:
-                # query = "insert into orders values(%s,now(),null,null,*id сотрудника*,null,*id посетителя*);"
-                query = "insert into orders values (default,now(),null,null,228,null,228);"
-                cursor.execute(query)
-                cnx.commit()
-
-                query = "select no_orders from orders order by no_orders desc limit 1 ;"
-                cursor.execute(query)
-                for item in cursor:
-                    for value in item:
-                        order_number = int(value)
-            else:
-                self.cancelbutton.hide()
-                pass  # добавить работу с номером заказа при переходе из окна заказов
-
-        def draw_main():
-            font = QtGui.QFont()
-            font.setPointSize(20)
-            self.backbutton.setEnabled(False)
-            query = "select distinct product_category from products"
-            cursor.execute(query)
-
-            for item in cursor:
-                for value in item:
-                    item_button = QtWidgets.QPushButton(str(value))
-                    self.categorieslayout.addWidget(item_button)
-                    item_button.clicked.connect(lambda state, button=item_button: select_sub(button))
-                    item_button.setStyleSheet("background-color: orange")
-                    item_button.setFont(font)
-                    menu_items.append(item_button)
-
-            if is_ex:
-                draw_order()
-
-        def select_sub(button):
-
-            for item in menu_items:
-                try:
-                    item.deleteLater()
-                except BaseException:
-                    pass
-            menu_items.clear()
-
-            button = button.text()
-            self.backbutton.setEnabled(True)
-            self.backbutton.clicked.connect(select_back_item)
-
-            font = QtGui.QFont()
-            font.setPointSize(20)
-
-            query = "select products from products where product_category=%s;"
-            data = (button,)
-            cursor.execute(query, data)
-
-            for item in cursor:
-                for value in item:
-                    query = "select if(product_amount<>0,1,0) from products where products=%s;"
-                    data = (value,)
-                    bcursor.execute(query, data)
-                    for response in bcursor:
-                        for result in response:
-                            if int(result) == 1:
-                                item_button = QtWidgets.QPushButton(str(value))
-                                self.categorieslayout.addWidget(item_button)
-                                item_button.clicked.connect(lambda state, button=item_button: select_item(button))
-                                item_button.setStyleSheet("background-color: orange")
-                                item_button.setFont(font)
-                                menu_items.append(item_button)
-                                item_button.setEnabled(True)
-                            if int(result) == 0:
-                                item_button = QtWidgets.QPushButton(str(value))
-                                self.categorieslayout.addWidget(item_button)
-                                item_button.clicked.connect(lambda state, button=item_button: select_item(button))
-                                item_button.setStyleSheet("background-color: orange")
-                                item_button.setFont(font)
-                                menu_items.append(item_button)
-                                item_button.setEnabled(False)
-
-        def select_item(button):
-            global order_number
-
-            query = "insert into order_content values(%s,%s, default,curtime());"
-
-            try:
-                data = (order_number, button.text())
-            except NameError:
-                order_number = 1
-                data = (order_number, button.text())
-            cursor.execute(query, data)
-
-            query = "update products set product_amount=product_amount-1 where products=%s && product_amount>0;"
-            data = (button.text(),)
-            cursor.execute(query, data)
-
-            cnx.commit()
-
-            draw_order()
-
-        def draw_order():
-            global order_number
-
-            query = "select no, content from order_content where id_order=%s;"
-            data = (order_number,)
-            cursor.execute(query, data)
-
-            for item in order_items:
-                try:
-                    item.deleteLater()
-                except BaseException:
-                    pass
-            order_items.clear()
-
-            i = 1
-            j = 1
-            for item in cursor:
-                for value in item:
-                    if j % 2 != 0:
-                        j += 1
-                        no = int(value)
-                        continue
-                    item_label = QtWidgets.QPushButton(str(value))
-                    self.orderslayout.addWidget(item_label, i, 0, 1, 1)
-                    item_label.clicked.connect(lambda state, id=no: delete_item(id))
-                    item_label.setStyleSheet("background-color: red")
-                    order_items.append(item_label)
-                    i += 1
-                    j += 1
 
         def delete_item(id):
 
@@ -673,16 +443,6 @@ class MainWindow(object):
             cursor.execute(query, data)
 
             cnx.commit()
-
-            draw_order()
-
-        def select_back_item():
-            for item in menu_items:
-                item.deleteLater()
-            menu_items.clear()
-            draw_main()
-
-        create()
 
     def save_order(self):
         global order_number
@@ -1527,6 +1287,7 @@ class NewOrderWindowUi(object):
         self.createbutton.setText(_translate("NewOrderWindowUi", "Создать "))
         self.OrderBox.setTitle(_translate("NewOrderWindowUi", "Заказ"))
 
+
         order = []
 
         query = "select distinct product_category from products"
@@ -1559,6 +1320,24 @@ class NewOrderWindowUi(object):
                     for cvalue in citem:
                         self.gridLayout_3.addWidget(QtWidgets.QLabel(str(cvalue)), i, 1, 1, 1)
                 i += 1
+
+        def create_order():
+            for item in order:
+                query = "insert into orders values (default,now(),null,null,228,null,228);"
+                cursor.execute(query)
+                cnx.commit()
+                query = "select no_orders from orders order by no_orders desc limit 1;"
+                cursor.execute(query)
+                for result in cursor:
+                    for value in result:
+                        number = str(value)
+                query = "insert into order_content values(%s,%s, default,curtime());"
+                data = (number, item.text())
+                cursor.execute(query, data)
+                cnx.commit()
+                NewOrderWindowUi.done(1)
+
+        self.createbutton.clicked.connect(create_order)
 
 
 class NewOrderWindow(QtWidgets.QDialog, NewOrderWindowUi):
