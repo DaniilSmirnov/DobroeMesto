@@ -39,6 +39,7 @@ order_items = []
 order_totals = []
 order_no = []
 order_number = 0
+guest_number = 0
 
 items = []
 
@@ -1084,7 +1085,7 @@ class NewOrderWindowUi(object):
         _translate = QtCore.QCoreApplication.translate
         NewOrderWindowUi.setWindowTitle(_translate("NewOrderWindowUi", "Dialog"))
         self.scanitembutton.setText(_translate("NewOrderWindowUi", "Сканировать товар"))
-        self.scanItem.clicked.connect(self.scanItem)
+        self.scanitembutton.clicked.connect(self.scanItem)
         self.OrderBox.setTitle(_translate("NewOrderWindowUi", "Заказ"))
         self.createbutton.setText(_translate("NewOrderWindowUi", "Создать "))
         self.scanbutton.setText(_translate("NewOrderWindowUi", "Сканировать карту гостя"))
@@ -1164,7 +1165,10 @@ class NewOrderWindowUi(object):
                                                   'Номер карты:')
 
         if ok and text != "" and text != " ":
-            pass
+            global guest_number
+            guest_number = text
+            w = GuestWindow()
+            w.exec_()
 
     def scanItem(self):
 
@@ -1367,6 +1371,54 @@ class OrderWindowUi(object):
 class OrderWindow(QtWidgets.QDialog, OrderWindowUi):
     def __init__(self, parent=None):
         super(OrderWindow, self).__init__(parent)
+        self.setupUi(self)
+
+
+class GuestWindowUi(object):
+    def setupUi(self, GuestWindowUi):
+        GuestWindowUi.setObjectName("GuestWindowUi")
+        GuestWindowUi.resize(408, 300)
+        self.gridLayout = QtWidgets.QGridLayout(GuestWindowUi)
+        self.gridLayout.setObjectName("gridLayout")
+        self.tabWidget = QtWidgets.QTabWidget(GuestWindowUi)
+        self.tabWidget.setObjectName("tabWidget")
+        self.profiletab = QtWidgets.QWidget()
+        self.profiletab.setObjectName("profiletab")
+        self.gridLayout_2 = QtWidgets.QGridLayout(self.profiletab)
+        self.gridLayout_2.setObjectName("gridLayout_2")
+        self.tabWidget.addTab(self.profiletab, "")
+        self.historytab = QtWidgets.QWidget()
+        self.historytab.setObjectName("historytab")
+        self.gridLayout_3 = QtWidgets.QGridLayout(self.historytab)
+        self.gridLayout_3.setObjectName("gridLayout_3")
+        self.tabWidget.addTab(self.historytab, "")
+        self.gridLayout.addWidget(self.tabWidget, 1, 0, 1, 1)
+        self.guestlabel = QtWidgets.QLabel(GuestWindowUi)
+        self.guestlabel.setObjectName("guestlabel")
+        self.gridLayout.addWidget(self.guestlabel, 0, 0, 1, 1)
+        self.acceptbutton = QtWidgets.QPushButton(GuestWindowUi)
+        self.acceptbutton.setObjectName("acceptbutton")
+        self.gridLayout.addWidget(self.acceptbutton, 2, 0, 1, 1)
+
+        self.retranslateUi(GuestWindowUi)
+        self.tabWidget.setCurrentIndex(0)
+        QtCore.QMetaObject.connectSlotsByName(GuestWindowUi)
+
+    def retranslateUi(self, GuestWindowUi):
+        _translate = QtCore.QCoreApplication.translate
+        GuestWindowUi.setWindowTitle(_translate("GuestWindowUi", "Карточка гостя"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.profiletab), _translate("GuestWindowUi", "Tab 1"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.historytab), _translate("GuestWindowUi", "Tab 2"))
+        self.acceptbutton.setText(_translate("GuestWindowUi", "Подтвердить"))
+
+        global guest_number
+
+        self.guestlabel.setText(_translate("GuestWindowUi", "Гость " + str(guest_number)))
+
+
+class GuestWindow(QtWidgets.QDialog, GuestWindowUi):
+    def __init__(self, parent=None):
+        super(GuestWindow, self).__init__(parent)
         self.setupUi(self)
 
 
