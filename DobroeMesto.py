@@ -27,13 +27,6 @@ except BaseException as e:
     msgbox.setDetailedText(str(e))
     msgbox.exec()
 
-query = "insert into orders values (default,now(),null,null,228,null,228);"
-
-query = "update products set product_amount=product_amount-1 where products=%s && product_amount>0;"
-
-query = "select no_orders from orders order by no_orders desc limit 1 ;"
-
-query = "insert into order_content values(%s,%s, default,curtime());"
 
 query = "select no, content from order_content where id_order=%s;"
 
@@ -45,6 +38,7 @@ menu_items = []
 order_items = []
 order_totals = []
 order_no = []
+order_number = 0
 
 items = []
 
@@ -64,6 +58,7 @@ class MainWindow(object):
 
     def setupUi(self):
         Main.setObjectName("Main")
+        Main.setWindowTitle("Доброе место")
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
         sizePolicy.setHorizontalStretch(10)
         sizePolicy.setVerticalStretch(10)
@@ -279,11 +274,19 @@ class MainWindow(object):
                     item_button = QtWidgets.QPushButton("Рассчитать")
                     categorieslayout.addWidget(item_button, 1, j, 1, 1)
                     j += 1
-                    # item_button.clicked.connect(lambda state, order=value: open_order(order))
+                    item_button.clicked.connect(lambda state, order=value: open_payments(order))
                     # TODO: Добавить комментарии и иконки
                     i = 0
                 i += 1
             j = 0
+
+        def open_payments(order):
+            global order_number
+            order_number = int(order)
+
+            w = PaymentWindow()
+            w.exec_()
+            self.draw_orders()
 
     def printX(self):
         query = "select sum(total) from orders;"
@@ -1080,14 +1083,14 @@ class AdminWindowUi(object):
                 cursor.execute(query, (data,))
                 cnx.commit()
             if type == "client":
-                query = "delete from passenger where idPassenger=%s;"
+                query = "delete from clients where id_client=%s;"
                 cursor.execute(query, (data,))
                 cnx.commit()
             if type == "product":
-                query = "delete from users where idUsers=%s;"
+                query = "delete from products where products =%s;"
                 cursor.execute(query, (data,))
                 cnx.commit()
-            QtWidgets.QMessageBox.about(self, "Инфо", "Удалено успешно")
+            Message.create(Message, "Инфо", "Удалено успешно")
             self.retranslateAdminUi()
 
     def setupproductUi(self):
@@ -1274,6 +1277,10 @@ class NewOrderWindowUi(object):
         self.gridLayout_2.setObjectName("gridLayout_2")
         self.gridLayout_2.addWidget(self.scrollArea, 0, 0, 1, 1)
         self.gridLayout.addWidget(self.OrderBox, 1, 1, 1, 1)
+        self.gridLayout.addWidget(self.createbutton, 4, 0, 1, 2)
+        self.scanitembutton = QtWidgets.QPushButton(NewOrderWindowUi)
+        self.scanitembutton.setObjectName("scanitembutton")
+        self.gridLayout.addWidget(self.scanitembutton, 3, 0, 1, 2)
 
         self.retranslateUi(NewOrderWindowUi)
         self.tabWidget.setCurrentIndex(0)
@@ -1284,6 +1291,7 @@ class NewOrderWindowUi(object):
         self.scanbutton.setText(_translate("NewOrderWindowUi", "Сканировать карту гостя"))
         self.createbutton.setText(_translate("NewOrderWindowUi", "Создать "))
         self.OrderBox.setTitle(_translate("NewOrderWindowUi", "Заказ"))
+        self.scanitembutton.setText(_translate("NewOrderWindowUi", "Сканировать товар"))
 
         order = []
 
@@ -1306,20 +1314,31 @@ class NewOrderWindowUi(object):
                         item_button.clicked.connect(lambda state, button=item_button: select_item(button))
 
         def select_item(button):
-            order.append(button)
+            order.append(button.text())
+            draw_order()
+
+        def draw_order():
+
+            for i in reversed(range(self.gridLayout_3.count())):
+                self.gridLayout_3.itemAt(i).widget().deleteLater()
+
             i = 0
             for item in order:
-                self.gridLayout_3.addWidget(QtWidgets.QPushButton(item.text()), i, 0, 1, 1)
+                item_button = QtWidgets.QPushButton(item)
+                self.gridLayout_3.addWidget(item_button, i, 0, 1, 1)
+                item_button.clicked.connect(lambda state, data=item: pop_item(data))
                 query = "select Product_cost from products where products=%s;"
-                data = (item.text(),)
-                ccursor.execute(query, data)
+                cdata = (item,)
+                ccursor.execute(query, cdata)
                 for citem in ccursor:
                     for cvalue in citem:
                         self.gridLayout_3.addWidget(QtWidgets.QLabel(str(cvalue)), i, 1, 1, 1)
                 i += 1
 
         def create_order():
-            for item in order:
+            if len(order) == 0:
+                pass
+            else:
                 query = "insert into orders values (default,now(),null,null,228,null,228);"
                 cursor.execute(query)
                 cnx.commit()
@@ -1328,12 +1347,17 @@ class NewOrderWindowUi(object):
                 for result in cursor:
                     for value in result:
                         number = str(value)
-                query = "insert into order_content values(%s,%s, default,curtime());"
-                data = (number, item.text())
-                cursor.execute(query, data)
-                cnx.commit()
-            Message.create(Message, "Инфо", "Заказ добавлен")
-            NewOrderWindowUi.accept()
+                for item in order:
+                    query = "insert into order_content values(%s,%s, default,curtime());"
+                    data = (number, item)
+                    cursor.execute(query, data)
+                    cnx.commit()
+                Message.create(Message, "Инфо", "Заказ добавлен")
+                NewOrderWindowUi.accept()
+
+        def pop_item(item):
+            order.pop(order.index(item))
+            draw_order()
 
         self.createbutton.clicked.connect(create_order)
 
@@ -1341,6 +1365,108 @@ class NewOrderWindowUi(object):
 class NewOrderWindow(QtWidgets.QDialog, NewOrderWindowUi):
     def __init__(self, parent=None):
         super(NewOrderWindow, self).__init__(parent)
+        self.setupUi(self)
+
+
+class PaymentWindowUi(object):
+    def setupUi(self, PaymentWindowUi):
+        PaymentWindowUi.setObjectName("PaymentWindowUi")
+        PaymentWindowUi.resize(665, 405)
+        self.gridLayout = QtWidgets.QGridLayout(PaymentWindowUi)
+        self.gridLayout.setObjectName("gridLayout")
+        self.precheckbutton = QtWidgets.QPushButton(PaymentWindowUi)
+        self.precheckbutton.setObjectName("precheckbutton")
+        self.gridLayout.addWidget(self.precheckbutton, 10, 0, 1, 2)
+        self.clientcashlabel = QtWidgets.QLabel(PaymentWindowUi)
+        self.clientcashlabel.setObjectName("clientcashlabel")
+        self.gridLayout.addWidget(self.clientcashlabel, 3, 0, 1, 1)
+        self.groupBox = QtWidgets.QGroupBox(PaymentWindowUi)
+        self.groupBox.setObjectName("groupBox")
+        self.gridLayout_2 = QtWidgets.QGridLayout(self.groupBox)
+        self.gridLayout_2.setObjectName("gridLayout_2")
+        self.gridLayout.addWidget(self.groupBox, 3, 1, 4, 1)
+        self.paymentbox = QtWidgets.QComboBox(PaymentWindowUi)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.paymentbox.sizePolicy().hasHeightForWidth())
+        self.paymentbox.setSizePolicy(sizePolicy)
+        self.paymentbox.setObjectName("paymentbox")
+        self.paymentbox.addItem("")
+        self.paymentbox.addItem("")
+        self.paymentbox.addItem("")
+        self.paymentbox.addItem("")
+        self.gridLayout.addWidget(self.paymentbox, 4, 0, 1, 1)
+        self.paymentbutton = QtWidgets.QPushButton(PaymentWindowUi)
+        self.paymentbutton.setObjectName("paymentbutton")
+        self.gridLayout.addWidget(self.paymentbutton, 9, 0, 1, 2)
+        self.couponsbutton = QtWidgets.QPushButton(PaymentWindowUi)
+        self.couponsbutton.setObjectName("couponsbutton")
+        self.gridLayout.addWidget(self.couponsbutton, 7, 1, 1, 1)
+        self.refundlabel = QtWidgets.QLabel(PaymentWindowUi)
+        self.refundlabel.setObjectName("refundlabel")
+        self.gridLayout.addWidget(self.refundlabel, 7, 0, 1, 1)
+        self.lineEdit = QtWidgets.QLineEdit(PaymentWindowUi)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.lineEdit.sizePolicy().hasHeightForWidth())
+        self.lineEdit.setSizePolicy(sizePolicy)
+        self.lineEdit.setObjectName("lineEdit")
+        self.gridLayout.addWidget(self.lineEdit, 6, 0, 1, 1)
+        self.inputlabel = QtWidgets.QLabel(PaymentWindowUi)
+        self.inputlabel.setObjectName("inputlabel")
+        self.gridLayout.addWidget(self.inputlabel, 5, 0, 1, 1)
+
+        self.retranslateUi(PaymentWindowUi)
+        QtCore.QMetaObject.connectSlotsByName(PaymentWindowUi)
+
+    def retranslateUi(self, PaymentWindowUi):
+        _translate = QtCore.QCoreApplication.translate
+        PaymentWindowUi.setWindowTitle(_translate("PaymentWindowUi", "Расчет"))
+        self.precheckbutton.setText(_translate("PaymentWindowUi", "Пречек"))
+        self.clientcashlabel.setText(_translate("PaymentWindowUi", "На счете клиента"))
+        self.groupBox.setTitle(_translate("PaymentWindowUi", "Заказ"))
+        self.paymentbox.setItemText(0, _translate("PaymentWindowUi", "Тип оплаты"))
+        self.paymentbox.setItemText(1, _translate("PaymentWindowUi", "Счет"))
+        self.paymentbox.setItemText(2, _translate("PaymentWindowUi", "Наличные"))
+        self.paymentbox.setItemText(3, _translate("PaymentWindowUi", "Безналичные"))
+        self.paymentbutton.setText(_translate("PaymentWindowUi", "Оплата"))
+        self.couponsbutton.setText(_translate("PaymentWindowUi", "Купоны"))
+        self.refundlabel.setText(_translate("PaymentWindowUi", "Сдача"))
+        self.inputlabel.setText(_translate("PaymentWindowUi", "Внесено"))
+
+        global order_number
+
+        query = "select content from order_content where id_order=%s;"
+        data = (order_number,)
+        cursor.execute(query, data)
+
+        i = 0
+        for item in cursor:
+            for value in item:
+                order_item = QtWidgets.QPushButton(str(value))
+                self.gridLayout_2.addWidget(order_item, i, 0, 1, 1)
+            i += 1
+
+        i = 0
+
+        query = "SELECT total FROM orders WHERE No_orders = %s;"
+        data = (order_number,)
+        cursor.execute(query, data)
+
+        for item in cursor:
+            for value in item:
+                font = QtGui.QFont()
+                font.setPointSize(20)
+                total_item = QtWidgets.QLabel("К оплате " + str(value))
+                total_item.setFont(font)
+                self.gridLayout_2.addWidget(total_item, i, 0, 1, 1)
+
+
+class PaymentWindow(QtWidgets.QDialog, PaymentWindowUi):
+    def __init__(self, parent=None):
+        super(PaymentWindow, self).__init__(parent)
         self.setupUi(self)
 
 
