@@ -42,14 +42,8 @@ order_number = 0
 
 items = []
 
-is_ex = False
-
-is_n = False
-
 is_cash = False
 is_card = False
-
-money = ""
 
 isopen = False  # подгружать из базы
 
@@ -499,8 +493,6 @@ class MainWindow(object):
                 cnx.commit()
 
         self.setupUi()
-
-
 
     def retranslateCashboxUi(self, Main):
         _translate = QtCore.QCoreApplication.translate
@@ -1092,9 +1084,11 @@ class NewOrderWindowUi(object):
         _translate = QtCore.QCoreApplication.translate
         NewOrderWindowUi.setWindowTitle(_translate("NewOrderWindowUi", "Dialog"))
         self.scanitembutton.setText(_translate("NewOrderWindowUi", "Сканировать товар"))
+        self.scanItem.clicked.connect(self.scanItem)
         self.OrderBox.setTitle(_translate("NewOrderWindowUi", "Заказ"))
         self.createbutton.setText(_translate("NewOrderWindowUi", "Создать "))
         self.scanbutton.setText(_translate("NewOrderWindowUi", "Сканировать карту гостя"))
+        self.scanbutton.clicked.connect(self.scanGuest)
         self.label.setText(_translate("NewOrderWindowUi", "Комментарий"))
         order = []
 
@@ -1163,6 +1157,22 @@ class NewOrderWindowUi(object):
             draw_order()
 
         self.createbutton.clicked.connect(create_order)
+
+    def scanGuest(self):
+
+        text, ok = QtWidgets.QInputDialog.getText(self, 'Сканируйте карту пользователя',
+                                                  'Номер карты:')
+
+        if ok and text != "" and text != " ":
+            pass
+
+    def scanItem(self):
+
+        text, ok = QtWidgets.QInputDialog.getText(self, 'Сканируйте товар',
+                                                  'Код:')
+
+        if ok and text != "" and text != " ":
+            pass
 
 
 class NewOrderWindow(QtWidgets.QDialog, NewOrderWindowUi):
