@@ -1,4 +1,5 @@
 import datetime
+import threading
 
 import mysql.connector
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -191,12 +192,14 @@ class MainWindow(object):
 
     def openAdmin(self):
         w = AdminWindow()
-        w.exec_()
+        my_thread = threading.Thread(target=w.exec_())
+        my_thread.start()
         self.draw_orders()
 
     def openNewOrder(self):
         w = NewOrderWindow()
-        w.exec_()
+        my_thread = threading.Thread(target=w.exec_())
+        my_thread.start()
         self.draw_orders()
 
     def retranslateUi(self):
@@ -233,7 +236,12 @@ class MainWindow(object):
         '''
 
     def draw_orders(self):
-        query = "select name,open_date,total,No_orders from orders,clients " \
+
+        for i in reversed(range(self.orderslayout.count())):
+            if isinstance(self.orderslayout.itemAt(i).widget(), QtWidgets.QGroupBox):
+                self.orderslayout.itemAt(i).widget().deleteLater()
+
+        query = "select name,open_date,total,No_orders, comments from orders,clients " \
                 "where id_visitor=id_client && isnull(close_date);"
         cursor.execute(query)
 
@@ -250,12 +258,13 @@ class MainWindow(object):
             self.orderslayout.addWidget(item_group)
             item_group.clicked.connect(lambda: print(1))
             for value in item:
+                value = str(value)
                 if i == 2:
-                    item_label = QtWidgets.QLabel("Гость пришел: " + str(value))
+                    item_label = QtWidgets.QLabel("Гость пришел: " + value)
                     categorieslayout.addWidget(item_label, 0, j, 1, 1)
                     j += 1
                 if i == 3:
-                    item_label = QtWidgets.QLabel("К оплате: " + str(value))
+                    item_label = QtWidgets.QLabel("К оплате: " + value)
                     categorieslayout.addWidget(item_label, 0, j, 1, 1)
                     order_totals.append(item_label)
                     j += 1
@@ -270,7 +279,12 @@ class MainWindow(object):
                     categorieslayout.addWidget(item_button, 1, j, 1, 1)
                     j += 1
                     item_button.clicked.connect(lambda state, order=value: open_payments(order))
-                    # TODO: Добавить комментарии и иконки
+                    # TODO: иконки
+                if i == 5:
+                    item_label = QtWidgets.QLabel("Комментарий: " + value)
+                    if value != "None":
+                        categorieslayout.addWidget(item_label, 2, 0, 1, 1)
+                    j += 1
                     i = 0
                 i += 1
             j = 0
@@ -280,7 +294,9 @@ class MainWindow(object):
             order_number = int(order)
 
             w = PaymentWindow()
-            w.exec_()
+            my_thread = threading.Thread(target=w.exec_())
+            my_thread.start()
+
             self.draw_orders()
 
         def open_order(order):
@@ -288,7 +304,8 @@ class MainWindow(object):
             order_number = int(order)
 
             w = OrderWindow()
-            w.exec_()
+            my_thread = threading.Thread(target=w.exec_())
+            my_thread.start()
             self.draw_orders()
 
     def printX(self):
@@ -353,100 +370,6 @@ class MainWindow(object):
         else:
             import sys
             sys.exit()
-
-    def setupLoginUi(self):
-        Main.setObjectName("Main")
-        Main.showFullScreen()
-        self.centralwidget = QtWidgets.QWidget(Main)
-        self.centralwidget.setMaximumSize(QtCore.QSize(800, 559))
-        self.centralwidget.setObjectName("centralwidget")
-        self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
-        self.gridLayout.setObjectName("gridLayout")
-        self.pushButton = QtWidgets.QPushButton(self.centralwidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.pushButton.sizePolicy().hasHeightForWidth())
-        self.pushButton.setSizePolicy(sizePolicy)
-        self.pushButton.setObjectName("pushButton")
-        self.gridLayout.addWidget(self.pushButton, 2, 2, 1, 1)
-        self.lineEdit = QtWidgets.QLineEdit(self.centralwidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.lineEdit.sizePolicy().hasHeightForWidth())
-        self.lineEdit.setSizePolicy(sizePolicy)
-        self.lineEdit.setObjectName("lineEdit")
-        self.gridLayout.addWidget(self.lineEdit, 2, 1, 1, 1)
-        self.label = QtWidgets.QLabel(self.centralwidget)
-        self.label.setObjectName("label")
-        self.gridLayout.addWidget(self.label, 2, 0, 1, 1)
-        self.pushButton_3 = QtWidgets.QPushButton(self.centralwidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.pushButton_3.sizePolicy().hasHeightForWidth())
-        self.pushButton_3.setSizePolicy(sizePolicy)
-        self.pushButton_3.setObjectName("pushButton_3")
-        self.gridLayout.addWidget(self.pushButton_3, 3, 2, 1, 1)
-        self.pushButton_2 = QtWidgets.QPushButton(self.centralwidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.pushButton_2.sizePolicy().hasHeightForWidth())
-        self.pushButton_2.setSizePolicy(sizePolicy)
-        self.pushButton_2.setObjectName("pushButton_2")
-        self.gridLayout.addWidget(self.pushButton_2, 1, 2, 1, 1)
-        Main.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(Main)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 871, 21))
-        self.menubar.setObjectName("menubar")
-        Main.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(Main)
-        self.statusbar.setObjectName("statusbar")
-        Main.setStatusBar(self.statusbar)
-
-        self.retranslateLoginUi(Main)
-        QtCore.QMetaObject.connectSlotsByName(Main)
-
-    def retranslateLoginUi(self, Main):
-        _translate = QtCore.QCoreApplication.translate
-        Main.setWindowTitle(_translate("Main", "Main"))
-        self.pushButton.setText(_translate("Main", "Вход"))
-        self.label.setText(_translate("Main", "Сканируйте карту"))
-        self.pushButton_3.setText(_translate("Main", "Повторное сканирование"))
-        self.pushButton_2.setText(_translate("Main", "Настройки"))
-
-    def login(self):
-        password = self.lineEdit.text()
-        login = self.label.text()
-
-        query = "set @k=null;"
-        cursor.execute(query)
-        data = (password, login)
-        query = "select if(pass=%s,1,0) from users where card_num=%s into @k;"
-        cursor.execute(query, data)
-        query = "select if(isnull(@k),0,if(@k=1,1,2));"
-        cursor.execute(query)
-
-        for item in cursor:
-            for value in item:
-                if str(value) == "1":
-                    global isopen
-                    if isopen:
-                        pass
-                    else:
-                        query = "select idUsers from users where card_num = %s;"
-                        cursor.execute(query, data)
-                        for item in cursor:
-                            for value in item:
-                                query = "insert into shifts values(default,now(),null,%s,null,null,null,default);"
-                                data = (str(value),)
-                                cursor.execute(query, data)
-                if str(value) == "2":
-                    self.lineEdit.setText("Пароль неверный")
-                if str(value) == "0":
-                    self.label.setText("Не валидная карта")
 
     def save_order(self):
         global order_number
@@ -885,75 +808,13 @@ class AdminWindowUi(object):
             self.retranslateAdminUi()
 
     def setupproductUi(self):
-        AdminWindowUi.setObjectName("AdminWindowUi")
-        self.centralwidget = QtWidgets.QWidget(AdminWindowUi)
-        self.centralwidget.setObjectName("centralwidget")
-        self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
-        self.gridLayout.setObjectName("gridLayout")
-        self.lineEdit_2 = QtWidgets.QLineEdit(self.centralwidget)
-        self.lineEdit_2.setObjectName("lineEdit_2")
-        self.gridLayout.addWidget(self.lineEdit_2, 1, 1, 1, 1)
-        self.pushButton = QtWidgets.QPushButton(self.centralwidget)
-        self.pushButton.setObjectName("pushButton")
-        self.gridLayout.addWidget(self.pushButton, 1, 11, 1, 1)
-        self.pushButton_2 = QtWidgets.QPushButton(self.centralwidget)
-        self.pushButton_2.setObjectName("pushButton_2")
-        self.gridLayout.addWidget(self.pushButton_2, 1, 10, 1, 1)
-        self.lineEdit_3 = QtWidgets.QLineEdit(self.centralwidget)
-        self.lineEdit_3.setObjectName("lineEdit_3")
-        self.gridLayout.addWidget(self.lineEdit_3, 1, 2, 1, 1)
-        self.label_4 = QtWidgets.QLabel(self.centralwidget)
-        self.label_4.setObjectName("label_4")
-        self.gridLayout.addWidget(self.label_4, 0, 3, 1, 1)
-        self.label = QtWidgets.QLabel(self.centralwidget)
-        self.label.setObjectName("label")
-        self.gridLayout.addWidget(self.label, 0, 0, 1, 1)
-        self.label_2 = QtWidgets.QLabel(self.centralwidget)
-        self.label_2.setObjectName("label_2")
-        self.gridLayout.addWidget(self.label_2, 0, 1, 1, 1)
-        self.label_3 = QtWidgets.QLabel(self.centralwidget)
-        self.label_3.setObjectName("label_3")
-        self.gridLayout.addWidget(self.label_3, 0, 2, 1, 1)
-        self.lineEdit = QtWidgets.QLineEdit(self.centralwidget)
-        self.lineEdit.setObjectName("lineEdit")
-        self.gridLayout.addWidget(self.lineEdit, 1, 0, 1, 1)
-        self.lineEdit_4 = QtWidgets.QLineEdit(self.centralwidget)
-        self.lineEdit_4.setObjectName("lineEdit_4")
-        self.gridLayout.addWidget(self.lineEdit_4, 1, 3, 1, 1)
-        AdminWindowUi.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(AdminWindowUi)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 557, 21))
-        self.menubar.setObjectName("menubar")
-        AdminWindowUi.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(AdminWindowUi)
-        self.statusbar.setObjectName("statusbar")
-        AdminWindowUi.setStatusBar(self.statusbar)
+        w = AddItemWindow()
+        my_thread = threading.Thread(target=w.exec_())
+        my_thread.start()
 
-        self.retranslateproductUi(AdminWindowUi)
-        QtCore.QMetaObject.connectSlotsByName(AdminWindowUi)
-
-    def retranslateproductUi(self, Main):
-        _translate = QtCore.QCoreApplication.translate
-        Main.setWindowTitle(_translate("AdminWindowUi", "AdminWindowUi"))
-        self.pushButton.setText(_translate("AdminWindowUi", "Сохранить"))
-        self.pushButton_2.setText(_translate("AdminWindowUi", "Назад"))
-        self.label_4.setText(_translate("AdminWindowUi", "Категория"))
-        self.label.setText(_translate("AdminWindowUi", "Название"))
-        self.label_2.setText(_translate("AdminWindowUi", "Стоимость"))
-        self.label_3.setText(_translate("AdminWindowUi", "Количество"))
-
-        self.pushButton_2.clicked.connect(self.setupAdminUi)
-        self.pushButton.clicked.connect(self.writeproduct)
-
-    def writeproduct(self):
-        query = "insert into products(Products, Product_cost, Product_Amount, Product_category)values(%s, %s, %s, %s);"
-        data = (self.lineEdit.text(), self.lineEdit_2.text(), self.lineEdit_3.text(), self.lineEdit_4.text())
-        cursor.execute(query, data)
-        cnx.commit()
-        self.setupAdminUi()
+        self.retranslateAdminUi()
 
     def setupworkUi(self):
-        AdminWindowUi.setObjectName("AdminWindowUi")
         self.centralwidget = QtWidgets.QWidget(AdminWindowUi)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
@@ -1000,6 +861,7 @@ class AdminWindowUi(object):
         self.retranslateworkUi(AdminWindowUi)
         QtCore.QMetaObject.connectSlotsByName(AdminWindowUi)
 
+    # noinspection PyShadowingNames,PyShadowingNames,PyShadowingNames,PyShadowingNames
     def retranslateworkUi(self, Main):
         _translate = QtCore.QCoreApplication.translate
         Main.setWindowTitle(_translate("AdminWindowUi", "AdminWindowUi"))
@@ -1025,6 +887,76 @@ class AdminWindow(QtWidgets.QDialog, AdminWindowUi):
     def __init__(self, parent=None):
         super(AdminWindow, self).__init__(parent)
         self.setupAdminUi(self)
+
+
+class AddItemWindowUi(object):
+    def setupUi(self, AddItemWindowUi):
+        AddItemWindowUi.setObjectName("AddItemWindowUi")
+        AddItemWindowUi.resize(570, 105)
+        self.gridLayout = QtWidgets.QGridLayout(AddItemWindowUi)
+        self.gridLayout.setObjectName("gridLayout")
+        self.barcodeedit = QtWidgets.QLineEdit(AddItemWindowUi)
+        self.barcodeedit.setObjectName("barcodeedit")
+        self.gridLayout.addWidget(self.barcodeedit, 1, 4, 1, 1)
+        self.label_5 = QtWidgets.QLabel(AddItemWindowUi)
+        self.label_5.setObjectName("label_5")
+        self.gridLayout.addWidget(self.label_5, 0, 4, 1, 1)
+        self.addbutton = QtWidgets.QPushButton(AddItemWindowUi)
+        self.addbutton.setObjectName("addbutton")
+        self.gridLayout.addWidget(self.addbutton, 2, 0, 1, 5)
+        self.label = QtWidgets.QLabel(AddItemWindowUi)
+        self.label.setObjectName("label")
+        self.gridLayout.addWidget(self.label, 0, 0, 1, 1)
+        self.costedit = QtWidgets.QLineEdit(AddItemWindowUi)
+        self.costedit.setObjectName("costedit")
+        self.gridLayout.addWidget(self.costedit, 1, 1, 1, 1)
+        self.label_2 = QtWidgets.QLabel(AddItemWindowUi)
+        self.label_2.setObjectName("label_2")
+        self.gridLayout.addWidget(self.label_2, 0, 1, 1, 1)
+        self.productedit = QtWidgets.QLineEdit(AddItemWindowUi)
+        self.productedit.setObjectName("productedit")
+        self.gridLayout.addWidget(self.productedit, 1, 0, 1, 1)
+        self.amountedit = QtWidgets.QLineEdit(AddItemWindowUi)
+        self.amountedit.setObjectName("amountedit")
+        self.gridLayout.addWidget(self.amountedit, 1, 2, 1, 1)
+        self.categoryedit = QtWidgets.QLineEdit(AddItemWindowUi)
+        self.categoryedit.setObjectName("categoryedit")
+        self.gridLayout.addWidget(self.categoryedit, 1, 3, 1, 1)
+        self.label_4 = QtWidgets.QLabel(AddItemWindowUi)
+        self.label_4.setObjectName("label_4")
+        self.gridLayout.addWidget(self.label_4, 0, 3, 1, 1)
+        self.label_3 = QtWidgets.QLabel(AddItemWindowUi)
+        self.label_3.setObjectName("label_3")
+        self.gridLayout.addWidget(self.label_3, 0, 2, 1, 1)
+
+        self.retranslateUi(AddItemWindowUi)
+        QtCore.QMetaObject.connectSlotsByName(AddItemWindowUi)
+
+    def retranslateUi(self, AddItemWindowUi):
+        _translate = QtCore.QCoreApplication.translate
+        AddItemWindowUi.setWindowTitle(_translate("AddItemWindowUi", "Dialog"))
+        self.label_5.setText(_translate("AddItemWindowUi", "Штрихкод"))
+        self.addbutton.setText(_translate("AddItemWindowUi", "Добавить"))
+        self.label.setText(_translate("AddItemWindowUi", "Название позиции"))
+        self.label_2.setText(_translate("AddItemWindowUi", "Цена"))
+        self.label_4.setText(_translate("AddItemWindowUi", "Категория"))
+        self.label_3.setText(_translate("AddItemWindowUi", "Количество"))
+
+        self.addbutton.clicked.connect(self.writeproduct)
+
+    def writeproduct(self):
+        query = "insert into products values(%s, %s, %s, %s, %s);"
+        data = (self.productedit.text(), self.costedit.text(), self.amountedit.text(), self.categoryedit.text(),
+                self.barcodeedit.text())
+        cursor.execute(query, data)
+        cnx.commit()
+        AddItemWindow.done(1)
+
+
+class AddItemWindow(QtWidgets.QDialog, AddItemWindowUi):
+    def __init__(self, parent=None):
+        super(AddItemWindow, self).__init__(parent)
+        self.setupUi(self)
 
 
 class NewOrderWindowUi(object):
@@ -1137,7 +1069,7 @@ class NewOrderWindowUi(object):
             if len(order) == 0:
                 pass
             else:
-                query = "insert into orders values (default,now(),null,null,228,null,228);"
+                query = "insert into orders values (default,now(),null,null,228,null,228,null);"
                 cursor.execute(query)
                 cnx.commit()
                 query = "select no_orders from orders order by no_orders desc limit 1;"
@@ -1146,10 +1078,14 @@ class NewOrderWindowUi(object):
                     for value in result:
                         number = str(value)
                 for item in order:
-                    query = "insert into order_content values(%s,%s, default,curtime());"
+                    query = "insert into order_content values(%s,%s, default,curtime(), 'no');"
                     data = (number, item)
                     cursor.execute(query, data)
                     cnx.commit()
+                query = "update orders set comments=%s where no_orders=%s;"
+                data = (self.lineEdit.text(), number)
+                cursor.execute(query, data)
+                cnx.commit()
                 Message.create(Message, "Инфо", "Заказ добавлен")
                 NewOrderWindowUi.accept()
 
@@ -1366,6 +1302,18 @@ class OrderWindowUi(object):
                 order_item = QtWidgets.QPushButton(str(value))
                 self.gridLayout_3.addWidget(order_item, i, 0, 1, 1)
             i += 1
+
+        query = "SELECT total FROM orders WHERE No_orders = %s;"
+        data = (order_number,)
+        cursor.execute(query, data)
+
+        for item in cursor:
+            for value in item:
+                font = QtGui.QFont()
+                font.setPointSize(20)
+                total_item = QtWidgets.QLabel("Итог " + str(value))
+                total_item.setFont(font)
+                self.gridLayout_3.addWidget(total_item, i, 0, 1, 1)
 
 
 class OrderWindow(QtWidgets.QDialog, OrderWindowUi):
