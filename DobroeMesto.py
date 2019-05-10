@@ -282,7 +282,7 @@ class MainWindow(object):
                     # TODO: иконки
                 if i == 5:
                     item_label = QtWidgets.QLabel("Комментарий: " + value)
-                    if value != "None":
+                    if value != "None" and value != "":
                         categorieslayout.addWidget(item_label, 2, 0, 1, 1)
                     j += 1
                     i = 0
@@ -1410,20 +1410,20 @@ if __name__ == "__main__":
             pass
 
         try:
-            for total, no in zip(order_totals, order_no):
+            for no in order_no:
                 data = (no,)
                 query = "select if(client_lvl=3,15,if(client_lvl=2,10,if(client_lvl=1,5,0))) as 'discount' " \
                         "from clients,orders " \
                         "where id_client=id_visitor && no_orders=%s into @c;"
                 bcursor.execute(query, data)
                 query = "select sum(product_cost) from order_content,products where " \
-                        "content=products && id_order=%s && product_category<>'Время' into @a; "
+                        "content=products && id_order=%s && product_category<>'Тарифы' into @a; "
                 bcursor.execute(query, data)
                 query = "select if(@a is null,0,@a) into @a;"
                 bcursor.execute(query)
                 query = "select round(sum((Product_cost/60) * ((UNIX_TIMESTAMP(now()) - UNIX_TIMESTAMP(times))/60)))" \
                         "from order_content, products " \
-                        "where id_order = %s && content = products && product_category = 'Время' into @b;"
+                        "where id_order = %s && content = products && product_category = 'Тарифы' into @b;"
                 bcursor.execute(query, data)
                 query = "select if(@b is null,0,@b) into @b;"
                 bcursor.execute(query)
@@ -1431,13 +1431,10 @@ if __name__ == "__main__":
                 bcursor.execute(query, data)
                 cnx.commit()
 
-                query = "SELECT total FROM orders WHERE No_orders = %s;"
-                data = (no,)
-                bcursor.execute(query, data)
-                for item in cursor:
-                    total.setText("К Оплате: " + str(item[0]))
+                ui.draw_orders()
 
-        except BaseException:
+        except BaseException as e:
+            print(str(e))
             pass
 
     timer = QTimer()
