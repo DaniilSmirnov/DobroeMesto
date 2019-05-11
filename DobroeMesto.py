@@ -625,7 +625,8 @@ class AdminWindowUi(object):
             "Название",
             "Cтоимость",
             "Количество",
-            "Категория"
+            "Категория",
+            "Код"
         ]
 
         draw_labels(labels, self.gridLayout_3, 1)
@@ -650,11 +651,11 @@ class AdminWindowUi(object):
                     lambda state, line=[line_item, str(value), id, k]: modify(line, "product"))
 
                 but_item = QtWidgets.QPushButton("Удалить")
-                self.gridLayout_3.addWidget(but_item, j, 5, 1, 1)
+                self.gridLayout_3.addWidget(but_item, j, 6, 1, 1)
                 but_item.clicked.connect(lambda state, name=id: delete(name, "product"))
 
                 k += 1
-                if k % 5 == 0:
+                if k % 6 == 0:
                     j += 1
                     k = 1
 
@@ -1129,17 +1130,23 @@ class PaymentWindowUi(object):
         self.gridLayout.setObjectName("gridLayout")
         self.precheckbutton = QtWidgets.QPushButton(PaymentWindowUi)
         self.precheckbutton.setObjectName("precheckbutton")
-        self.gridLayout.addWidget(self.precheckbutton, 10, 0, 1, 2)
-        self.clientcashlabel = QtWidgets.QLabel(PaymentWindowUi)
-        self.clientcashlabel.setObjectName("clientcashlabel")
-        self.gridLayout.addWidget(self.clientcashlabel, 3, 0, 1, 1)
-        self.groupBox = QtWidgets.QGroupBox(PaymentWindowUi)
-        self.groupBox.setObjectName("groupBox")
-        self.gridLayout_2 = QtWidgets.QGridLayout(self.groupBox)
-        self.gridLayout_2.setObjectName("gridLayout_2")
-        self.gridLayout.addWidget(self.groupBox, 3, 1, 4, 1)
+        self.gridLayout.addWidget(self.precheckbutton, 10, 0, 1, 3)
+        self.couponsbutton = QtWidgets.QPushButton(PaymentWindowUi)
+        self.couponsbutton.setObjectName("couponsbutton")
+        self.gridLayout.addWidget(self.couponsbutton, 7, 2, 1, 1)
+        self.paymentbutton = QtWidgets.QPushButton(PaymentWindowUi)
+        self.paymentbutton.setObjectName("paymentbutton")
+        self.gridLayout.addWidget(self.paymentbutton, 9, 0, 1, 3)
+        self.inputlabel = QtWidgets.QLabel(PaymentWindowUi)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.inputlabel.sizePolicy().hasHeightForWidth())
+        self.inputlabel.setSizePolicy(sizePolicy)
+        self.inputlabel.setObjectName("inputlabel")
+        self.gridLayout.addWidget(self.inputlabel, 5, 0, 1, 1)
         self.paymentbox = QtWidgets.QComboBox(PaymentWindowUi)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Minimum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.paymentbox.sizePolicy().hasHeightForWidth())
@@ -1149,16 +1156,7 @@ class PaymentWindowUi(object):
         self.paymentbox.addItem("")
         self.paymentbox.addItem("")
         self.paymentbox.addItem("")
-        self.gridLayout.addWidget(self.paymentbox, 4, 0, 1, 1)
-        self.paymentbutton = QtWidgets.QPushButton(PaymentWindowUi)
-        self.paymentbutton.setObjectName("paymentbutton")
-        self.gridLayout.addWidget(self.paymentbutton, 9, 0, 1, 2)
-        self.couponsbutton = QtWidgets.QPushButton(PaymentWindowUi)
-        self.couponsbutton.setObjectName("couponsbutton")
-        self.gridLayout.addWidget(self.couponsbutton, 7, 1, 1, 1)
-        self.refundlabel = QtWidgets.QLabel(PaymentWindowUi)
-        self.refundlabel.setObjectName("refundlabel")
-        self.gridLayout.addWidget(self.refundlabel, 7, 0, 1, 1)
+        self.gridLayout.addWidget(self.paymentbox, 4, 0, 1, 2)
         self.lineEdit = QtWidgets.QLineEdit(PaymentWindowUi)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -1166,28 +1164,36 @@ class PaymentWindowUi(object):
         sizePolicy.setHeightForWidth(self.lineEdit.sizePolicy().hasHeightForWidth())
         self.lineEdit.setSizePolicy(sizePolicy)
         self.lineEdit.setObjectName("lineEdit")
-        self.gridLayout.addWidget(self.lineEdit, 6, 0, 1, 1)
-        self.inputlabel = QtWidgets.QLabel(PaymentWindowUi)
-        self.inputlabel.setObjectName("inputlabel")
-        self.gridLayout.addWidget(self.inputlabel, 5, 0, 1, 1)
+        self.gridLayout.addWidget(self.lineEdit, 5, 1, 1, 1)
+        self.groupBox = QtWidgets.QGroupBox(PaymentWindowUi)
+        self.groupBox.setObjectName("groupBox")
+        self.gridLayout_2 = QtWidgets.QGridLayout(self.groupBox)
+        self.gridLayout_2.setObjectName("gridLayout_2")
+        self.gridLayout.addWidget(self.groupBox, 3, 2, 4, 1)
+        self.clientcashlabel = QtWidgets.QLabel(PaymentWindowUi)
+        self.clientcashlabel.setObjectName("clientcashlabel")
+        self.gridLayout.addWidget(self.clientcashlabel, 3, 0, 1, 2)
+        self.refundlabel = QtWidgets.QLabel(PaymentWindowUi)
+        self.refundlabel.setObjectName("refundlabel")
+        self.gridLayout.addWidget(self.refundlabel, 6, 0, 1, 2)
 
         self.retranslateUi(PaymentWindowUi)
         QtCore.QMetaObject.connectSlotsByName(PaymentWindowUi)
 
     def retranslateUi(self, PaymentWindowUi):
         _translate = QtCore.QCoreApplication.translate
-        PaymentWindowUi.setWindowTitle(_translate("PaymentWindowUi", "Расчет"))
+        PaymentWindowUi.setWindowTitle(_translate("PaymentWindowUi", "Dialog"))
         self.precheckbutton.setText(_translate("PaymentWindowUi", "Пречек"))
-        self.clientcashlabel.setText(_translate("PaymentWindowUi", "На счете клиента"))
-        self.groupBox.setTitle(_translate("PaymentWindowUi", "Заказ"))
+        self.couponsbutton.setText(_translate("PaymentWindowUi", "Купоны"))
+        self.paymentbutton.setText(_translate("PaymentWindowUi", "Оплата"))
+        self.inputlabel.setText(_translate("PaymentWindowUi", "Внесено"))
         self.paymentbox.setItemText(0, _translate("PaymentWindowUi", "Тип оплаты"))
         self.paymentbox.setItemText(1, _translate("PaymentWindowUi", "Счет"))
         self.paymentbox.setItemText(2, _translate("PaymentWindowUi", "Наличные"))
         self.paymentbox.setItemText(3, _translate("PaymentWindowUi", "Безналичные"))
-        self.paymentbutton.setText(_translate("PaymentWindowUi", "Оплата"))
-        self.couponsbutton.setText(_translate("PaymentWindowUi", "Купоны"))
+        self.groupBox.setTitle(_translate("PaymentWindowUi", "Заказ"))
+        self.clientcashlabel.setText(_translate("PaymentWindowUi", "На счете клиента"))
         self.refundlabel.setText(_translate("PaymentWindowUi", "Сдача"))
-        self.inputlabel.setText(_translate("PaymentWindowUi", "Внесено"))
 
         global order_number
 
@@ -1201,8 +1207,6 @@ class PaymentWindowUi(object):
                 order_item = QtWidgets.QPushButton(str(value))
                 self.gridLayout_2.addWidget(order_item, i, 0, 1, 1)
             i += 1
-
-        i = 0
 
         query = "SELECT total FROM orders WHERE No_orders = %s;"
         data = (order_number,)
@@ -1301,6 +1305,12 @@ class OrderWindowUi(object):
             for value in item:
                 order_item = QtWidgets.QPushButton(str(value))
                 self.gridLayout_3.addWidget(order_item, i, 0, 1, 1)
+                query = "select Product_cost from products where products=%s;"
+                cdata = (value,)
+                ccursor.execute(query, cdata)
+                for citem in ccursor:
+                    for cvalue in citem:
+                        self.gridLayout_3.addWidget(QtWidgets.QLabel(str(cvalue)), i, 1, 1, 1)
             i += 1
 
         query = "SELECT total FROM orders WHERE No_orders = %s;"

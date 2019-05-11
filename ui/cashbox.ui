@@ -14,32 +14,44 @@
       <string>Dialog</string>
   </property>
         <layout class="QGridLayout" name="gridLayout">
-            <item row="10" column="0" colspan="2">
+            <item row="10" column="0" colspan="3">
                 <widget class="QPushButton" name="precheckbutton">
                     <property name="text">
                         <string>Пречек</string>
                     </property>
                 </widget>
             </item>
-            <item row="3" column="0">
-                <widget class="QLabel" name="clientcashlabel">
+            <item row="7" column="2">
+                <widget class="QPushButton" name="couponsbutton">
                     <property name="text">
-                        <string>На счете клиента</string>
+                        <string>Купоны</string>
                     </property>
                 </widget>
             </item>
-            <item row="3" column="1" rowspan="4">
-                <widget class="QGroupBox" name="groupBox">
-                    <property name="title">
-                        <string>Заказ</string>
+            <item row="9" column="0" colspan="3">
+                <widget class="QPushButton" name="paymentbutton">
+                    <property name="text">
+                        <string>Оплата</string>
                     </property>
-                    <layout class="QGridLayout" name="gridLayout_2"/>
                 </widget>
             </item>
-            <item row="4" column="0">
+            <item row="5" column="0">
+                <widget class="QLabel" name="inputlabel">
+                    <property name="sizePolicy">
+                        <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                        </sizepolicy>
+                    </property>
+                    <property name="text">
+                        <string>Внесено</string>
+                    </property>
+                </widget>
+            </item>
+            <item row="4" column="0" colspan="2">
                 <widget class="QComboBox" name="paymentbox">
                     <property name="sizePolicy">
-                        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                        <sizepolicy hsizetype="Maximum" vsizetype="Minimum">
                             <horstretch>0</horstretch>
                             <verstretch>0</verstretch>
                         </sizepolicy>
@@ -66,28 +78,7 @@
                     </item>
                 </widget>
             </item>
-            <item row="9" column="0" colspan="2">
-                <widget class="QPushButton" name="paymentbutton">
-                    <property name="text">
-                        <string>Оплата</string>
-                    </property>
-                </widget>
-            </item>
-            <item row="7" column="1">
-                <widget class="QPushButton" name="couponsbutton">
-                    <property name="text">
-                        <string>Купоны</string>
-                    </property>
-                </widget>
-            </item>
-            <item row="7" column="0">
-                <widget class="QLabel" name="refundlabel">
-                    <property name="text">
-                        <string>Сдача</string>
-                    </property>
-                </widget>
-            </item>
-            <item row="6" column="0">
+            <item row="5" column="1">
                 <widget class="QLineEdit" name="lineEdit">
                     <property name="sizePolicy">
                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -97,10 +88,25 @@
                     </property>
                 </widget>
             </item>
-            <item row="5" column="0">
-                <widget class="QLabel" name="inputlabel">
+            <item row="3" column="2" rowspan="4">
+                <widget class="QGroupBox" name="groupBox">
+                    <property name="title">
+                        <string>Заказ</string>
+                    </property>
+                    <layout class="QGridLayout" name="gridLayout_2"/>
+                </widget>
+            </item>
+            <item row="3" column="0" colspan="2">
+                <widget class="QLabel" name="clientcashlabel">
                     <property name="text">
-                        <string>Внесено</string>
+                        <string>На счете клиента</string>
+                    </property>
+                </widget>
+            </item>
+            <item row="6" column="0" colspan="2">
+                <widget class="QLabel" name="refundlabel">
+                    <property name="text">
+                        <string>Сдача</string>
                     </property>
                 </widget>
             </item>
