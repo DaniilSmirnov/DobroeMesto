@@ -963,7 +963,7 @@ class AddItemWindow(QtWidgets.QDialog, AddItemWindowUi):
 class NewOrderWindowUi(object):
     def setupUi(self, NewOrderWindowUi):
         NewOrderWindowUi.setObjectName("NewOrderWindowUi")
-        NewOrderWindowUi.resize(408, 300)
+        NewOrderWindowUi.resize(640, 480)
         self.gridLayout = QtWidgets.QGridLayout(NewOrderWindowUi)
         self.gridLayout.setObjectName("gridLayout")
         self.tabWidget = QtWidgets.QTabWidget(NewOrderWindowUi)
@@ -1016,7 +1016,7 @@ class NewOrderWindowUi(object):
 
     def retranslateUi(self, NewOrderWindowUi):
         _translate = QtCore.QCoreApplication.translate
-        NewOrderWindowUi.setWindowTitle(_translate("NewOrderWindowUi", "Dialog"))
+        NewOrderWindowUi.setWindowTitle(_translate("NewOrderWindowUi", "Новый заказ"))
         self.scanitembutton.setText(_translate("NewOrderWindowUi", "Сканировать товар"))
         self.scanitembutton.clicked.connect(self.scanItem)
         self.OrderBox.setTitle(_translate("NewOrderWindowUi", "Заказ"))
@@ -1050,6 +1050,8 @@ class NewOrderWindowUi(object):
 
         def draw_order():
 
+            total = 0
+
             for i in reversed(range(self.gridLayout_3.count())):
                 self.gridLayout_3.itemAt(i).widget().deleteLater()
 
@@ -1057,13 +1059,23 @@ class NewOrderWindowUi(object):
             for item in order:
                 item_button = QtWidgets.QPushButton(item)
                 self.gridLayout_3.addWidget(item_button, i, 0, 1, 1)
-                item_button.clicked.connect(lambda state, data=item: pop_item(data))
+                delete_button = QtWidgets.QPushButton()
+                delete_button.setIcon(QtGui.QIcon(QtGui.QPixmap('icons/x.png')))
+                delete_button.setIconSize(QtCore.QSize(24, 24))
+                self.gridLayout_3.addWidget(delete_button, i, 2, 1, 1)
+                delete_button.clicked.connect(lambda state, data=item: pop_item(data))
                 query = "select Product_cost from products where products=%s;"
                 cdata = (item,)
                 ccursor.execute(query, cdata)
                 for citem in ccursor:
                     for cvalue in citem:
                         self.gridLayout_3.addWidget(QtWidgets.QLabel(str(cvalue) + "₽"), i, 1, 1, 1)
+                        total += cvalue
+                        font = QtGui.QFont()
+                        font.setPointSize(20)
+                        total_item = QtWidgets.QLabel("Итог " + str(total) + "₽")
+                        total_item.setFont(font)
+                        self.gridLayout_3.addWidget(total_item, i + 1, 0, 1, 1)
                 i += 1
 
         def create_order():
@@ -1192,6 +1204,7 @@ class PaymentWindowUi(object):
         self.paymentbox.setItemText(2, _translate("PaymentWindowUi", "Наличные"))
         self.paymentbox.setItemText(3, _translate("PaymentWindowUi", "Безналичные"))
         self.groupBox.setTitle(_translate("PaymentWindowUi", "Заказ"))
+
         self.clientcashlabel.setText(_translate("PaymentWindowUi", "На счете клиента"))
         self.refundlabel.setText(_translate("PaymentWindowUi", "Сдача"))
 
@@ -1267,6 +1280,7 @@ class PaymentWindowUi(object):
             # PaymentWindow.closeEvent(PaymentWindowUi)
             # TODO: Закрытие окна после вывода инфо
             # TODO: Добавить тип оплаты Account в БД
+            # TODO: отображение Client_cash
 
 
 class PaymentWindow(QtWidgets.QDialog, PaymentWindowUi):
@@ -1343,6 +1357,31 @@ class OrderWindowUi(object):
         self.openguestbutton.setText(_translate("OrderWindowUi", "Открыть карту гостя"))
         self.label.setText(_translate("OrderWindowUi", "Комментарий"))
         self.guestlabel.setText(_translate("OrderWindowUi", "Гость"))
+
+        order = []
+
+        query = "select distinct product_category from products"
+        cursor.execute(query)
+        for item in cursor:
+            for value in item:
+                tab = QtWidgets.QWidget()
+                self.tabWidget.addTab(tab, str(value))
+                tab_layout = QtWidgets.QVBoxLayout()
+                tab.setLayout(tab_layout)
+                query = "select products from products where product_category=%s;"
+                data = (value,)
+                bcursor.execute(query, data)
+                for response in bcursor:
+                    for result in response:
+                        result = str(result)
+                        item_button = QtWidgets.QPushButton(result)
+                        tab_layout.addWidget(item_button)
+                        item_button.clicked.connect(lambda state, button=item_button: select_item(button))
+
+        def select_item(button):
+            order.append(button.text())
+            # draw_order()
+
 
         query = "select content from order_content where id_order=%s;"
         data = (order_number,)
