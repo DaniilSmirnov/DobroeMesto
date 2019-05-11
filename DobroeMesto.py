@@ -1195,6 +1195,8 @@ class PaymentWindowUi(object):
         self.clientcashlabel.setText(_translate("PaymentWindowUi", "На счете клиента"))
         self.refundlabel.setText(_translate("PaymentWindowUi", "Сдача"))
 
+        self.paymentbutton.clicked.connect(self.pay)
+
         global order_number
 
         query = "select content from order_content where id_order=%s;"
@@ -1226,6 +1228,28 @@ class PaymentWindowUi(object):
                 total_item = QtWidgets.QLabel("К оплате " + str(value) + "₽")
                 total_item.setFont(font)
                 self.gridLayout_2.addWidget(total_item, i, 0, 1, 1)
+                self.value = value
+
+    def pay(self):
+        global order_number
+        if float(self.value) <= float(self.lineEdit.text()) and self.paymentbox.currentIndex() != 0:
+            if self.paymentbox.currentIndex() == 1:
+                query = "update orders set close_date=now(),Type='Account' where no_orders=%s;"
+            if self.paymentbox.currentIndex() == 2:
+                query = "update orders set close_date=now(),Type='Cash' where no_orders=%s;"
+            if self.paymentbox.currentIndex() == 3:
+                query = "update orders set close_date=now(),Type='Card' where no_orders=%s;"
+
+            data = (order_number,)
+            cursor.execute(query, data)
+            cnx.commit()
+
+            Message.create(Message, "Инфо", "Оплата внесена \n Не забудьте выдать сдачу")
+
+            # PaymentWindow.closeEvent(PaymentWindowUi)
+            # TODO: Закрытие окна после вывода инфо
+            # Todo: Рассчет сдачи
+            # Todo: Динамическая активация и деактивация кнопок
 
 
 class PaymentWindow(QtWidgets.QDialog, PaymentWindowUi):
