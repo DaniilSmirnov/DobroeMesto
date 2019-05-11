@@ -1182,7 +1182,7 @@ class PaymentWindowUi(object):
 
     def retranslateUi(self, PaymentWindowUi):
         _translate = QtCore.QCoreApplication.translate
-        PaymentWindowUi.setWindowTitle(_translate("PaymentWindowUi", "Dialog"))
+        PaymentWindowUi.setWindowTitle(_translate("PaymentWindowUi", "Оплата заказа"))
         self.precheckbutton.setText(_translate("PaymentWindowUi", "Пречек"))
         self.couponsbutton.setText(_translate("PaymentWindowUi", "Купоны"))
         self.paymentbutton.setText(_translate("PaymentWindowUi", "Оплата"))
@@ -1198,6 +1198,7 @@ class PaymentWindowUi(object):
         self.paymentbutton.clicked.connect(self.pay)
         self.lineEdit.textChanged.connect(self.updatechange)
 
+        self.paymentbutton.setEnabled(False)
 
         global order_number
 
@@ -1238,7 +1239,14 @@ class PaymentWindowUi(object):
             self.refundlabel.setText("Cдача " + str(float(self.lineEdit.text()) - self.value) + "₽")
         else:
             self.refundlabel.setText("Cдача 0₽")
-
+        try:
+            if float(self.lineEdit.text()) - self.value >= 0 and self.paymentbox.currentIndex() != 0:
+                self.paymentbutton.setEnabled(True)
+            else:
+                self.paymentbutton.setEnabled(False)
+        except ValueError:
+            self.paymentbutton.setEnabled(False)
+            self.refundlabel.setText("Cдача 0₽")
 
     def pay(self):
         global order_number
@@ -1254,12 +1262,11 @@ class PaymentWindowUi(object):
             cursor.execute(query, data)
             cnx.commit()
 
-            Message.create(Message, "Инфо", "Оплата внесена \n Не забудьте выдать сдачу")
+            Message.create(Message, "Инфо", "Оплата внесена \n" + self.refundlabel.text())
 
             # PaymentWindow.closeEvent(PaymentWindowUi)
             # TODO: Закрытие окна после вывода инфо
-            # Todo: Рассчет сдачи
-            # Todo: Динамическая активация и деактивация кнопок
+            # TODO: Добавить тип оплаты Account в БД
 
 
 class PaymentWindow(QtWidgets.QDialog, PaymentWindowUi):
