@@ -1063,7 +1063,7 @@ class NewOrderWindowUi(object):
                 ccursor.execute(query, cdata)
                 for citem in ccursor:
                     for cvalue in citem:
-                        self.gridLayout_3.addWidget(QtWidgets.QLabel(str(cvalue)), i, 1, 1, 1)
+                        self.gridLayout_3.addWidget(QtWidgets.QLabel(str(cvalue) + "₽"), i, 1, 1, 1)
                 i += 1
 
         def create_order():
@@ -1206,6 +1206,13 @@ class PaymentWindowUi(object):
             for value in item:
                 order_item = QtWidgets.QPushButton(str(value))
                 self.gridLayout_2.addWidget(order_item, i, 0, 1, 1)
+                query = "select Product_cost from products where products=%s;"
+                cdata = (value,)
+                ccursor.execute(query, cdata)
+                for citem in ccursor:
+                    for cvalue in citem:
+                        self.gridLayout_2.addWidget(QtWidgets.QLabel(str(cvalue) + "₽"), i, 1, 1, 1)
+
             i += 1
 
         query = "SELECT total FROM orders WHERE No_orders = %s;"
@@ -1216,7 +1223,7 @@ class PaymentWindowUi(object):
             for value in item:
                 font = QtGui.QFont()
                 font.setPointSize(20)
-                total_item = QtWidgets.QLabel("К оплате " + str(value))
+                total_item = QtWidgets.QLabel("К оплате " + str(value) + "₽")
                 total_item.setFont(font)
                 self.gridLayout_2.addWidget(total_item, i, 0, 1, 1)
 
@@ -1310,7 +1317,7 @@ class OrderWindowUi(object):
                 ccursor.execute(query, cdata)
                 for citem in ccursor:
                     for cvalue in citem:
-                        self.gridLayout_3.addWidget(QtWidgets.QLabel(str(cvalue)), i, 1, 1, 1)
+                        self.gridLayout_3.addWidget(QtWidgets.QLabel(str(cvalue) + "₽"), i, 1, 1, 1)
             i += 1
 
         query = "SELECT total FROM orders WHERE No_orders = %s;"
@@ -1321,7 +1328,7 @@ class OrderWindowUi(object):
             for value in item:
                 font = QtGui.QFont()
                 font.setPointSize(20)
-                total_item = QtWidgets.QLabel("Итог " + str(value))
+                total_item = QtWidgets.QLabel("Итог " + str(value) + "₽")
                 total_item.setFont(font)
                 self.gridLayout_3.addWidget(total_item, i, 0, 1, 1)
 
