@@ -1349,6 +1349,9 @@ class OrderWindowUi(object):
     def retranslateUi(self, OrderWindowUi):
         global order_number
 
+        order = []
+        new_items = []
+
         _translate = QtCore.QCoreApplication.translate
         OrderWindowUi.setWindowTitle(_translate("OrderWindowUi", "Заказ " + str(order_number)))
         self.scanitembutton.setText(_translate("OrderWindowUi", "Сканировать товар"))
@@ -1358,7 +1361,16 @@ class OrderWindowUi(object):
         self.label.setText(_translate("OrderWindowUi", "Комментарий"))
         self.guestlabel.setText(_translate("OrderWindowUi", "Гость"))
 
-        order = []
+        def update_order():
+            for item in new_items:
+                query = "insert into order_content values(%s,%s, default,curtime(), 'no');"
+                data = (order_number, item)
+                cursor.execute(query, data)
+                cnx.commit()
+
+            OrderWindowUi.accept()
+
+        self.createbutton.clicked.connect(update_order)
 
         query = "select distinct product_category from products"
         cursor.execute(query)
@@ -1378,11 +1390,6 @@ class OrderWindowUi(object):
                         tab_layout.addWidget(item_button)
                         item_button.clicked.connect(lambda state, button=item_button: select_item(button))
 
-        def select_item(button):
-            order.append(button.text())
-            # draw_order()
-
-
         query = "select content from order_content where id_order=%s;"
         data = (order_number,)
         cursor.execute(query, data)
@@ -1392,6 +1399,7 @@ class OrderWindowUi(object):
             for value in item:
                 order_item = QtWidgets.QPushButton(str(value))
                 self.gridLayout_3.addWidget(order_item, i, 0, 1, 1)
+                order.append(value)
                 query = "select Product_cost from products where products=%s;"
                 cdata = (value,)
                 ccursor.execute(query, cdata)
@@ -1411,6 +1419,46 @@ class OrderWindowUi(object):
                 total_item = QtWidgets.QLabel("Итог " + str(value) + "₽")
                 total_item.setFont(font)
                 self.gridLayout_3.addWidget(total_item, i, 0, 1, 1)
+
+        def select_item(button):
+            order.append(button.text())
+            new_items.append(button.text())
+
+            draw_order()
+
+        def draw_order():
+            total = 0
+
+            for i in reversed(range(self.gridLayout_3.count())):
+                self.gridLayout_3.itemAt(i).widget().deleteLater()
+
+            i = 0
+            for item in order:
+                item_button = QtWidgets.QPushButton(item)
+                self.gridLayout_3.addWidget(item_button, i, 0, 1, 1)
+                delete_button = QtWidgets.QPushButton()
+                delete_button.setIcon(QtGui.QIcon(QtGui.QPixmap('icons/x.png')))
+                delete_button.setIconSize(QtCore.QSize(24, 24))
+                self.gridLayout_3.addWidget(delete_button, i, 2, 1, 1)
+                delete_button.clicked.connect(lambda state, data=item: pop_item(data))
+                query = "select Product_cost from products where products=%s;"
+                cdata = (item,)
+                ccursor.execute(query, cdata)
+                for citem in ccursor:
+                    for cvalue in citem:
+                        self.gridLayout_3.addWidget(QtWidgets.QLabel(str(cvalue) + "₽"), i, 1, 1, 1)
+                        total += cvalue
+                        font = QtGui.QFont()
+                        font.setPointSize(20)
+                        total_item = QtWidgets.QLabel("Итог " + str(total) + "₽")
+                        total_item.setFont(font)
+                        self.gridLayout_3.addWidget(total_item, i + 1, 0, 1, 1)
+                i += 1
+
+        def pop_item(item):
+            order.pop(order.index(item))
+            new_items.pop(order.index(item))
+            draw_order()
 
 
 class OrderWindow(QtWidgets.QDialog, OrderWindowUi):
