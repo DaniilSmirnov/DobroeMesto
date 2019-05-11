@@ -1196,6 +1196,8 @@ class PaymentWindowUi(object):
         self.refundlabel.setText(_translate("PaymentWindowUi", "Сдача"))
 
         self.paymentbutton.clicked.connect(self.pay)
+        self.lineEdit.textChanged.connect(self.updatechange)
+
 
         global order_number
 
@@ -1229,6 +1231,14 @@ class PaymentWindowUi(object):
                 total_item.setFont(font)
                 self.gridLayout_2.addWidget(total_item, i, 0, 1, 1)
                 self.value = value
+
+    def updatechange(self):
+        if self.lineEdit.text() != "" and self.lineEdit.text() != " " and (
+                float(self.lineEdit.text()) - self.value) > 0:
+            self.refundlabel.setText("Cдача " + str(float(self.lineEdit.text()) - self.value) + "₽")
+        else:
+            self.refundlabel.setText("Cдача 0₽")
+
 
     def pay(self):
         global order_number
