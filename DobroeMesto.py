@@ -659,7 +659,7 @@ class AdminWindowUi(object):
                 query = "delete from products where products =%s;"
                 cursor.execute(query, (data,))
                 cnx.commit()
-            Message.create(Message, "Инфо", "Удалено успешно")
+            Message.show(Message, "Инфо", "Удалено успешно")
             self.retranslateAdminUi()
 
     def setupproductUi(self):
@@ -953,7 +953,7 @@ class NewOrderWindowUi(object):
                 data = (self.lineEdit.text(), number)
                 cursor.execute(query, data)
                 cnx.commit()
-                Message.create(Message, "Инфо", "Заказ добавлен")
+                Message.show(Message, "Инфо", "Заказ добавлен")
                 NewOrderWindowUi.accept()
 
         def pop_item(item):
@@ -1047,6 +1047,9 @@ class PaymentWindowUi(object):
         QtCore.QMetaObject.connectSlotsByName(PaymentWindowUi)
 
     def retranslateUi(self, PaymentWindowUi):
+
+        global order_number
+
         _translate = QtCore.QCoreApplication.translate
         PaymentWindowUi.setWindowTitle(_translate("PaymentWindowUi", "Оплата заказа"))
         self.precheckbutton.setText(_translate("PaymentWindowUi", "Пречек"))
@@ -1059,15 +1062,21 @@ class PaymentWindowUi(object):
         self.paymentbox.setItemText(3, _translate("PaymentWindowUi", "Безналичные"))
         self.groupBox.setTitle(_translate("PaymentWindowUi", "Заказ"))
 
-        self.clientcashlabel.setText(_translate("PaymentWindowUi", "На счете клиента"))
+        query = "select client_cash from clients,orders where id_visitor=id_client && no_orders=%s;"
+        data = (order_number,)
+        cursor.execute(query, data)
+
+        for item in cursor:
+            for value in item:
+                self.client_cash = value
+                self.clientcashlabel.setText(_translate("PaymentWindowUi", "На счете клиента " + str(value)))
+
         self.refundlabel.setText(_translate("PaymentWindowUi", "Сдача"))
 
         self.paymentbutton.clicked.connect(self.pay)
         self.lineEdit.textChanged.connect(self.updatechange)
 
         self.paymentbutton.setEnabled(False)
-
-        global order_number
 
         query = "select content from order_content where id_order=%s;"
         data = (order_number,)
@@ -1122,7 +1131,11 @@ class PaymentWindowUi(object):
         global order_number
         if float(self.value) <= float(self.lineEdit.text()) and self.paymentbox.currentIndex() != 0:
             if self.paymentbox.currentIndex() == 1:
-                query = "update orders set close_date=now(),Type='Account' where no_orders=%s;"
+                if self.client_cash >= self.value:
+                    query = "update orders set close_date=now(),Type='Account' where no_orders=%s;"
+                else:
+                    Message.show(Message, "Информация", "На счете клиента недостаточно средств")
+                    return 0
             if self.paymentbox.currentIndex() == 2:
                 query = "update orders set close_date=now(),Type='Cash' where no_orders=%s;"
             if self.paymentbox.currentIndex() == 3:
@@ -1132,11 +1145,10 @@ class PaymentWindowUi(object):
             cursor.execute(query, data)
             cnx.commit()
 
-            Message.create(Message, "Инфо", "Оплата внесена \n" + self.refundlabel.text())
+            Message.show(Message, "Инфо", "Оплата внесена \n" + self.refundlabel.text())
 
             # PaymentWindow.closeEvent(PaymentWindowUi)
             # TODO: Закрытие окна после вывода инфо
-            # TODO: Добавить тип оплаты Account в БД
             # TODO: отображение Client_cash
 
 
@@ -1333,7 +1345,7 @@ class OrderWindowUi(object):
             try:
                 new_items.pop(new_items.index(item))
             except ValueError:
-                Message.create(Message, "Инфо", "Невозможно удалить позицию внесенную ранее")
+                Message.show(Message, "Инфо", "Невозможно удалить позицию внесенную ранее")
             draw_order()
 
 
@@ -1392,7 +1404,7 @@ class GuestWindow(QtWidgets.QDialog, GuestWindowUi):
 
 
 class Message(object):
-    def create(self, Title, Text):
+    def show(self, Title, Text):
         msgbox = QtWidgets.QMessageBox()
         msgbox.setWindowTitle(Title)
         msgbox.setWindowIcon(QtGui.QIcon(QtGui.QPixmap('icons/i.png')))
