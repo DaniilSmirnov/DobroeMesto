@@ -1362,6 +1362,13 @@ class Message(object):
         msgbox.setText(Text)
         msgbox.exec()
 
+    def notify(self, Text):
+        msgbox = QtWidgets.QMessageBox()
+        msgbox.setWindowTitle("Уведомление")
+        msgbox.setWindowIcon(QtGui.QIcon(QtGui.QPixmap('icons/remind.png')))
+        msgbox.setText(Text)
+        msgbox.exec()
+
 
 if __name__ == "__main__":
     import sys
@@ -1425,5 +1432,15 @@ if __name__ == "__main__":
     timer = QTimer()
     timer.timeout.connect(BackgroundThread)
     timer.start(100)
+
+
+    def CheckNotificationsThread():
+        pass
+        # TODO Хранение уведомлений в базе
+
+
+    reminder = QTimer()
+    reminder.timeout.connect(CheckNotificationsThread)
+    reminder.start(100)
 
     sys.exit(app.exec_())
