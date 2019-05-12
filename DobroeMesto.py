@@ -1468,7 +1468,7 @@ if __name__ == "__main__":
 
     timer = QTimer()
     timer.timeout.connect(BackgroundThread)
-    timer.start(100)
+    timer.start(1000)
 
     def CheckNotificationsThread():
         pass
