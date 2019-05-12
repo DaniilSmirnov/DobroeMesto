@@ -272,6 +272,7 @@ class MainWindow(object):
                     order_totals.append(item_label)
                     j += 1
                 if i == 4:
+                    order_number = value
                     j = 0
                     item_button = QtWidgets.QPushButton("Просмотреть")
                     categorieslayout.addWidget(item_button, 1, j, 1, 1)
@@ -284,6 +285,49 @@ class MainWindow(object):
                     item_button.clicked.connect(lambda state, order=value: open_payments(order))
                     # TODO: иконки
                 if i == 5:
+                    query = "select content from order_content where id_order=%s;"
+                    data = (order_number,)
+                    ccursor.execute(query, data)
+                    k = j
+                    for citem in ccursor:
+                        k += 1
+                        for cvalue in citem:
+                            if cvalue == "Nintendo Switch":
+                                item_label = QtWidgets.QLabel()
+                                pixmap = QtGui.QPixmap('icons/switch')
+                                pixmap = pixmap.scaled(32, 32)
+                                item_label.setPixmap(pixmap)
+                                categorieslayout.addWidget(item_label, 0, k, 1, 1)
+                            if cvalue == "Геймпад PS":
+                                item_label = QtWidgets.QLabel()
+                                pixmap = QtGui.QPixmap('icons/playstation')
+                                pixmap = pixmap.scaled(32, 32)
+                                item_label.setPixmap(pixmap)
+                                categorieslayout.addWidget(item_label, 0, k, 1, 1)
+                            if cvalue == "Геймпад XBOX":
+                                item_label = QtWidgets.QLabel()
+                                pixmap = QtGui.QPixmap('icons/xbox')
+                                pixmap = pixmap.scaled(32, 32)
+                                item_label.setPixmap(pixmap)
+                                categorieslayout.addWidget(item_label, 0, k, 1, 1)
+                            if cvalue == "Паспорт":
+                                item_label = QtWidgets.QLabel()
+                                pixmap = QtGui.QPixmap('icons/passport')
+                                pixmap = pixmap.scaled(32, 32)
+                                item_label.setPixmap(pixmap)
+                                categorieslayout.addWidget(item_label, 0, k, 1, 1)
+                            if cvalue == "Права":
+                                item_label = QtWidgets.QLabel()
+                                pixmap = QtGui.QPixmap('icons/driver')
+                                pixmap = pixmap.scaled(32, 32)
+                                item_label.setPixmap(pixmap)
+                                categorieslayout.addWidget(item_label, 0, k, 1, 1)
+                            if cvalue == "Настольная игра":
+                                item_label = QtWidgets.QLabel()
+                                pixmap = QtGui.QPixmap('icons/board')
+                                pixmap = pixmap.scaled(32, 32)
+                                item_label.setPixmap(pixmap)
+                                categorieslayout.addWidget(item_label, 0, k, 1, 1)
                     item_label = QtWidgets.QLabel("Комментарий: " + value)
                     if value != "None" and value != "":
                         categorieslayout.addWidget(item_label, 2, 0, 1, 1)
@@ -1432,7 +1476,6 @@ if __name__ == "__main__":
     timer = QTimer()
     timer.timeout.connect(BackgroundThread)
     timer.start(100)
-
 
     def CheckNotificationsThread():
         pass
