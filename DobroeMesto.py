@@ -23,6 +23,7 @@ except BaseException as e:
     app.setStyle("Fusion")
     msgbox = QtWidgets.QMessageBox()
     msgbox.setWindowTitle("Ошибка соединения с базой данных")
+    msgbox.setWindowIcon(QtGui.QIcon(QtGui.QPixmap('icons/x.png')))
     msgbox.setText('Проверьте подключение к Базе Данных')
     msgbox.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
     msgbox.setDetailedText(str(e))
@@ -372,192 +373,6 @@ class MainWindow(object):
         else:
             import sys
             sys.exit()
-
-    def save_order(self):
-        global order_number
-
-        query = "select no from order_content where id_order=%s limit 1 into @nuller;"
-        data = (order_number,)
-        cursor.execute(query, data)
-        query = "select isnull(@nuller);"
-        cursor.execute(query)
-
-        for item in cursor:
-            if int(item[0]) == 1:
-                query = "delete from orders where no_orders= %s;"
-                data = (order_number,)
-                cursor.execute(query, data)
-                cnx.commit()
-
-        global is_ex
-        if is_ex:
-            is_ex = False
-        self.setupUi()
-
-    def cancel_order(self):
-        if not is_ex:
-            global order_number
-            query = "delete from orders where no_orders= %s;"
-            data = (order_number,)
-            cursor.execute(query, data)
-            query = "delete from order_content where id_order= %s;"
-            data = (order_number,)
-            cursor.execute(query, data)
-            cnx.commit()
-
-        query = "select no from order_content where id_order=%s limit 1 into @nuller;"
-        data = (order_number,)
-        cursor.execute(query, data)
-        query = "select isnull(@nuller);"
-        cursor.execute(query)
-
-        for item in cursor:
-            if int(item[0]) == 1:
-                query = "delete from orders where no_orders= %s;"
-                data = (order_number,)
-                bcursor.execute(query, data)
-                cnx.commit()
-
-        self.setupUi()
-
-    def retranslateCashboxUi(self, Main):
-        _translate = QtCore.QCoreApplication.translate
-        Main.setWindowTitle(_translate("Main", "Main"))
-        self.groupBox.setTitle(_translate("Main", "Ввод"))
-        self.button9.setText(_translate("Main", "9"))
-        self.button8.setText(_translate("Main", "8"))
-        self.button7.setText(_translate("Main", "7"))
-        self.button2.setText(_translate("Main", "2"))
-        self.button5.setText(_translate("Main", "5"))
-        self.button1.setText(_translate("Main", "1"))
-        self.button3.setText(_translate("Main", "3"))
-        self.button4.setText(_translate("Main", "4"))
-        self.button6.setText(_translate("Main", "6"))
-        self.buttonC.setText(_translate("Main", "C"))
-        self.button0.setText(_translate("Main", "0"))
-        self.buttonCA.setText(_translate("Main", "CA"))
-        self.groupBox_2.setTitle(_translate("Main", "Оплата"))
-        self.summlabel.setText(_translate("Main", "Сумма к оплате"))
-        self.noncashbutton.setText(_translate("Main", "Банковская карта"))
-        self.cashbutton.setText(_translate("Main", "Наличные"))
-        self.backbutton.setText(_translate("Main", "Назад"))
-        self.modbutton.setText(_translate("Main", "Особые модификаторы"))
-        self.cancelbutton.setText(_translate("Main", "Отмена"))
-
-        self.finalbutton.clicked.connect(lambda: closeorder())
-        self.cashbutton.clicked.connect(lambda: cash())
-        self.noncashbutton.clicked.connect(lambda: card())
-
-        self.finalbutton.setEnabled(False)
-
-        def cash():
-            global is_cash
-            is_cash = True
-            self.noncashbutton.setEnabled(False)
-
-        def card():
-            global is_card
-            is_card = True
-            self.cashbutton.setEnabled(False)
-
-        def closeorder():
-
-            global order_number, is_cash, is_card
-
-            query = "SELECT total FROM orders WHERE No_orders = %s;"
-            data = (order_number,)
-            cursor.execute(query, data)
-
-            for item in cursor:
-                if int(money) >= int(item[0]):
-                    if is_cash:
-                        query = "update orders set close_date=now(),Type='Cash' where no_orders=%s;"
-                        data = (order_number,)
-                    if is_card:
-                        query = "update orders set close_date=now(),Type='Card' where no_orders=%s;"
-                        data = (order_number,)
-                    if is_card or is_cash:
-                        cursor.execute(query, data)
-                        cnx.commit()
-                        is_card = False
-                        # добавить печать чека
-                        self.setupUi()
-
-        def adder(number):
-            global money
-            money += number
-            updateui()
-
-        def clean():
-            global money
-            money = ""
-            updateui()
-
-        def delete():
-            global money
-            money = money[:-1]
-            updateui()
-
-        def updateui():
-            global money
-            self.inlabel.setText("Внесено " + money)
-
-            try:
-                global order_number
-                query = "SELECT total FROM orders WHERE No_orders = %s;"
-                data = (order_number,)
-                cursor.execute(query, data)
-                for item in cursor:
-                    if int(money) >= int(item[0]):
-                        self.finalbutton.setEnabled(True)
-                        if int(money) > int(item[0]):
-                            self.inlabel.setText("Внесено: " + money + "\nCдача: " + str(int(money) - int(item[0])))
-                    else:
-                        self.finalbutton.setEnabled(False)
-            except BaseException:
-                pass
-
-        global is_ex, is_n
-
-        if is_ex or is_n:
-            global order_number
-
-            query = "select content from order_content where id_order=%s;"
-            data = (order_number,)
-            cursor.execute(query, data)
-
-            for item in order_items:
-                try:
-                    item.deleteLater()
-                except BaseException:
-                    pass
-            order_items.clear()
-
-            for item in cursor:
-                for value in item:
-                    item_label = QtWidgets.QPushButton(str(value))
-                    self.verticalLayout.addWidget(item_label)
-                    order_items.append(item_label)
-
-            query = "SELECT total FROM orders WHERE No_orders = %s;"
-            data = (order_number,)
-            cursor.execute(query, data)
-            for item in cursor:
-                self.summlabel.setText("К Оплате: " + str(item[0]))
-
-        self.button0.clicked.connect(lambda state, number="0": adder(number))
-        self.button1.clicked.connect(lambda state, number="1": adder(number))
-        self.button2.clicked.connect(lambda state, number="2": adder(number))
-        self.button3.clicked.connect(lambda state, number="3": adder(number))
-        self.button4.clicked.connect(lambda state, number="4": adder(number))
-        self.button5.clicked.connect(lambda state, number="5": adder(number))
-        self.button6.clicked.connect(lambda state, number="6": adder(number))
-        self.button7.clicked.connect(lambda state, number="7": adder(number))
-        self.button8.clicked.connect(lambda state, number="8": adder(number))
-        self.button9.clicked.connect(lambda state, number="9": adder(number))
-        self.buttonCA.clicked.connect(clean)
-        self.buttonC.clicked.connect(delete)
-        self.cancelbutton.clicked.connect(self.setupUi)
 
 
 class AdminWindowUi(object):
@@ -953,7 +768,7 @@ class AddItemWindowUi(object):
                 self.barcodeedit.text())
         cursor.execute(query, data)
         cnx.commit()
-        AddItemWindowUi.done(1)
+        # AddItemWindow.accept()
 
 
 class AddItemWindow(QtWidgets.QDialog, AddItemWindowUi):
@@ -1361,6 +1176,8 @@ class OrderWindowUi(object):
         self.createbutton.setText(_translate("OrderWindowUi", "Сохранить"))
         self.openguestbutton.setText(_translate("OrderWindowUi", "Открыть карту гостя"))
         self.label.setText(_translate("OrderWindowUi", "Комментарий"))
+
+        # TODO Получение имени клиента
         self.guestlabel.setText(_translate("OrderWindowUi", "Гость"))
 
         def update_order():
@@ -1451,6 +1268,7 @@ class OrderWindowUi(object):
                 ccursor.execute(query, cdata)
                 for citem in ccursor:
                     for cvalue in citem:
+                        total += cvalue
                         self.gridLayout_3.addWidget(QtWidgets.QLabel(str(cvalue) + "₽"), i, 1, 1, 1)
                 i += 1
 
@@ -1537,6 +1355,7 @@ class Message(object):
     def create(self, Title, Text):
         msgbox = QtWidgets.QMessageBox()
         msgbox.setWindowTitle(Title)
+        msgbox.setWindowIcon(QtGui.QIcon(QtGui.QPixmap('icons/i.png')))
         msgbox.setText(Text)
         msgbox.exec()
 
