@@ -240,6 +240,13 @@ class MainWindow(object):
 
     def draw_orders(self):
 
+        def create_icon(path):
+            item_label = QtWidgets.QLabel()
+            pixmap = QtGui.QPixmap(path)
+            pixmap = pixmap.scaled(32, 32, QtCore.Qt.IgnoreAspectRatio, QtCore.Qt.SmoothTransformation)
+            item_label.setPixmap(pixmap)
+            return item_label
+
         for i in reversed(range(self.orderslayout.count())):
             if isinstance(self.orderslayout.itemAt(i).widget(), QtWidgets.QGroupBox):
                 self.orderslayout.itemAt(i).widget().deleteLater()
@@ -293,46 +300,22 @@ class MainWindow(object):
                     for citem in ccursor:
                         for cvalue in citem:
                             if cvalue == "Nintendo Switch":
-                                item_label = QtWidgets.QLabel()
-                                pixmap = QtGui.QPixmap('icons/switch')
-                                pixmap = pixmap.scaled(32, 32)
-                                item_label.setPixmap(pixmap)
-                                layout.addWidget(item_label, 1, k, 1, 1)
+                                layout.addWidget(create_icon('icons/switch'), 1, k, 1, 1)
                                 k += 1
                             if cvalue == "Геймпад PS":
-                                item_label = QtWidgets.QLabel()
-                                pixmap = QtGui.QPixmap('icons/playstation')
-                                pixmap = pixmap.scaled(32, 32)
-                                item_label.setPixmap(pixmap)
-                                layout.addWidget(item_label, 1, k, 1, 1)
+                                layout.addWidget(create_icon('icons/playstation'), 1, k, 1, 1)
                                 k += 1
                             if cvalue == "Геймпад XBOX":
-                                item_label = QtWidgets.QLabel()
-                                pixmap = QtGui.QPixmap('icons/xbox')
-                                pixmap = pixmap.scaled(32, 32)
-                                item_label.setPixmap(pixmap)
-                                layout.addWidget(item_label, 1, k, 1, 1)
+                                layout.addWidget(create_icon('icons/xbox'), 1, k, 1, 1)
                                 k += 1
                             if cvalue == "Паспорт":
-                                item_label = QtWidgets.QLabel()
-                                pixmap = QtGui.QPixmap('icons/passport')
-                                pixmap = pixmap.scaled(32, 32)
-                                item_label.setPixmap(pixmap)
-                                layout.addWidget(item_label, 1, k, 1, 1)
+                                layout.addWidget(create_icon('icons/passport'), 1, k, 1, 1)
                                 k += 1
                             if cvalue == "Права":
-                                item_label = QtWidgets.QLabel()
-                                pixmap = QtGui.QPixmap('icons/driver')
-                                pixmap = pixmap.scaled(32, 32)
-                                item_label.setPixmap(pixmap)
-                                layout.addWidget(item_label, 1, k, 1, 1)
+                                layout.addWidget(create_icon('icons/driver'), 1, k, 1, 1)
                                 k += 1
                             if cvalue == "Настольная игра":
-                                item_label = QtWidgets.QLabel()
-                                pixmap = QtGui.QPixmap('icons/board')
-                                pixmap = pixmap.scaled(32, 32)
-                                item_label.setPixmap(pixmap)
-                                layout.addWidget(item_label, 1, k, 1, 1)
+                                layout.addWidget(create_icon('icons/board'), 1, k, 1, 1)
                                 k += 1
                     item_label = QtWidgets.QLabel("Комментарий: " + value)
                     if value != "None" and value != "" and value != " ":
