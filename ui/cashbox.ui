@@ -93,7 +93,26 @@
                     <property name="title">
                         <string>Заказ</string>
                     </property>
-                    <layout class="QGridLayout" name="gridLayout_2"/>
+                    <layout class="QVBoxLayout" name="verticalLayout">
+                        <item>
+                            <widget class="QScrollArea" name="scrollArea">
+                                <property name="widgetResizable">
+                                    <bool>true</bool>
+                                </property>
+                                <widget class="QWidget" name="scrollAreaWidgetContents">
+                                    <property name="geometry">
+                                        <rect>
+                                            <x>0</x>
+                                            <y>0</y>
+                                            <width>460</width>
+                                            <height>263</height>
+                                        </rect>
+                                    </property>
+                                    <layout class="QGridLayout" name="gridLayout_2"/>
+                                </widget>
+                            </widget>
+                        </item>
+                    </layout>
                 </widget>
             </item>
             <item row="3" column="0" colspan="2">

@@ -269,11 +269,11 @@ class MainWindow(object):
             for value in item:
                 value = str(value)
                 if i == 2:
-                    item_label = QtWidgets.QLabel("Гость пришел: " + value)
+                    item_label = QtWidgets.QLabel("Клиент пришел: " + value)
                     categorieslayout.addWidget(item_label, 0, j, 1, 1)
                     j += 1
                 if i == 3:
-                    item_label = QtWidgets.QLabel("К оплате: " + value)
+                    item_label = QtWidgets.QLabel("К оплате: " + value + "₽")
                     categorieslayout.addWidget(item_label, 0, j, 1, 1)
                     order_totals.append(item_label)
                     j += 1
@@ -1031,8 +1031,18 @@ class PaymentWindowUi(object):
         self.gridLayout.addWidget(self.lineEdit, 5, 1, 1, 1)
         self.groupBox = QtWidgets.QGroupBox(PaymentWindowUi)
         self.groupBox.setObjectName("groupBox")
-        self.gridLayout_2 = QtWidgets.QGridLayout(self.groupBox)
+        self.verticalLayout = QtWidgets.QVBoxLayout(self.groupBox)
+        self.verticalLayout.setObjectName("verticalLayout")
+        self.scrollArea = QtWidgets.QScrollArea(self.groupBox)
+        self.scrollArea.setWidgetResizable(True)
+        self.scrollArea.setObjectName("scrollArea")
+        self.scrollAreaWidgetContents = QtWidgets.QWidget()
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 460, 263))
+        self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
+        self.gridLayout_2 = QtWidgets.QGridLayout(self.scrollAreaWidgetContents)
         self.gridLayout_2.setObjectName("gridLayout_2")
+        self.scrollArea.setWidget(self.scrollAreaWidgetContents)
+        self.verticalLayout.addWidget(self.scrollArea)
         self.gridLayout.addWidget(self.groupBox, 3, 2, 4, 1)
         self.clientcashlabel = QtWidgets.QLabel(PaymentWindowUi)
         self.clientcashlabel.setObjectName("clientcashlabel")
@@ -1049,7 +1059,7 @@ class PaymentWindowUi(object):
         global order_number
 
         _translate = QtCore.QCoreApplication.translate
-        PaymentWindowUi.setWindowTitle(_translate("PaymentWindowUi", "Оплата заказа"))
+        PaymentWindowUi.setWindowTitle(_translate("PaymentWindowUi", "Dialog"))
         self.precheckbutton.setText(_translate("PaymentWindowUi", "Пречек"))
         self.couponsbutton.setText(_translate("PaymentWindowUi", "Купоны"))
         self.paymentbutton.setText(_translate("PaymentWindowUi", "Оплата"))
@@ -1059,6 +1069,8 @@ class PaymentWindowUi(object):
         self.paymentbox.setItemText(2, _translate("PaymentWindowUi", "Наличные"))
         self.paymentbox.setItemText(3, _translate("PaymentWindowUi", "Безналичные"))
         self.groupBox.setTitle(_translate("PaymentWindowUi", "Заказ"))
+        self.clientcashlabel.setText(_translate("PaymentWindowUi", "На счете клиента"))
+        self.refundlabel.setText(_translate("PaymentWindowUi", "Сдача"))
 
         query = "select client_cash from clients,orders where id_visitor=id_client && no_orders=%s;"
         data = (order_number,)
