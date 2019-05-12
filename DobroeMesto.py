@@ -1064,11 +1064,14 @@ class PaymentWindowUi(object):
                 self.value = value
 
     def updatechange(self):
-        if self.lineEdit.text() != "" and self.lineEdit.text() != " " and (
-                float(self.lineEdit.text()) - self.value) > 0:
-            self.refundlabel.setText("Cдача " + str(float(self.lineEdit.text()) - self.value) + "₽")
-        else:
-            self.refundlabel.setText("Cдача 0₽")
+        try:
+            if self.lineEdit.text() != "" and self.lineEdit.text() != " " and (
+                    float(self.lineEdit.text()) - self.value) > 0:
+                self.refundlabel.setText("Cдача " + str(float(self.lineEdit.text()) - self.value) + "₽")
+            else:
+                self.refundlabel.setText("Cдача 0₽")
+        except ValueError:
+            self.refundlabel.setText("Некорректный ввод")
         try:
             if float(self.lineEdit.text()) - self.value >= 0 and self.paymentbox.currentIndex() != 0:
                 self.paymentbutton.setEnabled(True)
