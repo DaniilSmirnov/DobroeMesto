@@ -283,54 +283,64 @@ class MainWindow(object):
                     categorieslayout.addWidget(item_button, 1, j, 1, 1)
                     j += 1
                     item_button.clicked.connect(lambda state, order=value: open_payments(order))
-                    # TODO: иконки
                 if i == 5:
+                    add_item = QtWidgets.QGroupBox()
+                    layout = QtWidgets.QGridLayout(add_item)
                     query = "select content from order_content where id_order=%s;"
                     data = (order_number,)
                     ccursor.execute(query, data)
-                    k = j
+                    k = 0
                     for citem in ccursor:
-                        k += 1
                         for cvalue in citem:
                             if cvalue == "Nintendo Switch":
                                 item_label = QtWidgets.QLabel()
                                 pixmap = QtGui.QPixmap('icons/switch')
                                 pixmap = pixmap.scaled(32, 32)
                                 item_label.setPixmap(pixmap)
-                                categorieslayout.addWidget(item_label, 0, k, 1, 1)
+                                layout.addWidget(item_label, 1, k, 1, 1)
+                                k += 1
                             if cvalue == "Геймпад PS":
                                 item_label = QtWidgets.QLabel()
                                 pixmap = QtGui.QPixmap('icons/playstation')
                                 pixmap = pixmap.scaled(32, 32)
                                 item_label.setPixmap(pixmap)
-                                categorieslayout.addWidget(item_label, 0, k, 1, 1)
+                                layout.addWidget(item_label, 1, k, 1, 1)
+                                k += 1
                             if cvalue == "Геймпад XBOX":
                                 item_label = QtWidgets.QLabel()
                                 pixmap = QtGui.QPixmap('icons/xbox')
                                 pixmap = pixmap.scaled(32, 32)
                                 item_label.setPixmap(pixmap)
-                                categorieslayout.addWidget(item_label, 0, k, 1, 1)
+                                layout.addWidget(item_label, 1, k, 1, 1)
+                                k += 1
                             if cvalue == "Паспорт":
                                 item_label = QtWidgets.QLabel()
                                 pixmap = QtGui.QPixmap('icons/passport')
                                 pixmap = pixmap.scaled(32, 32)
                                 item_label.setPixmap(pixmap)
-                                categorieslayout.addWidget(item_label, 0, k, 1, 1)
+                                layout.addWidget(item_label, 1, k, 1, 1)
+                                k += 1
                             if cvalue == "Права":
                                 item_label = QtWidgets.QLabel()
                                 pixmap = QtGui.QPixmap('icons/driver')
                                 pixmap = pixmap.scaled(32, 32)
                                 item_label.setPixmap(pixmap)
-                                categorieslayout.addWidget(item_label, 0, k, 1, 1)
+                                layout.addWidget(item_label, 1, k, 1, 1)
+                                k += 1
                             if cvalue == "Настольная игра":
                                 item_label = QtWidgets.QLabel()
                                 pixmap = QtGui.QPixmap('icons/board')
                                 pixmap = pixmap.scaled(32, 32)
                                 item_label.setPixmap(pixmap)
-                                categorieslayout.addWidget(item_label, 0, k, 1, 1)
+                                layout.addWidget(item_label, 1, k, 1, 1)
+                                k += 1
                     item_label = QtWidgets.QLabel("Комментарий: " + value)
-                    if value != "None" and value != "":
-                        categorieslayout.addWidget(item_label, 2, 0, 1, 1)
+                    if value != "None" and value != "" and value != " ":
+                        layout.addWidget(item_label, 0, 0, 1, 1)
+
+                    if layout.count() > 0:
+                        categorieslayout.addWidget(add_item, 2, 0, 2, 2)
+
                     j += 1
                     i = 0
                 i += 1
