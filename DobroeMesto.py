@@ -243,7 +243,6 @@ class MainWindow(object):
         def create_icon(path):
             item_label = QtWidgets.QLabel()
             pixmap = QtGui.QPixmap(path)
-            pixmap = pixmap.scaled(32, 32, QtCore.Qt.IgnoreAspectRatio, QtCore.Qt.SmoothTransformation)
             item_label.setPixmap(pixmap)
             return item_label
 
@@ -509,9 +508,8 @@ class AdminWindowUi(object):
                 but_item.clicked.connect(lambda state, name=id: delete(name, "product"))
 
                 k += 1
-                if k % 6 == 0:
-                    j += 1
-                    k = 1
+            j += 1
+            k = 1
 
         query = "select * from clients;"
         cursor.execute(query)
@@ -1087,6 +1085,7 @@ class PaymentWindowUi(object):
             for value in item:
                 order_item = QtWidgets.QPushButton(str(value))
                 self.gridLayout_2.addWidget(order_item, i, 0, 1, 1)
+                # TODO Частичная оплата
                 query = "select Product_cost from products where products=%s;"
                 cdata = (value,)
                 ccursor.execute(query, cdata)
@@ -1144,12 +1143,14 @@ class PaymentWindowUi(object):
             data = (order_number,)
             cursor.execute(query, data)
             cnx.commit()
+            query = "update order_content set paid='Yes' where id_order=%s;"
+            cursor.execute(query, data)
+            cnx.commit()
 
             Message.show(Message, "Инфо", "Оплата внесена \n" + self.refundlabel.text())
 
             # PaymentWindow.closeEvent(PaymentWindowUi)
             # TODO: Закрытие окна после вывода инфо
-            # TODO: отображение Client_cash
 
 
 class PaymentWindow(QtWidgets.QDialog, PaymentWindowUi):
