@@ -37,9 +37,6 @@ order_number = 0
 
 items = []
 
-is_cash = False
-is_card = False
-
 isopen = False  # подгружать из базы
 
 guest_number = 123
@@ -1474,10 +1471,35 @@ class GuestWindowUi(object):
 
         for item in cursor:
             for value in item:
-                if i == 1:
+                if str(value) == "None":
+                    value = "Не указано"
+                if i == 0:
                     i += 1
                     continue
-                self.gridLayout_2.addWidget(QtWidgets.QLabel(str(value)), i, 1, 1, 1)
+                if i == 1:
+                    self.gridLayout_2.addWidget(QtWidgets.QLabel("Имя " + str(value)), i, 1, 1, 1)
+                if i == 2:
+                    self.gridLayout_2.addWidget(QtWidgets.QLabel("Номер карты " + str(value)), i, 1, 1, 1)
+                if i == 3:
+                    i += 1
+                    continue
+                if i == 4:
+                    i += 1
+                    continue
+                    # TODO отображение фото
+                if i == 5:
+                    self.gridLayout_2.addWidget(QtWidgets.QLabel("Уровень привелегий " + str(value)), i, 1, 1, 1)
+                if i == 6:
+                    self.gridLayout_2.addWidget(QtWidgets.QLabel("Телефон " + str(value)), i, 1, 1, 1)
+                if i == 7:
+                    self.gridLayout_2.addWidget(QtWidgets.QLabel("Сумма на счете " + str(value)), i, 1, 1, 1)
+                if i == 8:
+                    self.gridLayout_2.addWidget(QtWidgets.QLabel("День Рождения " + str(value)), i, 1, 1, 1)
+                if i == 9:
+                    self.gridLayout_2.addWidget(QtWidgets.QLabel("Соцсети " + str(value)), i, 1, 1, 1)
+                if i == 10:
+                    self.gridLayout_2.addWidget(QtWidgets.QLabel("Дополнительно " + str(value)), i, 1, 1, 1)
+
                 i += 1
 
 
