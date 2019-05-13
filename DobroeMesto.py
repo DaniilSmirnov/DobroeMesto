@@ -34,7 +34,6 @@ order_items = []
 order_totals = []
 order_no = []
 order_number = 0
-guest_number = 0
 
 items = []
 
@@ -930,7 +929,15 @@ class NewOrderWindowUi(object):
                 pass
             else:
                 global guest_number
+
+                query = "select id_client from clients where Card_Num_client = %s"
                 data = (guest_number,)
+                cursor.execute(query, data)
+                for item in cursor:
+                    for value in item:
+                        guest_number = str(value)
+                data = (guest_number,)
+
                 query = "insert into orders values (default,now(),null,null,228,null,%s,null);"
                 cursor.execute(query, data)
                 cnx.commit()
@@ -968,6 +975,7 @@ class NewOrderWindowUi(object):
             guest_number = text
             w = GuestWindow()
             w.exec_()
+            guest_number = guest_number
 
     def scanItem(self):
 
@@ -1441,6 +1449,14 @@ class GuestWindowUi(object):
                                   _translate("GuestWindowUi", "Рекомендации"))
 
         def acceptance():
+            query = "select id_client from clients where Card_Num_client = %s"
+            data = (guest_number,)
+            cursor.execute(query, data)
+            for item in cursor:
+                for value in item:
+                    global order_number
+                    order_number = str(value)
+                    print(value)
             GuestWindowUi.done(1)
 
         self.acceptbutton.setText(_translate("GuestWindowUi", "Подтвердить"))
