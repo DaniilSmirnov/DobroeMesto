@@ -43,6 +43,8 @@ is_card = False
 
 isopen = False  # подгружать из базы
 
+guest_number = 123
+
 
 class MainWindow(object):
 
@@ -927,8 +929,10 @@ class NewOrderWindowUi(object):
             if len(order) == 0:
                 pass
             else:
-                query = "insert into orders values (default,now(),null,null,228,null,228,null);"
-                cursor.execute(query)
+                global guest_number
+                data = (guest_number,)
+                query = "insert into orders values (default,now(),null,null,228,null,%s,null);"
+                cursor.execute(query, data)
                 cnx.commit()
                 query = "select no_orders from orders order by no_orders desc limit 1;"
                 cursor.execute(query)
@@ -945,6 +949,7 @@ class NewOrderWindowUi(object):
                 cursor.execute(query, data)
                 cnx.commit()
                 Message.show(Message, "Инфо", "Заказ добавлен")
+                guest_number = 123
                 NewOrderWindowUi.accept()
 
         def pop_item(item):
@@ -1175,7 +1180,11 @@ class PaymentWindowUi(object):
 
                 Message.show(Message, "Инфо", "Оплата внесена \n" + self.refundlabel.text())
 
-                # PaymentWindow.closeEvent(PaymentWindowUi)
+                def close():
+                    PaymentWindow.accept()
+
+                # close()
+
                 # TODO: Закрытие окна после вывода инфо
         else:
             pass
@@ -1402,6 +1411,13 @@ class GuestWindowUi(object):
         self.gridLayout_3 = QtWidgets.QGridLayout(self.historytab)
         self.gridLayout_3.setObjectName("gridLayout_3")
         self.tabWidget.addTab(self.historytab, "")
+
+        self.recomendationtab = QtWidgets.QWidget()
+        self.recomendationtab.setObjectName("recomendationtab")
+        self.gridLayout_4 = QtWidgets.QGridLayout(self.recomendationtab)
+        self.gridLayout_4.setObjectName("gridLayout_4")
+        self.tabWidget.addTab(self.recomendationtab, "")
+
         self.gridLayout.addWidget(self.tabWidget, 1, 0, 1, 1)
         self.guestlabel = QtWidgets.QLabel(GuestWindowUi)
         self.guestlabel.setObjectName("guestlabel")
@@ -1417,19 +1433,47 @@ class GuestWindowUi(object):
     def retranslateUi(self, GuestWindowUi):
         _translate = QtCore.QCoreApplication.translate
         GuestWindowUi.setWindowTitle(_translate("GuestWindowUi", "Карточка гостя"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.profiletab), _translate("GuestWindowUi", "Tab 1"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.historytab), _translate("GuestWindowUi", "Tab 2"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.profiletab),
+                                  _translate("GuestWindowUi", "Карточка Гостя"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.historytab),
+                                  _translate("GuestWindowUi", "История заказов"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.recomendationtab),
+                                  _translate("GuestWindowUi", "Рекомендации"))
+
+        def acceptance():
+            GuestWindowUi.done(1)
+
         self.acceptbutton.setText(_translate("GuestWindowUi", "Подтвердить"))
+        self.acceptbutton.clicked.connect(acceptance)
 
         global guest_number
 
         self.guestlabel.setText(_translate("GuestWindowUi", "Гость " + str(guest_number)))
+
+        query = "select * from clients where Card_Num_client  = %s"
+        data = (guest_number,)
+        cursor.execute(query, data)
+
+        i = 0
+
+        for item in cursor:
+            for value in item:
+                if i == 1:
+                    i += 1
+                    continue
+                self.gridLayout_2.addWidget(QtWidgets.QLabel(str(value)), i, 1, 1, 1)
+                i += 1
 
 
 class GuestWindow(QtWidgets.QDialog, GuestWindowUi):
     def __init__(self, parent=None):
         super(GuestWindow, self).__init__(parent)
         self.setupUi(self)
+
+    def closeEvent(self, event):
+        global guest_number
+        guest_number = 1488
+        event.accept()
 
 
 class Message(object):
