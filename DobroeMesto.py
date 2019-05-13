@@ -1416,11 +1416,23 @@ class GuestWindowUi(object):
         self.gridLayout_2 = QtWidgets.QGridLayout(self.profiletab)
         self.gridLayout_2.setObjectName("gridLayout_2")
         self.tabWidget.addTab(self.profiletab, "")
+
         self.historytab = QtWidgets.QWidget()
         self.historytab.setObjectName("historytab")
         self.gridLayout_3 = QtWidgets.QGridLayout(self.historytab)
         self.gridLayout_3.setObjectName("gridLayout_3")
         self.tabWidget.addTab(self.historytab, "")
+
+        self.scrollArea = QtWidgets.QScrollArea(self.historytab)
+        self.scrollArea.setWidgetResizable(True)
+        self.scrollArea.setObjectName("scrollArea")
+        self.scrollAreaWidgetContents = QtWidgets.QWidget()
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 460, 263))
+        self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
+        self.scrollLayout = QtWidgets.QGridLayout(self.scrollAreaWidgetContents)
+        self.scrollArea.setWidget(self.scrollAreaWidgetContents)
+        self.gridLayout_3.addWidget(self.scrollArea)
+
 
         self.recomendationtab = QtWidgets.QWidget()
         self.recomendationtab.setObjectName("recomendationtab")
@@ -1498,6 +1510,18 @@ class GuestWindowUi(object):
                 if i == 10:
                     self.gridLayout_2.addWidget(QtWidgets.QLabel("Дополнительно " + value), i, 1, 1, 1)
 
+                i += 1
+
+        i = 0
+
+        query = "select * from orders where Id_visitor in (select id_client from clients where Card_Num_client = %s)"
+        data = (guest_number,)
+        cursor.execute(query, data)
+
+        for item in cursor:
+            for value in item:
+                value = str(value)
+                self.scrollLayout.addWidget(QtWidgets.QLabel(value), i, 1, 1, 1)
                 i += 1
 
 
