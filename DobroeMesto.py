@@ -29,13 +29,6 @@ except BaseException as e:
     msgbox.setDetailedText(str(e))
     msgbox.exec()
 
-
-query = "select no, content from order_content where id_order=%s;"
-
-query = "delete from order_content where no =%s;"
-
-query = "UPDATE order_content SET no = no-1 WHERE no > %s;"
-
 menu_items = []
 order_items = []
 order_totals = []
@@ -1058,8 +1051,10 @@ class PaymentWindowUi(object):
 
         global order_number
 
+        self.part = []
+
         _translate = QtCore.QCoreApplication.translate
-        PaymentWindowUi.setWindowTitle(_translate("PaymentWindowUi", "Dialog"))
+        PaymentWindowUi.setWindowTitle(_translate("PaymentWindowUi", "Оплата"))
         self.precheckbutton.setText(_translate("PaymentWindowUi", "Пречек"))
         self.couponsbutton.setText(_translate("PaymentWindowUi", "Купоны"))
         self.paymentbutton.setText(_translate("PaymentWindowUi", "Оплата"))
@@ -1095,17 +1090,35 @@ class PaymentWindowUi(object):
         i = 0
         for item in cursor:
             for value in item:
-                order_item = QtWidgets.QPushButton(str(value))
+                value = str(value)
+                order_item = QtWidgets.QCheckBox(value)
                 self.gridLayout_2.addWidget(order_item, i, 0, 1, 1)
                 # TODO Частичная оплата
+
                 query = "select Product_cost from products where products=%s;"
                 cdata = (value,)
                 ccursor.execute(query, cdata)
                 for citem in ccursor:
                     for cvalue in citem:
                         self.gridLayout_2.addWidget(QtWidgets.QLabel(str(cvalue) + "₽"), i, 1, 1, 1)
-
+                order_item.stateChanged.connect(
+                    lambda state, line=[value, order_item, cvalue]: part_pay(line))
             i += 1
+
+        def part_pay(item):
+            if item[1].isChecked():
+                self.part.append(item[0])
+                value = 0
+                for item in self.part:
+                    query = "select Product_cost from products where products=%s;"
+                    cdata = (item,)
+                    ccursor.execute(query, cdata)
+                    for citem in ccursor:
+                        for cvalue in citem:
+                            value += int(cvalue)
+
+                total_item.setText("К оплате " + str(value) + "₽")
+                self.value = value
 
         query = "SELECT total FROM orders WHERE No_orders = %s;"
         data = (order_number,)
@@ -1139,30 +1152,33 @@ class PaymentWindowUi(object):
             self.refundlabel.setText("Cдача 0₽")
 
     def pay(self):
-        global order_number
-        if float(self.value) <= float(self.lineEdit.text()) and self.paymentbox.currentIndex() != 0:
-            if self.paymentbox.currentIndex() == 1:
-                if self.client_cash >= self.value:
-                    query = "update orders set close_date=now(),Type='Account' where no_orders=%s;"
-                else:
-                    Message.show(Message, "Информация", "На счете клиента недостаточно средств")
-                    return 0
-            if self.paymentbox.currentIndex() == 2:
-                query = "update orders set close_date=now(),Type='Cash' where no_orders=%s;"
-            if self.paymentbox.currentIndex() == 3:
-                query = "update orders set close_date=now(),Type='Card' where no_orders=%s;"
+        if len(self.part) == 0:
+            global order_number
+            if float(self.value) <= float(self.lineEdit.text()) and self.paymentbox.currentIndex() != 0:
+                if self.paymentbox.currentIndex() == 1:
+                    if self.client_cash >= self.value:
+                        query = "update orders set close_date=now(),Type='Account' where no_orders=%s;"
+                    else:
+                        Message.show(Message, "Информация", "На счете клиента недостаточно средств")
+                        return 0
+                if self.paymentbox.currentIndex() == 2:
+                    query = "update orders set close_date=now(),Type='Cash' where no_orders=%s;"
+                if self.paymentbox.currentIndex() == 3:
+                    query = "update orders set close_date=now(),Type='Card' where no_orders=%s;"
 
-            data = (order_number,)
-            cursor.execute(query, data)
-            cnx.commit()
-            query = "update order_content set paid='Yes' where id_order=%s;"
-            cursor.execute(query, data)
-            cnx.commit()
+                data = (order_number,)
+                cursor.execute(query, data)
+                cnx.commit()
+                query = "update order_content set paid='Yes' where id_order=%s;"
+                cursor.execute(query, data)
+                cnx.commit()
 
-            Message.show(Message, "Инфо", "Оплата внесена \n" + self.refundlabel.text())
+                Message.show(Message, "Инфо", "Оплата внесена \n" + self.refundlabel.text())
 
-            # PaymentWindow.closeEvent(PaymentWindowUi)
-            # TODO: Закрытие окна после вывода инфо
+                # PaymentWindow.closeEvent(PaymentWindowUi)
+                # TODO: Закрытие окна после вывода инфо
+        else:
+            pass
 
 
 class PaymentWindow(QtWidgets.QDialog, PaymentWindowUi):
@@ -1464,28 +1480,31 @@ if __name__ == "__main__":
             pass
 
         try:
+
+            special_cursor = bcursor
+
             for no in order_no:
                 data = (no,)
-                query = "select if(client_lvl=3,15,if(client_lvl=2,10,if(client_lvl=1,5,0))) as 'discount' " \
-                        "from clients,orders " \
-                        "where id_client=id_visitor && no_orders=%s into @c;"
-                bcursor.execute(query, data)
-                query = "select sum(product_cost) from order_content,products where " \
-                        "content=products && id_order=%s && product_category<>'Тарифы' into @a; "
-                bcursor.execute(query, data)
-                query = "select if(@a is null,0,@a) into @a;"
-                bcursor.execute(query)
-                query = "select round(sum((Product_cost/60) * ((UNIX_TIMESTAMP(now()) - UNIX_TIMESTAMP(times))/60)))" \
-                        "from order_content, products " \
-                        "where id_order = %s && content = products && product_category = 'Тарифы' into @b;"
-                bcursor.execute(query, data)
-                query = "select if(@b is null,0,@b) into @b;"
-                bcursor.execute(query)
-                query = "update orders set total=(@a+@b)/100*(100-@c) where no_orders=%s;"
-                bcursor.execute(query, data)
+                query = 'select if(client_lvl=3,15,if(client_lvl=2,10,if(client_lvl=1,5,0))) from clients,orders where id_client=id_visitor && no_orders=%s into @c;'
+                special_cursor.execute(query, data)
+                query = "select sum(product_cost) from order_content,products where content=products && id_order=%s && product_category<>'Тарифы' into @a;"
+                special_cursor.execute(query, data)
+                query = 'select if(@a is null,0,@a) into @a;'
+                special_cursor.execute(query)
+                query = "select sum(t1) from (select no,stop_check,(Product_cost/60) * ((UNIX_TIMESTAMP(now()) - UNIX_TIMESTAMP(times))/60) as't1' from order_content, products where id_order = %s && content = products && product_category = 'Тарифы'&& TIMESTAMPDIFF(minute, times,now())>60 group by order_content.no having t1<stop_check) as t2 into @b1;"
+                special_cursor.execute(query, data)
+                query = "select sum(stop_check) from (select no,stop_check,(Product_cost/60) * ((UNIX_TIMESTAMP(now()) - UNIX_TIMESTAMP(times))/60) as't1' from order_content, products where id_order = %s && content = products && product_category = 'Тарифы'&& TIMESTAMPDIFF(minute, times,now())>60 group by order_content.no having t1>=stop_check) as t3 into @b3;"
+                special_cursor.execute(query, data)
+                query = "select sum(product_cost) from order_content,products where id_order = %s && content = products && product_category = 'Тарифы'&& TIMESTAMPDIFF(minute, times,now())<=60 into @b2;"
+                special_cursor.execute(query, data)
+                query = "select if(@b1 is null,0,@b1)+if(@b2 is null,0,@b2)+if(@b3 is null,0,@b3) into @b;"
+                special_cursor.execute(query)
+                query = "update orders set total = round((@a+@b)/100*(100-@c)) where no_orders=%s;"
+                special_cursor.execute(query, data)
+
                 cnx.commit()
 
-                ui.draw_orders()
+            ui.draw_orders()
 
         except BaseException as e:
             print(str(e))
