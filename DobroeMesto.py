@@ -390,16 +390,10 @@ class MainWindow(object):
             self.orderslayout.addWidget(item_group)
             orderslayout = QtWidgets.QVBoxLayout(item_group)
             for value in item:
-                item_label = QtWidgets.QLabel(str(value))
+                value = str(value)
+                item_label = QtWidgets.QLabel(value)
                 orderslayout.addWidget(item_label)
 
-    @staticmethod
-    def exittowindows():
-        if isopen:
-            print(1)
-        else:
-            import sys
-            sys.exit()
 
 
 class AdminWindowUi(object):
@@ -481,18 +475,19 @@ class AdminWindowUi(object):
         k = 1
         for item in cursor:
             for value in item:
+                value = str(value)
                 if k == 1:
-                    line_item = QtWidgets.QLineEdit(str(value))
+                    line_item = QtWidgets.QLineEdit(value)
                     self.gridLayout_3.addWidget(line_item, j, k, 1, 1)
-                    id = str(value)
+                    id = value
                     line_item.textChanged.connect(
-                        lambda state, line=[line_item, str(value), id, k]: modify(line, "product"))
+                        lambda state, line=[line_item, value, id, k]: modify(line, "product"))
                     k += 1
                     continue
-                line_item = QtWidgets.QLineEdit(str(value))
+                line_item = QtWidgets.QLineEdit(value)
                 self.gridLayout_3.addWidget(line_item, j, k, 1, 1)
                 line_item.textChanged.connect(
-                    lambda state, line=[line_item, str(value), id, k]: modify(line, "product"))
+                    lambda state, line=[line_item, value, id, k]: modify(line, "product"))
 
                 but_item = QtWidgets.QPushButton("Удалить")
                 self.gridLayout_3.addWidget(but_item, j, 6, 1, 1)
@@ -528,17 +523,18 @@ class AdminWindowUi(object):
         j += 1
         for item in cursor:
             for value in item:
+                value = str(value)
                 if k == 0:
-                    id = str(value)
+                    id = value
                     k += 1
                     continue
                 if k != 3:
-                    line_item = QtWidgets.QLineEdit(str(value))
+                    line_item = QtWidgets.QLineEdit(value)
                     self.gridLayout_3.addWidget(line_item, j, k, 1, 1)
                     line_item.textChanged.connect(
-                        lambda state, line=[line_item, str(value), id, k]: modify(line, "client"))
+                        lambda state, line=[line_item, value, id, k]: modify(line, "client"))
                 if k == 3:
-                    line_item = QtWidgets.QLabel(str(value))
+                    line_item = QtWidgets.QLabel(value)
                     self.gridLayout_3.addWidget(line_item, j, k, 1, 1)
 
                 but_item = QtWidgets.QPushButton("Удалить")
@@ -574,16 +570,17 @@ class AdminWindowUi(object):
         k = 0
         for item in cursor:
             for value in item:
+                value = str(value)
                 if k == 0:
                     k += 1
                     but_item = QtWidgets.QPushButton("Удалить")
                     self.gridLayout_3.addWidget(but_item, j, 5, 1, 1)
-                    id = str(value)
-                    but_item.clicked.connect(lambda state, row=str(value): delete(row, "user"))
+                    id = value
+                    but_item.clicked.connect(lambda state, row=value: delete(row, "user"))
                     continue
-                line_item = QtWidgets.QLineEdit(str(value))
+                line_item = QtWidgets.QLineEdit(value)
                 self.gridLayout_3.addWidget(line_item, j, k, 1, 1)
-                line_item.textChanged.connect(lambda state, line=[line_item, str(value), id, k]: modify(line, "user"))
+                line_item.textChanged.connect(lambda state, line=[line_item, value, id, k]: modify(line, "user"))
 
                 k += 1
                 if k % 5 == 0:
@@ -873,8 +870,9 @@ class NewOrderWindowUi(object):
         cursor.execute(query)
         for item in cursor:
             for value in item:
+                value = str(value)
                 tab = QtWidgets.QWidget()
-                self.tabWidget.addTab(tab, str(value))
+                self.tabWidget.addTab(tab, value)
                 tab_layout = QtWidgets.QVBoxLayout()
                 tab.setLayout(tab_layout)
                 query = "select products from products where product_category=%s;"
@@ -932,7 +930,8 @@ class NewOrderWindowUi(object):
                 cursor.execute(query, data)
                 for item in cursor:
                     for value in item:
-                        guest_number = str(value)
+                        value = str(value)
+                        guest_number = value
                 data = (guest_number,)
 
                 query = "insert into orders values (default,now(),null,null,228,null,%s,null);"
@@ -942,7 +941,8 @@ class NewOrderWindowUi(object):
                 cursor.execute(query)
                 for result in cursor:
                     for value in result:
-                        number = str(value)
+                        value = str(value)
+                        number = value
                 for item in order:
                     query = "insert into order_content values(%s,%s, default,curtime(), 'no');"
                     data = (number, item)
@@ -1083,8 +1083,9 @@ class PaymentWindowUi(object):
 
         for item in cursor:
             for value in item:
+                value = str(value)
                 self.client_cash = value
-                self.clientcashlabel.setText(_translate("PaymentWindowUi", "На счете клиента " + str(value)))
+                self.clientcashlabel.setText(_translate("PaymentWindowUi", "На счете клиента " + value))
 
         self.refundlabel.setText(_translate("PaymentWindowUi", "Сдача"))
 
@@ -1110,7 +1111,7 @@ class PaymentWindowUi(object):
                 ccursor.execute(query, cdata)
                 for citem in ccursor:
                     for cvalue in citem:
-                        self.gridLayout_2.addWidget(QtWidgets.QLabel(str(cvalue) + "₽"), i, 1, 1, 1)
+                        self.gridLayout_2.addWidget(QtWidgets.QLabel(str(cvalue) + '₽'), i, 1, 1, 1)
                 order_item.stateChanged.connect(
                     lambda state, line=[value, order_item, cvalue]: part_pay(line))
             i += 1
@@ -1136,9 +1137,10 @@ class PaymentWindowUi(object):
 
         for item in cursor:
             for value in item:
+                value = str(value)
                 font = QtGui.QFont()
                 font.setPointSize(20)
-                total_item = QtWidgets.QLabel("К оплате " + str(value) + "₽")
+                total_item = QtWidgets.QLabel("К оплате " + value + "₽")
                 total_item.setFont(font)
                 self.gridLayout_2.addWidget(total_item, i, 0, 1, 1)
                 self.value = value
@@ -1291,8 +1293,9 @@ class OrderWindowUi(object):
         cursor.execute(query)
         for item in cursor:
             for value in item:
+                value = str(value)
                 tab = QtWidgets.QWidget()
-                self.tabWidget.addTab(tab, str(value))
+                self.tabWidget.addTab(tab, value)
                 tab_layout = QtWidgets.QVBoxLayout()
                 tab.setLayout(tab_layout)
                 query = "select products from products where product_category=%s;"
@@ -1312,7 +1315,8 @@ class OrderWindowUi(object):
         i = 0
         for item in cursor:
             for value in item:
-                order_item = QtWidgets.QPushButton(str(value))
+                value = str(value)
+                order_item = QtWidgets.QPushButton(value)
                 self.gridLayout_3.addWidget(order_item, i, 0, 1, 1)
                 order.append(value)
                 query = "select Product_cost from products where products=%s;"
@@ -1329,9 +1333,10 @@ class OrderWindowUi(object):
 
         for item in cursor:
             for value in item:
+                value = str(value)
                 font = QtGui.QFont()
                 font.setPointSize(20)
-                total_item = QtWidgets.QLabel("Итог " + str(value) + "₽")
+                total_item = QtWidgets.QLabel("Итог " + value + "₽")
                 total_item.setFont(font)
                 self.gridLayout_3.addWidget(total_item, i, 0, 1, 1)
 
@@ -1446,14 +1451,6 @@ class GuestWindowUi(object):
                                   _translate("GuestWindowUi", "Рекомендации"))
 
         def acceptance():
-            query = "select id_client from clients where Card_Num_client = %s"
-            data = (guest_number,)
-            cursor.execute(query, data)
-            for item in cursor:
-                for value in item:
-                    global order_number
-                    order_number = str(value)
-                    print(value)
             GuestWindowUi.done(1)
 
         self.acceptbutton.setText(_translate("GuestWindowUi", "Подтвердить"))
@@ -1471,15 +1468,16 @@ class GuestWindowUi(object):
 
         for item in cursor:
             for value in item:
-                if str(value) == "None":
+                value = str(value)
+                if value == "None":
                     value = "Не указано"
                 if i == 0:
                     i += 1
                     continue
                 if i == 1:
-                    self.gridLayout_2.addWidget(QtWidgets.QLabel("Имя " + str(value)), i, 1, 1, 1)
+                    self.gridLayout_2.addWidget(QtWidgets.QLabel("Имя " + value), i, 1, 1, 1)
                 if i == 2:
-                    self.gridLayout_2.addWidget(QtWidgets.QLabel("Номер карты " + str(value)), i, 1, 1, 1)
+                    self.gridLayout_2.addWidget(QtWidgets.QLabel("Номер карты " + value), i, 1, 1, 1)
                 if i == 3:
                     i += 1
                     continue
@@ -1488,17 +1486,17 @@ class GuestWindowUi(object):
                     continue
                     # TODO отображение фото
                 if i == 5:
-                    self.gridLayout_2.addWidget(QtWidgets.QLabel("Уровень привелегий " + str(value)), i, 1, 1, 1)
+                    self.gridLayout_2.addWidget(QtWidgets.QLabel("Уровень привелегий " + value), i, 1, 1, 1)
                 if i == 6:
-                    self.gridLayout_2.addWidget(QtWidgets.QLabel("Телефон " + str(value)), i, 1, 1, 1)
+                    self.gridLayout_2.addWidget(QtWidgets.QLabel("Телефон " + value), i, 1, 1, 1)
                 if i == 7:
-                    self.gridLayout_2.addWidget(QtWidgets.QLabel("Сумма на счете " + str(value)), i, 1, 1, 1)
+                    self.gridLayout_2.addWidget(QtWidgets.QLabel("Сумма на счете " + value), i, 1, 1, 1)
                 if i == 8:
-                    self.gridLayout_2.addWidget(QtWidgets.QLabel("День Рождения " + str(value)), i, 1, 1, 1)
+                    self.gridLayout_2.addWidget(QtWidgets.QLabel("День Рождения " + value), i, 1, 1, 1)
                 if i == 9:
-                    self.gridLayout_2.addWidget(QtWidgets.QLabel("Соцсети " + str(value)), i, 1, 1, 1)
+                    self.gridLayout_2.addWidget(QtWidgets.QLabel("Соцсети " + value), i, 1, 1, 1)
                 if i == 10:
-                    self.gridLayout_2.addWidget(QtWidgets.QLabel("Дополнительно " + str(value)), i, 1, 1, 1)
+                    self.gridLayout_2.addWidget(QtWidgets.QLabel("Дополнительно " + value), i, 1, 1, 1)
 
                 i += 1
 
