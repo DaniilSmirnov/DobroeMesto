@@ -283,7 +283,7 @@ class MainWindow(object):
                 if i == 5:
                     add_item = QtWidgets.QGroupBox()
                     layout = QtWidgets.QGridLayout(add_item)
-                    query = "select content from order_content where id_order=%s;"
+                    query = "select content from order_content where id_order=%s and paid = 'No';"
                     data = (order_number,)
                     ccursor.execute(query, data)
                     k = 0
@@ -393,7 +393,6 @@ class MainWindow(object):
                 value = str(value)
                 item_label = QtWidgets.QLabel(value)
                 orderslayout.addWidget(item_label)
-
 
 
 class AdminWindowUi(object):
@@ -1062,6 +1061,7 @@ class PaymentWindowUi(object):
         global order_number
 
         self.part = []
+        self.no_s = []
 
         _translate = QtCore.QCoreApplication.translate
         PaymentWindowUi.setWindowTitle(_translate("PaymentWindowUi", "Оплата"))
@@ -1076,6 +1076,8 @@ class PaymentWindowUi(object):
         self.groupBox.setTitle(_translate("PaymentWindowUi", "Заказ"))
         self.clientcashlabel.setText(_translate("PaymentWindowUi", "На счете клиента"))
         self.refundlabel.setText(_translate("PaymentWindowUi", "Сдача"))
+
+        self.paymentbox.currentIndexChanged.connect(self.updatechange)
 
         query = "select client_cash from clients,orders where id_visitor=id_client && no_orders=%s;"
         data = (order_number,)
@@ -1094,13 +1096,16 @@ class PaymentWindowUi(object):
 
         self.paymentbutton.setEnabled(False)
 
-        query = "select content from order_content where id_order=%s;"
+        query = "select no, content from order_content where id_order=%s and paid = 'No';"
         data = (order_number,)
         cursor.execute(query, data)
 
         i = 0
         for item in cursor:
             for value in item:
+                if isinstance(value, int):
+                    no = str(value)
+                    continue
                 value = str(value)
                 order_item = QtWidgets.QCheckBox(value)
                 self.gridLayout_2.addWidget(order_item, i, 0, 1, 1)
@@ -1113,12 +1118,13 @@ class PaymentWindowUi(object):
                     for cvalue in citem:
                         self.gridLayout_2.addWidget(QtWidgets.QLabel(str(cvalue) + '₽'), i, 1, 1, 1)
                 order_item.stateChanged.connect(
-                    lambda state, line=[value, order_item, cvalue]: part_pay(line))
+                    lambda state, line=[value, order_item, cvalue, no]: part_pay(line))
             i += 1
 
         def part_pay(item):
             if item[1].isChecked():
                 self.part.append(item[0])
+                self.no_s.append(item[3])
                 value = 0
                 for item in self.part:
                     query = "select Product_cost from products where products=%s;"
@@ -1130,6 +1136,8 @@ class PaymentWindowUi(object):
 
                 total_item.setText("К оплате " + str(value) + "₽")
                 self.value = value
+
+            self.updatechange()
 
         query = "SELECT total FROM orders WHERE No_orders = %s;"
         data = (order_number,)
@@ -1148,14 +1156,14 @@ class PaymentWindowUi(object):
     def updatechange(self):
         try:
             if self.lineEdit.text() != "" and self.lineEdit.text() != " " and (
-                    float(self.lineEdit.text()) - self.value) > 0:
-                self.refundlabel.setText("Cдача " + str(float(self.lineEdit.text()) - self.value) + "₽")
+                    int(self.lineEdit.text()) - int(self.value)) > 0:
+                self.refundlabel.setText("Cдача " + str(int(self.lineEdit.text()) - int(self.value)) + "₽")
             else:
                 self.refundlabel.setText("Cдача 0₽")
         except ValueError:
             self.refundlabel.setText("Некорректный ввод")
         try:
-            if float(self.lineEdit.text()) - self.value >= 0 and self.paymentbox.currentIndex() != 0:
+            if float(self.lineEdit.text()) - int(self.value) >= 0 and self.paymentbox.currentIndex() != 0:
                 self.paymentbutton.setEnabled(True)
             else:
                 self.paymentbutton.setEnabled(False)
@@ -1194,7 +1202,12 @@ class PaymentWindowUi(object):
 
                 # TODO: Закрытие окна после вывода инфо
         else:
-            pass
+            for no in self.no_s:
+                query = "update order_content set paid='Yes' where no=%s;"
+                data = (no,)
+                cursor.execute(query, data)
+                cnx.commit()
+            Message.show(Message, "Инфо", "Оплата внесена \n" + self.refundlabel.text())
 
 
 class PaymentWindow(QtWidgets.QDialog, PaymentWindowUi):
