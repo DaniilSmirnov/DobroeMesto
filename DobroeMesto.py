@@ -196,6 +196,12 @@ class MainWindow(object):
         my_thread.start()
         self.draw_orders()
 
+    def openNotifications(self):
+        w = NotificationsWindow()
+        my_thread = threading.Thread(target=w.exec_())
+        my_thread.start()
+        self.draw_orders()
+
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
         self.cashbox.setText(_translate("Main", "Рассчет"))
@@ -212,6 +218,7 @@ class MainWindow(object):
 
         self.adminbutton.clicked.connect(self.openAdmin)
         self.orderbutton.clicked.connect(self.openNewOrder)
+        self.notificationbutton.clicked.connect(self.openNotifications)
         self.draw_orders()
 
         '''
@@ -1549,6 +1556,83 @@ class GuestWindow(QtWidgets.QDialog, GuestWindowUi):
         event.accept()
 
 
+class NotificationsWindowUi(object):
+    def setupUi(self, NotificationsWindowUi):
+        NotificationsWindowUi.setObjectName("NotificationsWindowUi")
+        NotificationsWindowUi.resize(400, 400)
+        self.gridLayout = QtWidgets.QGridLayout(NotificationsWindowUi)
+        self.gridLayout.setObjectName("gridLayout")
+        self.scrollArea = QtWidgets.QScrollArea(NotificationsWindowUi)
+        self.scrollArea.setWidgetResizable(True)
+        self.scrollArea.setObjectName("scrollArea")
+        self.scrollAreaWidgetContents = QtWidgets.QWidget()
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 380, 251))
+        self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
+        self.gridLayout_2 = QtWidgets.QGridLayout(self.scrollAreaWidgetContents)
+        self.gridLayout_2.setObjectName("gridLayout_2")
+        self.scrollArea.setWidget(self.scrollAreaWidgetContents)
+        self.gridLayout.addWidget(self.scrollArea, 0, 0, 1, 1)
+        self.createactionbutton = QtWidgets.QPushButton(NotificationsWindowUi)
+        self.createactionbutton.setObjectName("createactionbutton")
+        self.gridLayout.addWidget(self.createactionbutton, 1, 0, 1, 1)
+
+        self.retranslateUi(NotificationsWindowUi)
+        QtCore.QMetaObject.connectSlotsByName(NotificationsWindowUi)
+
+    def retranslateUi(self, NotificationsWindowUi):
+        _translate = QtCore.QCoreApplication.translate
+        NotificationsWindowUi.setWindowTitle(_translate("NotificationsWindowUi", "Уведомления"))
+        self.createactionbutton.setText(_translate("NotificationsWindowUi", "Создать напоминание"))
+
+        def draw_notifications():
+
+            for i in reversed(range(self.gridLayout_2.count())):
+                self.gridLayout_2.itemAt(i).widget().deleteLater()
+
+            i = 0
+            j = 0
+
+            labels = ['Cодержимое', 'Приоритет', 'Дата и Время активации', 'Статус']
+            for label in labels:
+                self.gridLayout_2.addWidget(QtWidgets.QLabel(label), i, j, 1, 1)
+                j += 1
+
+            i += 1
+            j = 0
+
+            query = "select * from notifications order by not_stat,importance ,dates;"
+            cursor.execute(query)
+            for item in cursor:
+                for value in item:
+                    if j == 0:
+                        j += 1
+                        id = value
+                        continue
+                    value = str(value)
+                    self.gridLayout_2.addWidget(QtWidgets.QLabel(value), i, j - 1, 1, 1)
+                    j += 1
+                button = QtWidgets.QPushButton("Закрыть")
+                self.gridLayout_2.addWidget(button, i, j, 1, 1)
+                button.clicked.connect(lambda state, row=id: close(row))
+                i += 1
+                j = 0
+
+            def close(id):
+                query = "update notifications set not_stat='Закрыт' where id_not=%s"
+                data = (id,)
+                cursor.execute(query, data)
+                cnx.commit()
+                draw_notifications()
+
+        draw_notifications()
+
+
+class NotificationsWindow(QtWidgets.QDialog, NotificationsWindowUi):
+    def __init__(self, parent=None):
+        super(NotificationsWindow, self).__init__(parent)
+        self.setupUi(self)
+
+
 class Message(object):
     def show(self, Title, Text):
         msgbox = QtWidgets.QMessageBox()
@@ -1557,11 +1641,12 @@ class Message(object):
         msgbox.setText(Text)
         msgbox.exec()
 
-    def notify(self, Text):
+    def notify(self, Text, id):
         msgbox = QtWidgets.QMessageBox()
         msgbox.setWindowTitle("Уведомление")
         msgbox.setWindowIcon(QtGui.QIcon(QtGui.QPixmap('icons/remind.png')))
         msgbox.setText(Text)
+        msgbox.buttonClicked.connect(self._clicked)
         msgbox.exec()
 
 
