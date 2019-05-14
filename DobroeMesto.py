@@ -950,8 +950,13 @@ class NewOrderWindowUi(object):
                         value = str(value)
                         number = value
                 for item in order:
-                    query = "insert into order_content values(%s,%s, default,curtime(), 'no', default);"
-                    data = (number, item)
+                    query = '''
+                    insert into order_content values(%s,%s, default,curtime(), 'no', default,
+                    (select round(product_cost/100*(100-(select if(client_lvl=3,15,if(client_lvl=2,10,if(client_lvl=1,5,0)))
+                    from clients,orders 
+                    where id_client=id_visitor && no_orders=%s))) from products where products=%s && product_category<>'Тарифы'));
+                    '''
+                    data = (number, item, number, item)
                     cursor.execute(query, data)
                     cnx.commit()
                 query = "update orders set comments=%s where no_orders=%s;"
@@ -1116,10 +1121,8 @@ class PaymentWindowUi(object):
                 value = str(value)
                 order_item = QtWidgets.QCheckBox(value)
                 self.gridLayout_2.addWidget(order_item, i, 0, 1, 1)
-                # TODO Частичная оплата
-
-                query = "select Product_cost from products where products=%s;"
-                cdata = (value,)
+                query = "select price from order_content where no=%s;"
+                cdata = (no,)
                 ccursor.execute(query, cdata)
                 for citem in ccursor:
                     for cvalue in citem:
