@@ -950,7 +950,7 @@ class NewOrderWindowUi(object):
                         value = str(value)
                         number = value
                 for item in order:
-                    query = "insert into order_content values(%s,%s, default,curtime(), 'no');"
+                    query = "insert into order_content values(%s,%s, default,curtime(), 'no', default);"
                     data = (number, item)
                     cursor.execute(query, data)
                     cnx.commit()
@@ -1183,8 +1183,9 @@ class PaymentWindowUi(object):
             global order_number
             if float(self.value) <= float(self.lineEdit.text()) and self.paymentbox.currentIndex() != 0:
                 if self.paymentbox.currentIndex() == 1:
-                    if self.client_cash >= self.value:
+                    if int(self.client_cash) >= int(self.value):
                         query = "update orders set close_date=now(),Type='Account' where no_orders=%s;"
+
                     else:
                         Message.show(Message, "Информация", "На счете клиента недостаточно средств")
                         return 0
@@ -1200,6 +1201,12 @@ class PaymentWindowUi(object):
                 cursor.execute(query, data)
                 cnx.commit()
 
+                if self.paymentbox.currentIndex() == 1:
+                    if int(self.client_cash) >= int(self.value):
+                        query = "update clients set client_cash=client_cash-%s where id_client=(select id_client from orders where no_orders=%s);"
+                        data = (self.value, order_number)
+                        cursor.execute(query, data)
+
                 Message.show(Message, "Инфо", "Оплата внесена \n" + self.refundlabel.text())
 
                 def close():
@@ -1210,11 +1217,28 @@ class PaymentWindowUi(object):
                 # TODO: Закрытие окна после вывода инфо
         else:
             for no in self.no_s:
-                query = "update order_content set paid='Yes' where no=%s;"
-                data = (no,)
-                cursor.execute(query, data)
-                cnx.commit()
-            Message.show(Message, "Инфо", "Оплата внесена \n" + self.refundlabel.text())
+                if float(self.value) <= float(self.lineEdit.text()) and self.paymentbox.currentIndex() != 0:
+                    if self.paymentbox.currentIndex() == 1:
+                        if int(self.client_cash) >= int(self.value):
+                            query = "update order_content set paid='Yes',type='Account' where no=%s;"
+                        else:
+                            Message.show(Message, "Информация", "На счете клиента недостаточно средств")
+                            return 0
+                    if self.paymentbox.currentIndex() == 2:
+                        query = "update order_content set paid='Yes',type = 'Cash' where no=%s;"
+                    if self.paymentbox.currentIndex() == 3:
+                        query = "update order_content set paid='Yes',type = 'Card' where no=%s;"
+                    data = (no,)
+                    cursor.execute(query, data)
+                    cnx.commit()
+
+                    if self.paymentbox.currentIndex() == 1:
+                        if int(self.client_cash) >= int(self.value):
+                            query = "update clients set client_cash=client_cash-%s where id_client=(select id_client from orders where no_orders=%s);"
+                            data = (self.value, order_number)
+                            cursor.execute(query, data)
+
+                    Message.show(Message, "Инфо", "Оплата внесена \n" + self.refundlabel.text())
 
 
 class PaymentWindow(QtWidgets.QDialog, PaymentWindowUi):
