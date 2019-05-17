@@ -1134,8 +1134,9 @@ class PaymentWindowUi(object):
 
         def part_pay(item):
             if item[1].isChecked():
-                self.part.append(item[0])
-                self.no_s.append(item[3])
+                if (item[3]) not in self.no_s:
+                    self.part.append(item[0])
+                    self.no_s.append(item[3])
                 value = 0
                 for item in self.no_s:
                     query = "select price from order_content where no=%s;"
@@ -1669,12 +1670,19 @@ class Message(object):
         msgbox.setText(Text)
         msgbox.exec()
 
-    def notify(self, Text):
+    def notify(self, no):
         msgbox = QtWidgets.QMessageBox()
         msgbox.setWindowTitle("Уведомление")
         msgbox.setWindowIcon(QtGui.QIcon(QtGui.QPixmap('icons/remind.png')))
-        msgbox.setText(Text)
-        msgbox.buttonClicked.connect(self._clicked)
+        query = "select content from notifications where id_not = %s"
+        data = (no,)
+        ccursor.execute(query, data)
+        for item in ccursor:
+            for value in item:
+                msgbox.setText(str(value))
+        query = "update notifications set not_stat='Закрыт' where id_not=%s"
+        ccursor.execute(query, data)
+        cnx.commit()
         msgbox.exec()
 
 
@@ -1744,7 +1752,7 @@ if __name__ == "__main__":
 
             for no in order_no:
                 data = (no, no)
-                query = 'update orders set total=(select sum(price) from order_content where id_order=%s) where no_orders=%s;'
+                query = 'update orders set total=(select sum(price) from order_content where id_order=%s) where no_orders=%s && paid="no";'
                 special_cursor.execute(query, data)
 
                 cnx.commit()
@@ -1769,6 +1777,10 @@ if __name__ == "__main__":
     def CheckNotificationsThread():
         pass
         # TODO Хранение уведомлений в базе
+        query = "select id_not from notifications where not_stat='Открыт' && timestampdiff( second,dates, now())>=0;"
+        bcursor.execute(query)
+        for item in bcursor:
+            Message.notify(Message, item[0])
 
 
     reminder = QTimer()
