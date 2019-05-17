@@ -194,6 +194,7 @@ class MainWindow(object):
         w = NewOrderWindow()
         my_thread = threading.Thread(target=w.exec_())
         my_thread.start()
+        OrderTotalThread()
         self.draw_orders()
 
     def openNotifications(self):
@@ -954,7 +955,7 @@ class NewOrderWindowUi(object):
                     insert into order_content values(%s,%s, default,curtime(), 'no', default,
                     (select round(product_cost/100*(100-(select if(client_lvl=3,15,if(client_lvl=2,10,if(client_lvl=1,5,0)))
                     from clients,orders 
-                    where id_client=id_visitor && no_orders=%s))) from products where products=%s && product_category<>'Тарифы'));
+                    where id_client=id_visitor && no_orders=%s))) from products where products=%s));
                     '''
                     data = (number, item, number, item)
                     cursor.execute(query, data)
@@ -1136,8 +1137,8 @@ class PaymentWindowUi(object):
                 self.part.append(item[0])
                 self.no_s.append(item[3])
                 value = 0
-                for item in self.part:
-                    query = "select Product_cost from products where products=%s;"
+                for item in self.no_s:
+                    query = "select price from order_content where no=%s;"
                     cdata = (item,)
                     ccursor.execute(query, cdata)
                     for citem in ccursor:
@@ -1668,7 +1669,7 @@ class Message(object):
         msgbox.setText(Text)
         msgbox.exec()
 
-    def notify(self, Text, id):
+    def notify(self, Text):
         msgbox = QtWidgets.QMessageBox()
         msgbox.setWindowTitle("Уведомление")
         msgbox.setWindowIcon(QtGui.QIcon(QtGui.QPixmap('icons/remind.png')))
@@ -1708,27 +1709,42 @@ if __name__ == "__main__":
         except BaseException:
             pass
 
+
+    def OrderTotalThread():
+
+        try:
+            special_cursor = ccursor
+
+            special_cursor.execute(
+                "select no from order_content,products where paid='No' && content=products && product_category='Тарифы';")
+
+            data = []
+
+            for item in special_cursor:
+                for value in item:
+                    data.append(value)
+
+            for value in data:
+                data = (str(value),)
+                query = "select round((price/60) * (UNIX_TIMESTAMP(now()) - UNIX_TIMESTAMP(times))/60) from order_content where no=%s into @j;"
+                special_cursor.execute(query, data)
+                query = "select stop_check from products,order_content where products=content && no=%s into @f;"
+                special_cursor.execute(query, data)
+                query = "update order_content set price=(if(@j<price,price,if(@j>@f,@f,@j))) where no=%s;"
+                special_cursor.execute(query, data)
+                cnx.commit()
+
+        except EnvironmentError as e:
+            print(e)
+            pass
+
         try:
 
             special_cursor = bcursor
 
             for no in order_no:
-                data = (no,)
-                query = 'select if(client_lvl=3,15,if(client_lvl=2,10,if(client_lvl=1,5,0))) from clients,orders where id_client=id_visitor && no_orders=%s into @c;'
-                special_cursor.execute(query, data)
-                query = "select sum(product_cost) from order_content,products where content=products && id_order=%s && product_category<>'Тарифы' into @a;"
-                special_cursor.execute(query, data)
-                query = 'select if(@a is null,0,@a) into @a;'
-                special_cursor.execute(query)
-                query = "select sum(t1) from (select no,stop_check,(Product_cost/60) * ((UNIX_TIMESTAMP(now()) - UNIX_TIMESTAMP(times))/60) as't1' from order_content, products where id_order = %s && content = products && product_category = 'Тарифы'&& TIMESTAMPDIFF(minute, times,now())>60 group by order_content.no having t1<stop_check) as t2 into @b1;"
-                special_cursor.execute(query, data)
-                query = "select sum(stop_check) from (select no,stop_check,(Product_cost/60) * ((UNIX_TIMESTAMP(now()) - UNIX_TIMESTAMP(times))/60) as't1' from order_content, products where id_order = %s && content = products && product_category = 'Тарифы'&& TIMESTAMPDIFF(minute, times,now())>60 group by order_content.no having t1>=stop_check) as t3 into @b3;"
-                special_cursor.execute(query, data)
-                query = "select sum(product_cost) from order_content,products where id_order = %s && content = products && product_category = 'Тарифы'&& TIMESTAMPDIFF(minute, times,now())<=60 into @b2;"
-                special_cursor.execute(query, data)
-                query = "select if(@b1 is null,0,@b1)+if(@b2 is null,0,@b2)+if(@b3 is null,0,@b3) into @b;"
-                special_cursor.execute(query)
-                query = "update orders set total = round((@a+@b)/100*(100-@c)) where no_orders=%s;"
+                data = (no, no)
+                query = 'update orders set total=(select sum(price) from order_content where id_order=%s) where no_orders=%s;'
                 special_cursor.execute(query, data)
 
                 cnx.commit()
@@ -1739,9 +1755,16 @@ if __name__ == "__main__":
             print(str(e))
             pass
 
+
+    BackgroundThread()
     timer = QTimer()
     timer.timeout.connect(BackgroundThread)
-    timer.start(1000)
+    timer.start(60000)
+
+    OrderTotalThread()
+    total_timer = QTimer()
+    total_timer.timeout.connect(OrderTotalThread)
+    total_timer.start(60000)
 
     def CheckNotificationsThread():
         pass
