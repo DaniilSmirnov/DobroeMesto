@@ -1342,8 +1342,13 @@ class OrderWindowUi(object):
 
         def update_order():
             for item in new_items:
-                query = "insert into order_content values(%s,%s, default,curtime(), 'no');"
-                data = (order_number, item)
+                query = '''
+                                    insert into order_content values(%s,%s, default,curtime(), 'no', default,
+                                    (select round(product_cost/100*(100-(select if(client_lvl=3,15,if(client_lvl=2,10,if(client_lvl=1,5,0)))
+                                    from clients,orders 
+                                    where id_client=id_visitor && no_orders=%s))) from products where products=%s));
+                        '''
+                data = (order_number, item, order_number, item)
                 cursor.execute(query, data)
                 cnx.commit()
 
