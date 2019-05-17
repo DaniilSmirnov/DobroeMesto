@@ -1752,7 +1752,7 @@ if __name__ == "__main__":
 
             for no in order_no:
                 data = (no, no)
-                query = 'update orders set total=(select sum(price) from order_content where id_order=%s) where no_orders=%s && paid="no";'
+                query = "update orders set total=(select sum(price) from order_content where id_order=%s) where no_orders=%s && paid ='no';"
                 special_cursor.execute(query, data)
 
                 cnx.commit()
