@@ -42,7 +42,7 @@ class Ui_Main(object):
         font = QtGui.QFont()
         font.setPointSize(20)
         self.cashbox.setFont(font)
-        self.cashbox.setObjectName("cashbox")
+        self.cashbox.setObjectName("clientcashbutton")
         self.gridLayout.addWidget(self.cashbox, 3, 3, 1, 1)
         self.groupBox_2 = QtWidgets.QGroupBox(self.centralwidget)
         font = QtGui.QFont()

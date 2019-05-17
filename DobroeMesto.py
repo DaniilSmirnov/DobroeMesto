@@ -39,7 +39,7 @@ items = []
 
 isopen = False  # подгружать из базы
 
-guest_number = 123
+guest_number = 1488
 
 
 class MainWindow(object):
@@ -68,17 +68,17 @@ class MainWindow(object):
         self.gridLayout = QtWidgets.QGridLayout()
         self.gridLayout.setSizeConstraint(QtWidgets.QLayout.SetDefaultConstraint)
         self.gridLayout.setObjectName("gridLayout")
-        self.cashbox = QtWidgets.QPushButton(self.centralwidget)
+        self.clientcashbutton = QtWidgets.QPushButton(self.centralwidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.cashbox.sizePolicy().hasHeightForWidth())
-        self.cashbox.setSizePolicy(sizePolicy)
+        sizePolicy.setHeightForWidth(self.clientcashbutton.sizePolicy().hasHeightForWidth())
+        self.clientcashbutton.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setPointSize(20)
-        self.cashbox.setFont(font)
-        self.cashbox.setObjectName("cashbox")
-        self.gridLayout.addWidget(self.cashbox, 3, 3, 1, 1)
+        self.clientcashbutton.setFont(font)
+        self.clientcashbutton.setObjectName("clientcashbutton")
+        self.gridLayout.addWidget(self.clientcashbutton, 3, 3, 1, 1)
         self.groupBox_2 = QtWidgets.QGroupBox(self.centralwidget)
         font = QtGui.QFont()
         font.setPointSize(10)
@@ -192,10 +192,10 @@ class MainWindow(object):
 
     def openNewOrder(self):
         w = NewOrderWindow()
-        my_thread = threading.Thread(target=w.exec_())
-        my_thread.start()
+        w.exec_()
+
         OrderTotalThread()
-        self.draw_orders()
+        # self.draw_orders()
 
     def openNotifications(self):
         w = NotificationsWindow()
@@ -205,7 +205,7 @@ class MainWindow(object):
 
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
-        self.cashbox.setText(_translate("Main", "Рассчет"))
+        self.clientcashbutton.setText(_translate("Main", "Пополнение счета"))
         self.groupBox_2.setTitle(_translate("Main", "Информация"))
         self.infolabel.setText(_translate("Main", "Время + дата"))
         self.groupBox.setTitle(_translate("Main", "Гости"))
@@ -904,20 +904,37 @@ class NewOrderWindowUi(object):
                 self.gridLayout_3.itemAt(i).widget().deleteLater()
 
             i = 0
-            for item in order:
-                item_button = QtWidgets.QPushButton(item)
+            for pos in order:
+                item_button = QtWidgets.QPushButton(pos)
                 self.gridLayout_3.addWidget(item_button, i, 0, 1, 1)
                 delete_button = QtWidgets.QPushButton()
                 delete_button.setIcon(QtGui.QIcon(QtGui.QPixmap('icons/x.png')))
                 delete_button.setIconSize(QtCore.QSize(24, 24))
                 self.gridLayout_3.addWidget(delete_button, i, 2, 1, 1)
-                delete_button.clicked.connect(lambda state, data=item: pop_item(data))
+                delete_button.clicked.connect(lambda state, data=pos: pop_item(data))
+
+                percent = 0
+
+                query = "select Client_lvl from clients where id_client=%s;"
+                global guest_number
+                cursor.execute(query, (guest_number,))
+                for item in cursor:
+                    for value in item:
+                        value = int(value)
+                        if value == 1:
+                            percent = 5
+                        if value == 2:
+                            percent = 10
+                        if value == 3:
+                            percent = 15
+
                 query = "select Product_cost from products where products=%s;"
-                cdata = (item,)
+                cdata = (pos,)
                 ccursor.execute(query, cdata)
                 for citem in ccursor:
                     for cvalue in citem:
-                        self.gridLayout_3.addWidget(QtWidgets.QLabel(str(cvalue) + "₽"), i, 1, 1, 1)
+                        self.gridLayout_3.addWidget(
+                            QtWidgets.QLabel(str(int(int(cvalue) - (int(cvalue) / 100 * percent))) + "₽"), i, 1, 1, 1)
                         total += cvalue
                         font = QtGui.QFont()
                         font.setPointSize(20)
@@ -932,13 +949,6 @@ class NewOrderWindowUi(object):
             else:
                 global guest_number
 
-                query = "select id_client from clients where Card_Num_client = %s"
-                data = (guest_number,)
-                cursor.execute(query, data)
-                for item in cursor:
-                    for value in item:
-                        value = str(value)
-                        guest_number = value
                 data = (guest_number,)
 
                 query = "insert into orders values (default,now(),null,null,228,null,%s,null);"
@@ -966,7 +976,11 @@ class NewOrderWindowUi(object):
                 cnx.commit()
                 Message.show(Message, "Инфо", "Заказ добавлен")
                 guest_number = 123
+
+                OrderTotalThread()
+
                 NewOrderWindowUi.accept()
+
 
         def pop_item(item):
             order.pop(order.index(item))
@@ -1512,6 +1526,17 @@ class GuestWindowUi(object):
                                   _translate("GuestWindowUi", "Рекомендации"))
 
         def acceptance():
+
+            global guest_number
+
+            query = "select id_client from clients where Card_Num_client = %s"
+            data = (guest_number,)
+            cursor.execute(query, data)
+            for item in cursor:
+                for value in item:
+                    value = str(value)
+                    guest_number = value
+
             GuestWindowUi.done(1)
 
         self.acceptbutton.setText(_translate("GuestWindowUi", "Подтвердить"))
@@ -1588,7 +1613,7 @@ class GuestWindow(QtWidgets.QDialog, GuestWindowUi):
 class NotificationsWindowUi(object):
     def setupUi(self, NotificationsWindowUi):
         NotificationsWindowUi.setObjectName("NotificationsWindowUi")
-        NotificationsWindowUi.resize(400, 400)
+        NotificationsWindowUi.resize(700, 300)
         self.gridLayout = QtWidgets.QGridLayout(NotificationsWindowUi)
         self.gridLayout.setObjectName("gridLayout")
         self.scrollArea = QtWidgets.QScrollArea(NotificationsWindowUi)
@@ -1752,7 +1777,7 @@ if __name__ == "__main__":
 
             for no in order_no:
                 data = (no, no)
-                query = "update orders set total=(select sum(price) from order_content where id_order=%s) where no_orders=%s && paid ='no';"
+                query = 'update orders set total=(select sum(price) from order_content where id_order=%s && paid="no") where no_orders=%s ;'
                 special_cursor.execute(query, data)
 
                 cnx.commit()
