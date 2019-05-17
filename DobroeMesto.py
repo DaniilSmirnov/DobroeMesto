@@ -810,7 +810,7 @@ class AddItemWindow(QtWidgets.QDialog, AddItemWindowUi):
 class NewOrderWindowUi(object):
     def setupUi(self, NewOrderWindowUi):
         NewOrderWindowUi.setObjectName("NewOrderWindowUi")
-        NewOrderWindowUi.resize(640, 480)
+        NewOrderWindowUi.resize(860, 860)
         self.gridLayout = QtWidgets.QGridLayout(NewOrderWindowUi)
         self.gridLayout.setObjectName("gridLayout")
         self.tabWidget = QtWidgets.QTabWidget(NewOrderWindowUi)
