@@ -4,6 +4,8 @@ import threading
 import mysql.connector
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QTimer
+from PySide2.QtCore import QUrl
+from PySide2.QtWebEngineWidgets import *
 
 d = datetime.datetime.today()  # время получается один раз при запуске программы, требует обновления перед записью
 
@@ -197,6 +199,10 @@ class MainWindow(object):
         OrderTotalThread()
         # self.draw_orders()
 
+    def openReserve(self):
+        w = ReserveWindow()
+        w.exec_()
+
     def openNotifications(self):
         w = NotificationsWindow()
         my_thread = threading.Thread(target=w.exec_())
@@ -220,6 +226,7 @@ class MainWindow(object):
         self.adminbutton.clicked.connect(self.openAdmin)
         self.orderbutton.clicked.connect(self.openNewOrder)
         self.notificationbutton.clicked.connect(self.openNotifications)
+        self.reservebutton.clicked.connect(self.openReserve)
         self.draw_orders()
 
         '''
@@ -810,7 +817,7 @@ class AddItemWindow(QtWidgets.QDialog, AddItemWindowUi):
 class NewOrderWindowUi(object):
     def setupUi(self, NewOrderWindowUi):
         NewOrderWindowUi.setObjectName("NewOrderWindowUi")
-        NewOrderWindowUi.resize(860, 860)
+        NewOrderWindowUi.resize(700, 700)
         self.gridLayout = QtWidgets.QGridLayout(NewOrderWindowUi)
         self.gridLayout.setObjectName("gridLayout")
         self.tabWidget = QtWidgets.QTabWidget(NewOrderWindowUi)
@@ -1269,7 +1276,7 @@ class PaymentWindow(QtWidgets.QDialog, PaymentWindowUi):
 class OrderWindowUi(object):
     def setupUi(self, OrderWindowUi):
         OrderWindowUi.setObjectName("OrderWindowUi")
-        OrderWindowUi.resize(640, 480)
+        OrderWindowUi.resize(700, 7000)
         self.gridLayout = QtWidgets.QGridLayout(OrderWindowUi)
         self.gridLayout.setObjectName("gridLayout")
         self.tabWidget = QtWidgets.QTabWidget(OrderWindowUi)
@@ -1591,17 +1598,64 @@ class GuestWindowUi(object):
 
                 i += 1
 
-        i = 0
+        def draw_history():
 
-        query = "select * from orders where Id_visitor in (select id_client from clients where Card_Num_client = %s)"
-        data = (guest_number,)
-        cursor.execute(query, data)
+            for i in reversed(range(self.scrollLayout.count())):
+                self.scrollLayout.itemAt(i).widget().deleteLater()
 
-        for item in cursor:
-            for value in item:
-                value = str(value)
-                self.scrollLayout.addWidget(QtWidgets.QLabel(value), i, 1, 1, 1)
-                i += 1
+            i = 0
+            query = "select NO_Orders, Open_date, Owner, Type, Comments from orders where Id_visitor in (select id_client from clients where Card_Num_client = %s)"
+            data = (guest_number,)
+            cursor.execute(query, data)
+
+            j = 0
+
+            for item in cursor:
+                for value in item:
+                    value = str(value)
+                    if value == "None":
+                        continue
+                    else:
+                        if j == 0:
+                            self.scrollLayout.addWidget(QtWidgets.QLabel("Номер заказа " + value), i, 1, 1, 1)
+                            order = value
+                        if j == 1:
+                            self.scrollLayout.addWidget(QtWidgets.QLabel("Дата и время открытия " + value), i, 1, 1, 1)
+                        if j == 2:
+                            self.scrollLayout.addWidget(QtWidgets.QLabel("Администратор " + value), i, 1, 1, 1)
+                        if j == 3:
+                            self.scrollLayout.addWidget(QtWidgets.QLabel("Тип оплаты " + value), i, 1, 1, 1)
+                        if j == 4:
+                            self.scrollLayout.addWidget(QtWidgets.QLabel("Комментарий" + value), i, 1, 1, 1)
+                        j += 1
+                        i += 1
+                button = QtWidgets.QPushButton("Просмотреть")
+                button.clicked.connect(lambda state, order_no=order: draw_order(order_no))
+                self.scrollLayout.addWidget(button, i - 1, 2, 1, 1)
+                j = 0
+
+        draw_history()
+
+        def draw_order(id):
+
+            for i in reversed(range(self.scrollLayout.count())):
+                self.scrollLayout.itemAt(i).widget().deleteLater()
+
+            query = "select Content from order_content where id_Order = %s"
+            data = ((id),)
+            cursor.execute(query, data)
+
+            i = 0
+
+            for item in cursor:
+                for value in item:
+                    self.scrollLayout.addWidget(QtWidgets.QLabel(value), i, 1, 1, 1)
+                    i += 1
+
+                button = QtWidgets.QPushButton("Вернуться")
+                button.clicked.connect(draw_history)
+                self.scrollLayout.addWidget(button, i + 1, 1, 1, 1)
+
 
 
 class GuestWindow(QtWidgets.QDialog, GuestWindowUi):
@@ -1689,6 +1743,32 @@ class NotificationsWindowUi(object):
 class NotificationsWindow(QtWidgets.QDialog, NotificationsWindowUi):
     def __init__(self, parent=None):
         super(NotificationsWindow, self).__init__(parent)
+        self.setupUi(self)
+
+
+class ReserveWindowUi(object):
+    def setupUi(self, ReserveWindowUi):
+        ReserveWindowUi.setObjectName("ReserveWindowUi")
+        ReserveWindowUi.resize(665, 405)
+        self.verticalLayout = QtWidgets.QVBoxLayout(ReserveWindowUi)
+        self.verticalLayout.setObjectName("verticalLayout")
+
+        view = QWebEngineView()
+        view.load(QUrl("http://vk.com/"))
+
+        self.verticalLayout.addWidget(view)
+
+        self.retranslateUi(ReserveWindowUi)
+        QtCore.QMetaObject.connectSlotsByName(ReserveWindowUi)
+
+    def retranslateUi(self, ReserveWindowUi):
+        _translate = QtCore.QCoreApplication.translate
+        ReserveWindowUi.setWindowTitle(_translate("ReserveWindowUi", "Dialog"))
+
+
+class ReserveWindow(QtWidgets.QDialog, ReserveWindowUi):
+    def __init__(self, parent=None):
+        super(ReserveWindow, self).__init__(parent)
         self.setupUi(self)
 
 
