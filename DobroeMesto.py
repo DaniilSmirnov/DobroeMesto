@@ -35,6 +35,7 @@ menu_items = []
 order_items = []
 order_totals = []
 order_no = []
+
 order_number = 0
 
 items = []
@@ -222,6 +223,11 @@ class MainWindow(object):
         self.notificationbutton.setText(_translate("Main", "Уведомления"))
         self.xbutton.setText(_translate("Main", "Промежуточный отчет"))
         self.screenlockbutton.setText(_translate("Main", "Блокировка"))
+
+        self.xbutton.setEnabled(False)
+        self.adminbutton.setEnabled(False)
+        self.reservebutton.setEnabled(False)
+        self.clientcashbutton.setEnabled(False)
 
         self.adminbutton.clicked.connect(self.openAdmin)
         self.orderbutton.clicked.connect(self.openNewOrder)
@@ -886,6 +892,7 @@ class NewOrderWindowUi(object):
             for value in item:
                 value = str(value)
                 tab = QtWidgets.QWidget()
+                tab.setObjectName("tab")
                 self.tabWidget.addTab(tab, value)
                 tab_layout = QtWidgets.QVBoxLayout()
                 tab.setLayout(tab_layout)
@@ -896,6 +903,7 @@ class NewOrderWindowUi(object):
                     for result in response:
                         result = str(result)
                         item_button = QtWidgets.QPushButton(result)
+                        item_button.setObjectName("item_button")
                         tab_layout.addWidget(item_button)
                         item_button.clicked.connect(lambda state, button=item_button: select_item(button))
 
@@ -913,6 +921,7 @@ class NewOrderWindowUi(object):
             i = 0
             for pos in order:
                 item_button = QtWidgets.QPushButton(pos)
+                item_button.setObjectName("order_item")
                 self.gridLayout_3.addWidget(item_button, i, 0, 1, 1)
                 delete_button = QtWidgets.QPushButton()
                 delete_button.setIcon(QtGui.QIcon(QtGui.QPixmap('icons/x.png')))
@@ -940,12 +949,14 @@ class NewOrderWindowUi(object):
                 ccursor.execute(query, cdata)
                 for citem in ccursor:
                     for cvalue in citem:
-                        self.gridLayout_3.addWidget(
-                            QtWidgets.QLabel(str(int(int(cvalue) - (int(cvalue) / 100 * percent))) + "₽"), i, 1, 1, 1)
+                        label = QtWidgets.QLabel(str(int(int(cvalue) - (int(cvalue) / 100 * percent))))
+                        label.setObjectName("cost")
+                        self.gridLayout_3.addWidget(label.text() + "₽", i, 1, 1, 1)
                         total += cvalue
                         font = QtGui.QFont()
                         font.setPointSize(20)
                         total_item = QtWidgets.QLabel("Итог " + str(total) + "₽")
+                        total_item.setObjectName("total_label")
                         total_item.setFont(font)
                         self.gridLayout_3.addWidget(total_item, i + 1, 0, 1, 1)
                 i += 1
@@ -1276,7 +1287,7 @@ class PaymentWindow(QtWidgets.QDialog, PaymentWindowUi):
 class OrderWindowUi(object):
     def setupUi(self, OrderWindowUi):
         OrderWindowUi.setObjectName("OrderWindowUi")
-        OrderWindowUi.resize(700, 7000)
+        OrderWindowUi.resize(700, 700)
         self.gridLayout = QtWidgets.QGridLayout(OrderWindowUi)
         self.gridLayout.setObjectName("gridLayout")
         self.tabWidget = QtWidgets.QTabWidget(OrderWindowUi)
@@ -1347,6 +1358,15 @@ class OrderWindowUi(object):
         # TODO Получение имени клиента
         self.guestlabel.setText(_translate("OrderWindowUi", "Гость"))
 
+        def update_comment():
+            global order_number
+
+            comment = self.lineEdit.text()
+            data = (comment, order_number)
+            query = "update orders set comments=%s where no_orders=%s;"
+            cursor.execute(query, data)
+            cnx.commit()
+
         def update_order():
             for item in new_items:
                 query = '''
@@ -1363,8 +1383,16 @@ class OrderWindowUi(object):
 
         self.createbutton.setEnabled(False)
         self.createbutton.clicked.connect(update_order)
+        self.lineEdit.textChanged.connect(update_comment)
 
-        query = "select distinct product_category from products"
+        query = "select comments from orders where no_orders = %s;"
+        data = (order_number,)
+        bcursor.execute(query, data)
+        for item in bcursor:
+            for value in item:
+                self.lineEdit.setText(str(value))
+
+        query = "select distinct product_category from products;"
         cursor.execute(query)
         for item in cursor:
             for value in item:
@@ -1657,7 +1685,6 @@ class GuestWindowUi(object):
                 self.scrollLayout.addWidget(button, i + 1, 1, 1, 1)
 
 
-
 class GuestWindow(QtWidgets.QDialog, GuestWindowUi):
     def __init__(self, parent=None):
         super(GuestWindow, self).__init__(parent)
@@ -1882,7 +1909,7 @@ if __name__ == "__main__":
     OrderTotalThread()
     total_timer = QTimer()
     total_timer.timeout.connect(OrderTotalThread)
-    total_timer.start(60000)
+    total_timer.start(10000)
 
     def CheckNotificationsThread():
         pass
