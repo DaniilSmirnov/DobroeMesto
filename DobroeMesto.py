@@ -949,9 +949,9 @@ class NewOrderWindowUi(object):
                 ccursor.execute(query, cdata)
                 for citem in ccursor:
                     for cvalue in citem:
-                        label = QtWidgets.QLabel(str(int(int(cvalue) - (int(cvalue) / 100 * percent))))
+                        label = QtWidgets.QLabel(str(int(int(cvalue) - (int(cvalue) / 100 * percent))) + "₽")
                         label.setObjectName("cost")
-                        self.gridLayout_3.addWidget(label.text() + "₽", i, 1, 1, 1)
+                        self.gridLayout_3.addWidget(label, i, 1, 1, 1)
                         total += cvalue
                         font = QtGui.QFont()
                         font.setPointSize(20)
