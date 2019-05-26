@@ -1,11 +1,10 @@
 import datetime
 import threading
+import webbrowser
 
 import mysql.connector
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QTimer
-from PySide2.QtCore import QUrl
-from PySide2.QtWebEngineWidgets import *
 
 d = datetime.datetime.today()  # время получается один раз при запуске программы, требует обновления перед записью
 
@@ -201,8 +200,7 @@ class MainWindow(object):
         # self.draw_orders()
 
     def openReserve(self):
-        w = ReserveWindow()
-        w.exec_()
+        webbrowser.open("vk.com")
 
     def openNotifications(self):
         w = NotificationsWindow()
@@ -226,7 +224,7 @@ class MainWindow(object):
 
         self.xbutton.setEnabled(False)
         self.adminbutton.setEnabled(False)
-        self.reservebutton.setEnabled(False)
+        # self.reservebutton.setEnabled(False)
         self.clientcashbutton.setEnabled(False)
 
         self.adminbutton.clicked.connect(self.openAdmin)
@@ -878,7 +876,6 @@ class NewOrderWindowUi(object):
         _translate = QtCore.QCoreApplication.translate
         NewOrderWindowUi.setWindowTitle(_translate("NewOrderWindowUi", "Новый заказ"))
         self.scanitembutton.setText(_translate("NewOrderWindowUi", "Сканировать товар"))
-        self.scanitembutton.clicked.connect(self.scanItem)
         self.OrderBox.setTitle(_translate("NewOrderWindowUi", "Заказ"))
         self.createbutton.setText(_translate("NewOrderWindowUi", "Создать "))
         self.scanbutton.setText(_translate("NewOrderWindowUi", "Сканировать карту гостя"))
@@ -908,7 +905,10 @@ class NewOrderWindowUi(object):
                         item_button.clicked.connect(lambda state, button=item_button: select_item(button))
 
         def select_item(button):
-            order.append(button.text())
+            try:
+                order.append(button.text())
+            except AttributeError:
+                order.append(button)
             draw_order()
 
         def draw_order():
@@ -999,12 +999,27 @@ class NewOrderWindowUi(object):
 
                 NewOrderWindowUi.accept()
 
-
         def pop_item(item):
             order.pop(order.index(item))
             draw_order()
 
+        def scanItem():
+
+            text, ok = QtWidgets.QInputDialog.getText(self, 'Сканируйте товар',
+                                                      'Код:')
+
+            if ok and text != "" and text != " ":
+                query = "select Products from products where Code = %s"
+                data = (text,)
+                cursor.execute(query, data)
+                for item in cursor:
+                    for value in item:
+                        value = str(value)
+                        select_item(value)
+
         self.createbutton.clicked.connect(create_order)
+        self.scanitembutton.clicked.connect(scanItem)
+
 
     def scanGuest(self):
 
@@ -1018,13 +1033,6 @@ class NewOrderWindowUi(object):
             w.exec_()
             guest_number = guest_number
 
-    def scanItem(self):
-
-        text, ok = QtWidgets.QInputDialog.getText(self, 'Сканируйте товар',
-                                                  'Код:')
-
-        if ok and text != "" and text != " ":
-            pass
 
 
 class NewOrderWindow(QtWidgets.QDialog, NewOrderWindowUi):
@@ -1444,7 +1452,10 @@ class OrderWindowUi(object):
                 self.gridLayout_3.addWidget(total_item, i, 0, 1, 1)
 
         def select_item(button):
-            new_items.append(button.text())
+            try:
+                new_items.append(button.text())
+            except AttributeError:
+                new_items.append(button)
 
             draw_order()
 
@@ -1498,6 +1509,20 @@ class OrderWindowUi(object):
             except ValueError:
                 Message.show(Message, "Инфо", "Невозможно удалить позицию внесенную ранее")
             draw_order()
+
+        def scanItem(self):
+            text, ok = QtWidgets.QInputDialog.getText(self, 'Сканируйте товар',
+                                                      'Код:')
+            if ok and text != "" and text != " ":
+                query = "select Products from products where Code = %s"
+                data = (text,)
+                cursor.execute(query, data)
+                for item in cursor:
+                    for value in item:
+                        value = str(value)
+                        select_item(value)
+
+        self.scanitembutton.clicked.connect(scanItem)
 
 
 class OrderWindow(QtWidgets.QDialog, OrderWindowUi):
@@ -1770,32 +1795,6 @@ class NotificationsWindowUi(object):
 class NotificationsWindow(QtWidgets.QDialog, NotificationsWindowUi):
     def __init__(self, parent=None):
         super(NotificationsWindow, self).__init__(parent)
-        self.setupUi(self)
-
-
-class ReserveWindowUi(object):
-    def setupUi(self, ReserveWindowUi):
-        ReserveWindowUi.setObjectName("ReserveWindowUi")
-        ReserveWindowUi.resize(665, 405)
-        self.verticalLayout = QtWidgets.QVBoxLayout(ReserveWindowUi)
-        self.verticalLayout.setObjectName("verticalLayout")
-
-        view = QWebEngineView()
-        view.load(QUrl("http://vk.com/"))
-
-        self.verticalLayout.addWidget(view)
-
-        self.retranslateUi(ReserveWindowUi)
-        QtCore.QMetaObject.connectSlotsByName(ReserveWindowUi)
-
-    def retranslateUi(self, ReserveWindowUi):
-        _translate = QtCore.QCoreApplication.translate
-        ReserveWindowUi.setWindowTitle(_translate("ReserveWindowUi", "Dialog"))
-
-
-class ReserveWindow(QtWidgets.QDialog, ReserveWindowUi):
-    def __init__(self, parent=None):
-        super(ReserveWindow, self).__init__(parent)
         self.setupUi(self)
 
 
