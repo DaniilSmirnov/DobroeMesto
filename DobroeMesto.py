@@ -246,7 +246,7 @@ class MainWindow(QtWidgets.QWidget):
         # BackgroundThread()
 
         self.xbutton.setEnabled(False)
-        self.adminbutton.setEnabled(False)
+        # self.adminbutton.setEnabled(False)
         # self.reservebutton.setEnabled(False)
         #self.clientcashbutton.setEnabled(False)
 
@@ -1983,7 +1983,7 @@ if __name__ == "__main__":
     app.setStyle("Fusion")
     Main = QtWidgets.QMainWindow()
     ui = MainWindow()
-    ui.setupUi()
+    ui.setupLoginUi()
     Main.show()
 
 
