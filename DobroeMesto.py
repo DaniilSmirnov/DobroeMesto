@@ -222,14 +222,13 @@ class MainWindow(QtWidgets.QWidget):
                         value = str(value)
 
                 query = "insert into orders values(default,now(),now(),%s,228,'account',%s,null);"
-                data = (amount, client)
+                data = (str(amount[0]), str(client[0]))
                 cursor.execute(query, data)
                 query = "insert into order_content values(%s,'Пополнение',default,now(),'Yes','account',%s);"
-                data = (value, amount)
+                data = (str(amount[0]), str(client[0]))
                 cursor.execute(query, data)
                 cnx.commit()
                 Message.show(Message, "Информация", "Счет пополнен")
-
 
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
