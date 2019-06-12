@@ -30,6 +30,7 @@ except BaseException as e:
     msgbox.setDetailedText(str(e))
     msgbox.exec()
 
+
 menu_items = []
 order_items = []
 order_totals = []
@@ -212,7 +213,6 @@ class MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         self.clientcashbutton.setText(_translate("Main", "Пополнение счета"))
         self.groupBox_2.setTitle(_translate("Main", "Информация"))
-        self.infolabel.setText(_translate("Main", "Время + дата"))
         self.groupBox.setTitle(_translate("Main", "Гости"))
         self.orderbutton.setText(_translate("Main", "Новый гость"))
         self.reservebutton.setText(_translate("Main", "Бронирование"))
@@ -221,6 +221,8 @@ class MainWindow(object):
         self.notificationbutton.setText(_translate("Main", "Уведомления"))
         self.xbutton.setText(_translate("Main", "Промежуточный отчет"))
         self.screenlockbutton.setText(_translate("Main", "Блокировка"))
+
+        BackgroundThread()
 
         self.xbutton.setEnabled(False)
         self.adminbutton.setEnabled(False)
@@ -412,6 +414,136 @@ class MainWindow(object):
                 value = str(value)
                 item_label = QtWidgets.QLabel(value)
                 orderslayout.addWidget(item_label)
+
+    def setupLoginUi(self):
+        Main.setObjectName("Main")
+        Main.resize(679, 357)
+        self.centralwidget = QtWidgets.QWidget(Main)
+        self.centralwidget.setObjectName("centralwidget")
+        self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
+        self.gridLayout.setObjectName("gridLayout")
+        self.label_2 = QtWidgets.QLabel(self.centralwidget)
+        self.label_2.setObjectName("label_2")
+        self.gridLayout.addWidget(self.label_2, 1, 0, 1, 1)
+        self.lineEdit = QtWidgets.QLineEdit(self.centralwidget)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.lineEdit.sizePolicy().hasHeightForWidth())
+        self.lineEdit.setSizePolicy(sizePolicy)
+        self.lineEdit.setObjectName("lineEdit")
+        self.gridLayout.addWidget(self.lineEdit, 1, 1, 1, 1)
+        self.label_3 = QtWidgets.QLabel(self.centralwidget)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.label_3.sizePolicy().hasHeightForWidth())
+        self.label_3.setSizePolicy(sizePolicy)
+        self.label_3.setObjectName("label_3")
+        self.gridLayout.addWidget(self.label_3, 2, 0, 1, 1)
+        self.lineEdit_2 = QtWidgets.QLineEdit(self.centralwidget)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.lineEdit_2.sizePolicy().hasHeightForWidth())
+        self.lineEdit_2.setSizePolicy(sizePolicy)
+        self.lineEdit_2.setObjectName("lineEdit_2")
+        self.gridLayout.addWidget(self.lineEdit_2, 2, 1, 1, 1)
+        self.pushButton = QtWidgets.QPushButton(self.centralwidget)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.pushButton.sizePolicy().hasHeightForWidth())
+        self.pushButton.setSizePolicy(sizePolicy)
+        self.pushButton.setObjectName("pushButton")
+        self.gridLayout.addWidget(self.pushButton, 2, 2, 1, 1)
+        self.label = QtWidgets.QLabel(self.centralwidget)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Maximum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.label.sizePolicy().hasHeightForWidth())
+        self.label.setSizePolicy(sizePolicy)
+        font = QtGui.QFont()
+        font.setPointSize(20)
+        font.setBold(True)
+        font.setWeight(75)
+        self.label.setFont(font)
+        self.label.setAlignment(QtCore.Qt.AlignCenter)
+        self.label.setObjectName("label")
+        self.gridLayout.addWidget(self.label, 0, 0, 1, 3)
+        Main.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(Main)
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 679, 21))
+        self.menubar.setObjectName("menubar")
+        Main.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(Main)
+        self.statusbar.setObjectName("statusbar")
+        Main.setStatusBar(self.statusbar)
+
+        self.retranslateLoginUi(Main)
+        QtCore.QMetaObject.connectSlotsByName(Main)
+
+    def retranslateLoginUi(self, Main):
+        _translate = QtCore.QCoreApplication.translate
+        Main.setWindowTitle(_translate("Main", "Main"))
+        self.label_2.setText(_translate("Main", "Номер карты"))
+        self.label_3.setText(_translate("Main", "Пароль"))
+        self.pushButton.setText(_translate("Main", "Войти"))
+        self.label.setText(_translate("Main", "Вход"))
+
+        self.lineEdit_2.setEchoMode(QtWidgets.QLineEdit.Password)
+
+        self.pushButton.clicked.connect(self.login)
+
+    def login(self):
+        if self.lineEdit.text() != " " and self.lineEdit_2.text() != " " and self.lineEdit.text() != "" and self.lineEdit_2.text() != "":
+            card = self.lineEdit.text()
+            password = self.lineEdit_2.text()
+
+            query = "select pass from users where Card_num = %s;"
+            data = (card,)
+            cursor.execute(query, data)
+
+            if cursor.rowcount == 0:
+                Message.show(Message, "Ошибка", "Проверьте правильность введеных данных")
+
+            for item in cursor:
+                for value in item:
+                    value = str(value)
+                    if value == password:
+                        self.openshift(card)
+                    else:
+                        Message.show(Message, "Ошибка", "Проверьте правильность введеных данных")
+        else:
+            Message.show(Message, "Ошибка", "Проверьте правильность введеных данных")
+
+    def openshift(self, card):
+        query = "select idshifts from shifts where shift_close_time is null && shift_open_time is not null into @l;"
+        cursor.execute(query)
+
+        query = "select if(@l is null,0,1);"
+        cursor.execute(query)
+
+        for item in cursor:
+            for value in item:
+                value = str(value)
+                if value == "0":
+
+                    query = "select idUsers from users where Card_num = %s;"
+                    data = (card,)
+                    cursor.execute(query, data)
+
+                    for item in cursor:
+                        for value in item:
+                            value = str(value)
+
+                    query = "insert into shifts values (default, now(), null, %s, null, null, null, default);"
+                    data = (value,)
+                    cursor.execute(query, data)
+                    cnx.commit()
+                    self.setupUi()
+                if value == "1":
+                    self.setupUi()
 
 
 class AdminWindowUi(object):
@@ -1032,7 +1164,6 @@ class NewOrderWindowUi(object):
             w = GuestWindow()
             w.exec_()
             guest_number = guest_number
-
 
 
 class NewOrderWindow(QtWidgets.QDialog, NewOrderWindowUi):
@@ -1829,7 +1960,7 @@ if __name__ == "__main__":
     app.setStyle("Fusion")
     Main = QtWidgets.QMainWindow()
     ui = MainWindow()
-    ui.setupUi()
+    ui.setupLoginUi()
     Main.show()
 
 
