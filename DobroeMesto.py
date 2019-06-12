@@ -45,7 +45,7 @@ isopen = False  # подгружать из базы
 guest_number = 1488
 
 
-class MainWindow(object):
+class MainWindow(QtWidgets.QWidget):
 
     def setupUi(self):
         Main.setObjectName("Main")
@@ -209,6 +209,28 @@ class MainWindow(object):
         my_thread.start()
         self.draw_orders()
 
+    def openclientcash(self):
+        client = QtWidgets.QInputDialog.getText(self, "Сканируйте карту гостя", "Карта")
+
+        if client != "" and client != " ":
+            amount = QtWidgets.QInputDialog.getText(self, "Введите сумму оплаты", "Сумма")
+            if amount != "" and amount != " ":
+                query = "select No_Orders from orders order by NO_Orders desc limit 1"
+                cursor.execute(query)
+                for item in cursor:
+                    for value in item:
+                        value = str(value)
+
+                query = "insert into orders values(default,now(),now(),%s,228,'account',%s,null);"
+                data = (amount, client)
+                cursor.execute(query, data)
+                query = "insert into order_content values(%s,'Пополнение',default,now(),'Yes','account',%s);"
+                data = (value, amount)
+                cursor.execute(query, data)
+                cnx.commit()
+                Message.show(Message, "Информация", "Счет пополнен")
+
+
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
         self.clientcashbutton.setText(_translate("Main", "Пополнение счета"))
@@ -222,17 +244,19 @@ class MainWindow(object):
         self.xbutton.setText(_translate("Main", "Промежуточный отчет"))
         self.screenlockbutton.setText(_translate("Main", "Блокировка"))
 
-        BackgroundThread()
+        # BackgroundThread()
 
         self.xbutton.setEnabled(False)
         self.adminbutton.setEnabled(False)
         # self.reservebutton.setEnabled(False)
-        self.clientcashbutton.setEnabled(False)
+        #self.clientcashbutton.setEnabled(False)
 
         self.adminbutton.clicked.connect(self.openAdmin)
         self.orderbutton.clicked.connect(self.openNewOrder)
         self.notificationbutton.clicked.connect(self.openNotifications)
         self.reservebutton.clicked.connect(self.openReserve)
+        self.clientcashbutton.clicked.connect(self.openclientcash)
+
         self.draw_orders()
 
         '''
@@ -1960,7 +1984,7 @@ if __name__ == "__main__":
     app.setStyle("Fusion")
     Main = QtWidgets.QMainWindow()
     ui = MainWindow()
-    ui.setupLoginUi()
+    ui.setupUi()
     Main.show()
 
 
