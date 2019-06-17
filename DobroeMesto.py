@@ -602,6 +602,7 @@ class AdminWindowUi(object):
     def setupAdminUi(self, AdminWindowUi):
         AdminWindowUi.setObjectName("AdminWindowUi")
         AdminWindowUi.showNormal()
+
         AdminWindowUi.setWindowTitle("Редактирование Базы Данных")
         self.gridLayout = QtWidgets.QGridLayout(AdminWindowUi)
         self.gridLayout.setObjectName("gridLayout")
@@ -739,15 +740,13 @@ class AdminWindowUi(object):
                     line_item = QtWidgets.QLabel(value)
                     self.gridLayout_3.addWidget(line_item, j, k, 1, 1)
 
-                but_item = QtWidgets.QPushButton("Удалить")
-                self.gridLayout_3.addWidget(but_item, j, 7, 1, 1)
-                but_item.clicked.connect(lambda state, row=id: delete(row, "client"))
-
                 k += 1
-                if k % 7 == 0:
-                    j += 1
-                    i += 1
-                    k = 0
+            but_item = QtWidgets.QPushButton("Удалить")
+            self.gridLayout_3.addWidget(but_item, j, 7, 1, 1)
+            but_item.clicked.connect(lambda state, row=id: delete(row, "client"))
+            j += 1
+            i += 1
+            k = 0
 
         line_item = QtWidgets.QLabel("Работники")
         self.gridLayout_3.addWidget(line_item, j, 0, 1, 1)
@@ -785,10 +784,9 @@ class AdminWindowUi(object):
                 line_item.textChanged.connect(lambda state, line=[line_item, value, id, k]: modify(line, "user"))
 
                 k += 1
-                if k % 5 == 0:
-                    j += 1
-                    i += 1
-                    k = 0
+            j += 1
+            i += 1
+            k = 0
 
         def modify(data, type):
             self.savebutton.clicked.connect(lambda: save(data, type))
