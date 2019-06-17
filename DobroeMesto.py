@@ -283,6 +283,8 @@ class MainWindow(QtWidgets.QWidget):
         self.clientcashbutton.clicked.connect(self.openclientcash)
         self.newclient.clicked.connect(self.addclient)
 
+        self.screenlockbutton.clicked.connect(self.setupLoginUi)
+
         self.draw_orders()
 
         '''
