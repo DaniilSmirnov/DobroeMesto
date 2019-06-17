@@ -171,6 +171,10 @@ class MainWindow(QtWidgets.QWidget):
         self.xbutton.setFont(font)
         self.xbutton.setObjectName("xbutton")
         self.gridLayout.addWidget(self.xbutton, 4, 3, 1, 1)
+
+        self.newclient = QtWidgets.QPushButton()
+        self.gridLayout.addWidget(self.newclient, 5, 3, 1, 1)
+
         self.screenlockbutton = QtWidgets.QPushButton(self.centralwidget)
         self.screenlockbutton.setObjectName("screenlockbutton")
         self.gridLayout.addWidget(self.screenlockbutton, 6, 3, 1, 1)
@@ -212,36 +216,58 @@ class MainWindow(QtWidgets.QWidget):
     def openclientcash(self):
         client = QtWidgets.QInputDialog.getText(self, "Сканируйте карту гостя", "Карта")
 
-        if client != "" and client != " ":
-            amount = QtWidgets.QInputDialog.getText(self, "Введите сумму оплаты", "Сумма")
-            if amount != "" and amount != " ":
-                query = "insert into orders values(default,now(),now(),%s,228,'account',%s,null);"
-                data = (str(amount[0]), str(client[0]))
-                cursor.execute(query, data)
-                cnx.commit()
-                query = "select No_Orders from orders order by NO_Orders desc limit 1"
-                cursor.execute(query)
-                for item in cursor:
-                    for value in item:
-                        value = str(value)
-                query = "insert into order_content values(%s,'Пополнение',default,now(),'Yes','account',%s);"
-                data = (value, str(client[0]))
-                cursor.execute(query, data)
-                cnx.commit()
-                Message.show(Message, "Информация", "Счет пополнен")
+        try:
+            if client != "" and client != " ":
+                amount = QtWidgets.QInputDialog.getText(self, "Введите сумму оплаты", "Сумма")
+                if amount != "" and amount != " ":
+                    query = "insert into orders values(default,now(),now(),%s,228,'account',%s,null);"
+                    data = (str(amount[0]), str(client[0]))
+                    cursor.execute(query, data)
+                    cnx.commit()
+                    query = "select No_Orders from orders order by NO_Orders desc limit 1"
+                    cursor.execute(query)
+                    for item in cursor:
+                        for value in item:
+                            value = str(value)
+                    query = "insert into order_content values(%s,'Пополнение',default,now(),'Yes','account',%s);"
+                    data = (value, str(client[0]))
+                    cursor.execute(query, data)
+                    cnx.commit()
+                    Message.show(Message, "Информация", "Счет пополнен")
+        except BaseException:
+            return 0
+
+    def addclient(self):
+        client = QtWidgets.QInputDialog.getText(self, "Сканируйте новую карту", "Карта")
+
+        try:
+            if client != "" and client != " ":
+                amount = QtWidgets.QInputDialog.getText(self, "Введите имя", "Имя")
+                if amount != "" and amount != " ":
+                    query = "insert into clients (id_client, Name, Card_Num_client) values (default, %s, %s);"
+                    data = (str(amount[0]), str(client[0]))
+                    cursor.execute(query, data)
+                    cnx.commit()
+                    Message.show(Message, "Гость добавлен",
+                                 "Для добавления остальных данных из анкеты, передайте анкету менеджеру")
+        except BaseException as e:
+            print(e)
+            return 0
 
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
         self.clientcashbutton.setText(_translate("Main", "Пополнение счета"))
         self.groupBox_2.setTitle(_translate("Main", "Информация"))
         self.groupBox.setTitle(_translate("Main", "Гости"))
-        self.orderbutton.setText(_translate("Main", "Новый гость"))
+        self.orderbutton.setText(_translate("Main", "Новый посетитель"))
         self.reservebutton.setText(_translate("Main", "Бронирование"))
         self.closedaybutton.setText(_translate("Main", "Закрытие смены"))
         self.adminbutton.setText(_translate("Main", "Редактирование Базы"))
         self.notificationbutton.setText(_translate("Main", "Уведомления"))
         self.xbutton.setText(_translate("Main", "Промежуточный отчет"))
         self.screenlockbutton.setText(_translate("Main", "Блокировка"))
+
+        self.newclient.setText("Регистрация гостя")
 
         # BackgroundThread()
 
@@ -255,6 +281,7 @@ class MainWindow(QtWidgets.QWidget):
         self.notificationbutton.clicked.connect(self.openNotifications)
         self.reservebutton.clicked.connect(self.openReserve)
         self.clientcashbutton.clicked.connect(self.openclientcash)
+        self.newclient.clicked.connect(self.addclient)
 
         self.draw_orders()
 
@@ -1983,7 +2010,7 @@ if __name__ == "__main__":
     app.setStyle("Fusion")
     Main = QtWidgets.QMainWindow()
     ui = MainWindow()
-    ui.setupLoginUi()
+    ui.setupUi()
     Main.show()
 
 
