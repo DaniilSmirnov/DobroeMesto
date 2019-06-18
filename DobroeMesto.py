@@ -316,7 +316,6 @@ class MainWindow(QtWidgets.QWidget):
                     self.xbutton.setEnabled(True)
                     self.closedaybutton.setEnabled(True)
 
-
     def draw_orders(self):
 
         def create_icon(path):
