@@ -2042,7 +2042,7 @@ if __name__ == "__main__":
     app.setStyle("Fusion")
     Main = QtWidgets.QMainWindow()
     ui = MainWindow()
-    ui.setupUi()
+    ui.setupLoginUi()
     Main.show()
 
 
