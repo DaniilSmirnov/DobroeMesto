@@ -276,7 +276,7 @@ class MainWindow(QtWidgets.QWidget):
         self.adminbutton.setText(_translate("Main", "Редактирование Базы"))
         self.notificationbutton.setText(_translate("Main", "Уведомления"))
         self.xbutton.setText(_translate("Main", "Промежуточный отчет"))
-        self.screenlockbutton.setText(_translate("Main", "Блокировка"))
+        self.screenlockbutton.setText(_translate("Main", "Выйти из аккаунта"))
 
         self.newclient.setText("Регистрация гостя")
 
@@ -1381,6 +1381,7 @@ class PaymentWindowUi(object):
             i += 1
 
         def part_pay(item):
+            self.value = 0
             if item[1].isChecked():
                 if (item[3]) not in self.no_s:
                     self.part.append(item[0])
@@ -1594,6 +1595,49 @@ class OrderWindowUi(object):
                 data = (order_number, item, order_number, item)
                 cursor.execute(query, data)
                 cnx.commit()
+
+            try:
+                special_cursor = ccursor
+
+                special_cursor.execute(
+                    "select no from order_content,products where paid='No' && content=products && product_category='Тарифы';")
+
+                data = []
+
+                for item in special_cursor:
+                    for value in item:
+                        data.append(value)
+
+                for value in data:
+                    data = (str(value),)
+                    query = "select round((price/60) * (UNIX_TIMESTAMP(now()) - UNIX_TIMESTAMP(times))/60) from order_content where no=%s into @j;"
+                    special_cursor.execute(query, data)
+                    query = "select stop_check from products,order_content where products=content && no=%s into @f;"
+                    special_cursor.execute(query, data)
+                    query = "update order_content set price=(if(@j<price,price,if(@j>@f,@f,@j))) where no=%s;"
+                    special_cursor.execute(query, data)
+                    cnx.commit()
+
+            except EnvironmentError as e:
+                print(e)
+                pass
+
+            try:
+
+                special_cursor = bcursor
+
+                for no in order_no:
+                    data = (no, no)
+                    query = 'update orders set total=(select sum(price) from order_content where id_order=%s && paid="no") where no_orders=%s ;'
+                    special_cursor.execute(query, data)
+
+                    cnx.commit()
+
+                ui.draw_orders()
+
+            except BaseException as e:
+                print(str(e))
+                pass
 
             OrderWindowUi.accept()
 
@@ -1981,7 +2025,7 @@ class NotificationsWindowUi(object):
                         j += 1
                         id = value
                         continue
-                    if j == 3:
+                    if j == 4:
                         value = str(list(value)[0])
                         self.gridLayout_2.addWidget(QtWidgets.QLabel(value), i, j - 1, 1, 1)
                         j += 1
@@ -2042,7 +2086,7 @@ if __name__ == "__main__":
     app.setStyle("Fusion")
     Main = QtWidgets.QMainWindow()
     ui = MainWindow()
-    ui.setupLoginUi()
+    ui.setupUi()
     Main.show()
 
 
