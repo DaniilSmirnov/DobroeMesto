@@ -43,6 +43,7 @@ items = []
 isopen = False  # подгружать из базы
 
 guest_number = 1488
+id_user = 0
 
 
 class MainWindow(QtWidgets.QWidget):
@@ -254,6 +255,16 @@ class MainWindow(QtWidgets.QWidget):
             print(e)
             return 0
 
+    def closeday(self):
+
+        msgbox = QtWidgets.QMessageBox()
+        msgbox.setWindowTitle("Чековый принтер не подключен")
+        msgbox.setWindowIcon(QtGui.QIcon(QtGui.QPixmap('icons/x.png')))
+        msgbox.setText('Проверьте подключение к чековому принтеру')
+        msgbox.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
+        # msgbox.setDetailedText(str(e))
+        msgbox.exec()
+
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
         self.clientcashbutton.setText(_translate("Main", "Пополнение счета"))
@@ -271,10 +282,6 @@ class MainWindow(QtWidgets.QWidget):
 
         # BackgroundThread()
 
-        self.xbutton.setEnabled(False)
-        # self.adminbutton.setEnabled(False)
-        # self.reservebutton.setEnabled(False)
-        #self.clientcashbutton.setEnabled(False)
 
         self.adminbutton.clicked.connect(self.openAdmin)
         self.orderbutton.clicked.connect(self.openNewOrder)
@@ -282,25 +289,33 @@ class MainWindow(QtWidgets.QWidget):
         self.reservebutton.clicked.connect(self.openReserve)
         self.clientcashbutton.clicked.connect(self.openclientcash)
         self.newclient.clicked.connect(self.addclient)
+        self.closedaybutton.clicked.connect(self.closeday)
+        self.xbutton.clicked.connect(self.printX)
+
+        self.adminbutton.setEnabled(False)
+        self.xbutton.setEnabled(False)
+        self.closedaybutton.setEnabled(False)
 
         self.screenlockbutton.clicked.connect(self.setupLoginUi)
 
         self.draw_orders()
 
-        '''
+        global id_user
+
         query = "select User_lvl from users where idUsers = %s"
-        cursor.execute(query, (iduser, ))
+        cursor.execute(query, (id_user,))
 
         for item in cursor:
             for value in item:
                 if int(value) == 1:
                     pass
                 if int(value) == 2:
-                    pass
+                    self.adminbutton.setEnabled(True)
                 if int(value) == 3:
-                    self.closedordersbutton.setEnabled(True)
-                    self.modifydatabutton.setEnabled(True)
-        '''
+                    self.adminbutton.setEnabled(True)
+                    self.xbutton.setEnabled(True)
+                    self.closedaybutton.setEnabled(True)
+
 
     def draw_orders(self):
 
@@ -412,6 +427,16 @@ class MainWindow(QtWidgets.QWidget):
             self.draw_orders()
 
     def printX(self):
+
+        msgbox = QtWidgets.QMessageBox()
+        msgbox.setWindowTitle("Чековый принтер не подключен")
+        msgbox.setWindowIcon(QtGui.QIcon(QtGui.QPixmap('icons/x.png')))
+        msgbox.setText('Проверьте подключение к чековому принтеру')
+        msgbox.setTextInteractionFlags(QtCore.Qt.NoTextInteraction)
+        # msgbox.setDetailedText(str(e))
+        msgbox.exec()
+
+        '''
         query = "select sum(total) from orders;"
         cursor.execute(query)
 
@@ -420,6 +445,7 @@ class MainWindow(QtWidgets.QWidget):
         cursor.execute(query, data)
         data = ("Card",)
         cursor.execute(query, data)
+        '''
 
     def setupClosedOrdersUi(self):
         Main.setObjectName("Main")
@@ -588,6 +614,8 @@ class MainWindow(QtWidgets.QWidget):
                     for item in cursor:
                         for value in item:
                             value = str(value)
+                            global id_user
+                            id_user = value
 
                     query = "insert into shifts values (default, now(), null, %s, null, null, null, default);"
                     data = (value,)
@@ -1953,6 +1981,11 @@ class NotificationsWindowUi(object):
                     if j == 0:
                         j += 1
                         id = value
+                        continue
+                    if j == 3:
+                        value = str(list(value)[0])
+                        self.gridLayout_2.addWidget(QtWidgets.QLabel(value), i, j - 1, 1, 1)
+                        j += 1
                         continue
                     value = str(value)
                     self.gridLayout_2.addWidget(QtWidgets.QLabel(value), i, j - 1, 1, 1)
